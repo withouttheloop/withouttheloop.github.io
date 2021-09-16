@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Ten Lessons From a Large IoT Project - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Ten Lessons From a Large IoT Project</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="wc.jpg"/></p>
+<p><strong>Lesson 1</strong>: Big data tools don’t solve the intractable problems of distributed system. They leak complexity to the&nbsp;consumer.</p>
+<p><strong>Lesson 2</strong>: Peak performance often relies on even distribution across partitions. Hashing keys can help. Try&nbsp;<span class="caps">SHA256</span>.</p>
+<p><strong>Lesson 3</strong>: To prevent <span class="caps">DOS</span> attacks public cloud components like Event Hub throw exceptions if you exceed quotas. The client must take responsibility for&nbsp;throttling.</p>
+<p><strong>Lesson 4</strong>: <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-create-web-jobs/">Azure web jobs are brilliant</a>. They provide a way to run a console application as a reliable service that can be scaled horizontally. Web jobs are simple and they&nbsp;work.</p>
+<p><strong>Lesson 5</strong>: <a href="https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying">Distributed logs are a useful data structure for distributed systems</a>.</p>
+<p><strong>Lesson 6</strong>: To understand what is happening in a system you need centralised logging with a correlation&nbsp;scheme.  </p>
+<p><strong>Lesson 7</strong>: As metrics get larger we lose the ability to reason about them. 50/500/5000/50000 requests/s are very different. Those differences&nbsp;matter.</p>
+<p><strong>Lesson 8</strong>: Very large datasets (<span class="caps">PB</span>) drastically reduce data storage&nbsp;options.</p>
+<p><strong>Lesson 9</strong>: Consistency in the absence of transactions is hard. You will have to think about&nbsp;it.</p>
+<p><strong>Lesson 10</strong>: All actions must be idempotent. Work in batches. If an error occurs during a batch the idempotency allows the batch to be&nbsp;replayed.</p>
+<p><strong>Lesson 11</strong>: Tuning batch size substantially affects performance. Large batches and low error rates are the sweet spot. Higher error rates require smaller&nbsp;batches.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

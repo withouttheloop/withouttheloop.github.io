@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Redux in React and Angular 2 - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Redux in React and Angular 2</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Earlier this month I presented at <a href="http://dddbrisbane.com/">dddbrisbane</a> about simplifying <span class="caps">UI</span> programming and I included the simplest React + Redux application I could come up&nbsp;with.</p>
+<h1 id="the-simplest-react-redux-application-i-could-come-up-with">The simplest React + Redux application I could come up&nbsp;with</h1>
+<p>It displays a random number. Clicking the text generates a new random number. Toggle the <code>Result</code> button to see the code more&nbsp;easily. </p>
+<p><p data-height="265" data-theme-id="0" data-slug-hash="xRrzXO" data-default-tab="js,result" data-user="liammclennan" data-embed-version="2" data-pen-title="FknRooowwwmmm" class="codepen">See the Pen <a href="http://codepen.io/liammclennan/pen/xRrzXO/">FknRooowwwmmm</a> by Liam McLennan (<a href="http://codepen.io/liammclennan">@liammclennan</a>) on <a href="http://codepen.io">CodePen</a>.</p></p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+<p>It uses the <a href="https://facebook.github.io/react/docs/components-and-props.html">React function component syntax</a> to define the component as a function from <span class="caps">UI</span> state (<code>props</code>) to <span class="caps">HTML</span> (a H1&nbsp;tag).</p>
+<pre><code class="lang-js"><span class="function"><span class="keyword">function</span> <span class="title">HelloNumber</span><span class="params">(props)</span> {</span>
+  <span class="function"><span class="keyword">function</span> <span class="title">handleClick</span><span class="params">(e)</span> {</span>
+    store.dispatch({type:<span class="string">'MAKE_A_NEW_NUMBER'</span>});
+  }
+  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">h1</span> <span class="attribute">onClick</span>=<span class="value">{handleClick}</span>&gt;</span>A random number {props.number}<span class="tag">&lt;/<span class="title">h1</span>&gt;</span>;</span>
+}
+</code></pre>
+<p>The <code>onClick</code> handler dispatches a <code>MAKE_A_NEW_NUMBER</code> action to the redux&nbsp;store. </p>
+<p>The <span class="caps">UI</span> state for the application is an object with a property <code>number</code>:</p>
+<pre><code class="lang-js">{ number: <span class="built_in">Math</span>.random() }
+</code></pre>
+<p>The <a href="http://redux.js.org/docs/basics/Reducers.html">redux reducer</a> (function responsibile for applying actions to the state to make a new state) handles the <code>MAKE_A_NEW_NUMBER</code> number by setting it to a new random&nbsp;number. </p>
+<pre><code class="lang-js">let store = Redux.createStore(function (state = { number: Math.random() }, action) {
+  switch (action.type) {
+    case &#39;MAKE_A_NEW_NUMBER&#39;:
+      return Object.assign({},state, {number:Math.random()});
+    default: return state;
+  }
+});
+</code></pre>
+<p>Now dispatching an application has updated the state, but we still need to have state changes trigger the <span class="caps">UI</span> to update, which is done via the <code>subscribe</code> method:</p>
+<pre><code class="lang-js">store.subscribe(()=&gt;{
+  ReactDOM.render(
+    <span class="xml"><span class="tag">&lt;<span class="title">HelloNumber</span> <span class="attribute">number</span>=<span class="value">{store.getState().number}</span>  /&gt;</span>, 
+    document.getElementById('container')
+  );
+});</span>
+</code></pre>
+<p>and finally prime the whole thing by an initial&nbsp;dispatch</p>
+<pre><code class="lang-js">store.dispatch({type:<span class="string">'MAKE_A_NEW_NUMBER'</span>});
+</code></pre>
+<p>This is not strictly necessary but it is an easy way to trigger the <code>subscribe</code> callback and cause the initial&nbsp;render. </p>
+<h1 id="the-simplest-angular-2-redux-application-i-could-come-up-with">The simplest Angular 2 + Redux application I could come up&nbsp;with</h1>
+<p>What would the equivalent Angular 2 application look&nbsp;like?</p>
+<p>I couldn’t find a simple way to develop an Angular 2 application in Codepen or similar so instead I worked locally, starting with the <a href="https://angular.io/docs/ts/latest/quickstart.html">Angular 2 Quickstart</a>. </p>
+<p>To reproduce the random number display functionality in Angular 2 I found that I needed a component hierarchy (parent +&nbsp;child). </p>
+<p>The child component contains the header and dispatches a <code>NEW_RANDOM_NUMBER</code> action when clicked, just like the React component. Two values are passed into the child component, from the parent, via <code>@Input()</code> decorators: the application state (<code>appState</code>) and the redux store dispatch function (<code>dispatch</code>).  </p>
+<pre><code class="lang-js">import { Component,Input } from '@angular/core';
+
+@Component({
+  selector: 'my-child',
+  template: `&lt;h1 (click)="onClickMe()"&gt;A random number {{appState.number}}&lt;/h1&gt;`,
+})
+export class ChildComponent  { 
+    @Input() appState:any;
+    @Input() dispatch: (action:any) =&gt; void;
+
+    onClickMe() {
+        this.dispatch({type:'NEW_RANDOM_NUMBER'});
+    }
+ }
+</code></pre>
+<p>The parent component (<code>AppComponent</code>) creates  the redux store, using the same reducer as the React version. The <span class="caps">UI</span> state is copied to a local field (<code>appState</code>) and updated whenever the store’s state changes. The <code>appState</code> and redux <code>dispatch</code> function are bound to the child component (<code>&lt;my-child/&gt;</code>). </p>
+<pre><code class="lang-js">import { Component,Input } from <span class="string">'@angular/core'</span>;
+import { ChildComponent } from <span class="string">'./child.component'</span>;
+import { createStore } from <span class="string">'redux'</span>
+
+interface HasANumber {
+  number: number;
+}
+interface Action {
+  type: string;
+}
+
+@Component({
+  selector: <span class="string">'my-app'</span>,
+  template: `&lt;my-child [appState]=<span class="string">"appState"</span> [dispatch]=<span class="string">"store.dispatch"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="title">my-child</span>&gt;</span>`
+})
+export class AppComponent  { 
+  store = createStore<span class="tag">&lt;<span class="title">HasANumber</span>&gt;</span>(function (state = {number:Math.random()}, action:Action) {
+    switch (action.type) {
+      case "NEW_RANDOM_NUMBER": 
+        return {number:Math.random()};
+      default: return state;
+    }
+  });
+  appState = this.store.getState();
+
+  constructor() {
+    this.store.subscribe(()=&gt; {
+      this.appState = this.store.getState();      
+    });
+  }
+}</span>
+</code></pre>
+<h1 id="final-thoughts">Final&nbsp;Thoughts</h1>
+<p>Having Typescript easily available in Angular 2 was nice. Further, I found that Angular 2 is at its best when imitating my very strict React style. Both frameworks work well with Redux and the uni-directional data flow&nbsp;idea. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

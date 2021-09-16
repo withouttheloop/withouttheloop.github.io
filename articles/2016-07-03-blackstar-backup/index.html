@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Blackstar CMS Backup - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Blackstar CMS Backup</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>One of the most requested features for Blackstar <span class="caps">CMS</span> has been backup. Blackstar is an operational system so backup is important to maximise uptime and minimize data&nbsp;loss. </p>
+<h1 id="strategy">Strategy</h1>
+<p>Blackstar stores all its data in a Sqlite database specifically to facilitate a simple backup process. We can get a complete backup simply by backing up the&nbsp;database. </p>
+<p>Of course you can manually backup the database yourself, but Blackstar <span class="caps">CMS</span> will do it for you&nbsp;automatically. </p>
+<p>Blackstar’s backup process&nbsp;is:</p>
+<ul>
+<li>on a schedule (every 10 minutes by default) the database is exclusively locked for the backup&nbsp;process</li>
+<li>if the databse has changed since the last backup then<ul>
+<li>copy the file to a backup&nbsp;location </li>
+</ul>
+</li>
+<li>release the lock so the application can continue&nbsp;running</li>
+</ul>
+<p>It is necessary to lock the database so that the copy doesn’t cause corruption. On a test database (<span class="caps">1MB</span>) the backup requires the database to be locked for 6ms, so the performance degredation is&nbsp;manageable. </p>
+<h1 id="implementation-in-node-js">Implementation in&nbsp;Node.js</h1>
+<p>The single threaded nature of node.js helps to make these sort of concurrent processes easy. When Blackstar starts it registers a callback on the backup&nbsp;frequency:</p>
+<pre><code class="lang-javascript">setInterval(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="comment">// do backup</span>
+}, <span class="number">10</span> * <span class="number">60</span> * <span class="number">1000</span> <span class="comment">/* 10 minutes */</span>);
+</code></pre>
+<p>To ensure a consistent backup the database needs to be locked for writes (reads are still <span class="caps">OK</span>). We can lock a sqlite database for writes using the <code>BEGIN IMMEDIATE</code> command. If an error occurs while the database is locked we still want to ensure the lock is released, so the process is wrapped in <code>try {} finally {}</code>.</p>
+<pre><code class="lang-javascript"><span class="keyword">try</span> {
+    db.run(<span class="string">"<span class="caps">BEGIN</span> IMMEDIATE"</span>);
+    <span class="comment">// do things with an exclusive write lock</span>
+} <span class="keyword">finally</span> {
+    db.run(<span class="string">"<span class="caps">COMMIT</span>"</span>);
+}
+</code></pre>
+<p>The whole thing is done synchronously, since we are blocking the server anyway. The file hash is calculated using node’s <code>crypto</code> module, which delegates to&nbsp;OpenSSL.</p>
+<pre><code class="lang-javascript">export <span class="function"><span class="keyword">function</span> <span class="title">calculateHash</span><span class="params">(data:Buffer)</span> : <span class="title">string</span> {</span>
+    <span class="keyword">const</span> hash = Crypto.createHash(<span class="string">'sha256'</span>);
+    hash.update(data);
+    <span class="keyword">return</span> hash.digest(<span class="string">'hex'</span>);
+}
+</code></pre>
+<p>If the hash of the current database is different since the last time the backup function ran then the database is copied to the backup&nbsp;destination.</p>
+<h1 id="summary">Summary</h1>
+<p>The backup solution described above will be sufficient for most scenarios. For anything else it is easy enough to build your own backup process using a variation on the same technique (lock the database, take a copy, unlock the database). The <a href="https://www.sqlite.org/backup.html">sqlite online backup <span class="caps">API</span></a> provides some&nbsp;options. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

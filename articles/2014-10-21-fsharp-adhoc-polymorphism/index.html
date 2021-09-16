@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Ad-hoc Polymorphism in F# (how to survive without Type Classes) - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Ad-hoc Polymorphism in F# (how to survive without Type Classes)</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>A recurring source of confusion for me when reading about and writing F# has been ad-hoc polymorphism, and it seems that I am not the only&nbsp;one:</p>
+<p><blockquote>
+“F# does not have support for type-classes, or for multi-methods, or anything in between and while you can do certain tricks to achieve such an effect, like passing around a global virtual table, truth is F#’s ad-hoc polymorphic capabilities really suck.”
+</blockquote>
+<a href="http://martinsprogrammingblog.blogspot.com.au/2012/10/the-future-of-net-lies-in-mono-future.html">Martin&nbsp;Trojer</a></p>
+<p><a href="http://en.wikipedia.org/wiki/Ad_hoc_polymorphism">Ad-hoc polymorphism</a> is the programming language feature that allows a function to work with arguments of varying types. The example given by wikipedia&nbsp;is:</p>
+<pre><code>1 + 2 = 3
+3.14 + 0.0015 = 3.1415
+</code></pre><p>The first line shows the addition of two integers. The second line shows the addition of two floating point numbers. For this to work the <code>(+)</code> operator must be a function that can operate on both integers and floats. This is an example of ad-hoc polymorphism. F#’s predecessor OCaml has almost no support for ad-hoc polymorphism, so the previous <code>(+)</code> example does not work in OCaml. <code>+, -, / and *</code> only work for integers and you need <code>+., -., /. and *.</code>     for floating point&nbsp;operations. </p>
+<h2 id="where-f-becomes-difficult">Where F# Becomes&nbsp;Difficult</h2>
+<p>Consider the following example (borrowed from <a href="http://blog.lab49.com/archives/2895">http://blog.lab49.com/archives/2895</a>):</p>
+<pre><code>// this does not work :( 
+// (expression was expected to have type 
+// float but here has type int)
+let twice x = x + x
+
+twice 2.0 |&gt; Console.WriteLine
+twice 2 |&gt; Console.WriteLine
+</code></pre><p>This code fails because the x parameter of the twice function is inferred to be of type <code>float</code>, because that is the type of the argument the first time that it is called. Type inference lets us get away with not explicitly specifying a type, but it still has to assign a single type. In this case it chooses float, so when the function is applied to an integer we get a compilation&nbsp;error. </p>
+<p>In F# the twice function above can fixed by means of the <code>inline</code> modifier. </p>
+<pre><code>// this version works!
+let inline twice x = x + x
+
+twice 2.0 |&gt; Console.WriteLine
+twice 2 |&gt; Console.WriteLine
+</code></pre><p>Each call to the inline function is replaced by inline code with its own type inference, thus the compiler effectively converts the above&nbsp;to:</p>
+<pre><code>(fun (x:float) -&gt; x + x)(2.0) |&gt; Console.WriteLine
+(fun (x:int) -&gt; x + x)(2) |&gt; Console.WriteLine
+</code></pre><p>This is rather nice because we get the explicit type correctness of having no runtime type coercion, but without having to manually provide implementations for each type. In this way it is superior even to <a href="http://www.haskell.org/tutorial/classes.html">Haskell’s lauded type class feature</a>. </p>
+<h2 id="a-more-realistic-example">A More Realistic&nbsp;Example</h2>
+<p>Imagine you want to define a function <code>show</code> that converts a value of type <code>A</code> or <code>B</code> to a string representation. My first attempt&nbsp;was:</p>
+<pre><code>type A = { thing: int }
+type B = { label: string }
+
+let show (a:A) =
+    sprintf &quot;%A&quot; a
+
+let show (b:B) =
+    sprintf &quot;%A&quot; b
+
+{ thing = 98 } |&gt; show |&gt; Console.WriteLine
+</code></pre><p>This is not allowed. F# does not allow you to overload the <code>show</code> function in this&nbsp;way.</p>
+<h2 id="how-about-using-an-interface-">How About Using an&nbsp;Interface?</h2>
+<p>Often the requirement for ad-hoc polymorphism can be achieved by using interfaces. F# programmers often talk about using a ‘dictionary of operations’ which is essentially the same&nbsp;thing.</p>
+<p>The example above&nbsp;becomes:</p>
+<pre><code>type IShow =
+    abstract member show : unit -&gt; string
+
+type A =
+    { thing: int }
+    interface IShow with
+        member this.show() = sprintf &quot;%A&quot; this
+type B =
+    { label: string }
+    interface IShow with
+        member this.show() = sprintf &quot;%A&quot; this
+
+let show (x:IShow) =
+    x.show()
+
+{ thing = 98 } |&gt; show |&gt; Console.WriteLine
+{ label = &quot;Car&quot; } |&gt; show |&gt; Console.WriteLine
+</code></pre><p>This is <span class="caps">OK</span>, but a little clumsy. There are also some restrictions on implementing interfaces that may occassionally make this solution&nbsp;infeasible. </p>
+<p>F# allows type coercion to an interface for function arguments so we avoid having to explicitly upcast values to IShow (<code>({ thing =98 } :&gt; IShow).show()</code>). </p>
+<h2 id="solution-using-static-member-overloading">Solution Using Static Member&nbsp;Overloading</h2>
+<p>My favourite solution, at least so far, is to use static member overloading. This takes advantage of the fact that while top-level functions cannot be overloaded functions on types&nbsp;can.</p>
+<pre><code>type A = { thing: int }
+type B = { label: string }
+
+type ThingThatShows =
+    static member show(x:A) = sprintf &quot;%A&quot; x
+    static member show(x:B) = sprintf &quot;%A&quot; x
+
+{ thing = 98 } |&gt; ThingThatShows.show |&gt; Console.WriteLine
+{ label = &quot;Car&quot; } |&gt; ThingThatShows.show |&gt; Console.WriteLine
+</code></pre><p>This nice part about this is that I am able to define two versions of <code>ThingThatShows.show</code>, one for type <code>A</code> and one for type <code>B</code>. The correct function is then applied based upon the type of the&nbsp;argument.</p>
+<h2 id="solution-using-statically-resolved-type-constraints">Solution Using Statically Resolved Type&nbsp;Constraints</h2>
+<p>F# has a somewhat unusual feature - statically resolved generic types - and these can be used in combination with member constraints and inline functions to implement ad-hoc&nbsp;polymorphism. </p>
+<pre><code>type A = { thing: int }
+    with static member show a = sprintf &quot;%A&quot; a
+type B = { label: string }
+    with static member show b = sprintf &quot;%A&quot; b
+
+let inline show (x:^t) =
+    (^t: (static member show: ^t -&gt; string) (x))
+
+{ thing = 98 } |&gt; show |&gt; Console.WriteLine
+{ label = &quot;Car&quot; } |&gt; show |&gt; Console.WriteLine
+</code></pre><p>This is a lot like the solution using interfaces&nbsp;except:</p>
+<ul>
+<li>I did not have to define an&nbsp;interface.</li>
+<li>I did not have to explicitly implement the interface&nbsp;members.</li>
+</ul>
+<h2 id="what-does-this-look-like-in-fancy-pants-haskell-">What Does This Look Like in Fancy-pants&nbsp;Haskell?</h2>
+<p>Haskell does not have this ad-hoc polymorphism problem. It is obvious in Haskell that Type Classes are the correct solution to this challenge. The example repeated above when converted to a Type Class based Haskell solution&nbsp;is:</p>
+<pre><code>-- define a type class for types
+-- that can be shown
+class Showable a where
+    shw :: a -&gt; String
+
+data A = A String
+data B = B Int
+
+-- add the types A and B 
+-- to the Showable type class
+
+instance Showable A where
+    shw (A s) = s
+
+instance Showable B where
+    shw (B i) = show i
+
+putStrLn (shw (A &quot;Car&quot;))
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

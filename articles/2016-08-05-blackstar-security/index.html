@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Blackstar CMS Security - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Blackstar CMS Security</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Previously, I demonstrated <a href="/articles/2016-07-04-blackstar-ssl/">how to configure Blackstar <span class="caps">CMS</span> to use SSL/TLS to secure connections</a>. This post will describe the other security features of Blackstar <span class="caps">CMS</span>, principally authentication and&nbsp;authorization. </p>
+<h1 id="security-settings">Security&nbsp;Settings</h1>
+<p>The admin application has settings for controlling access to Blackstar&nbsp;<span class="caps">CMS</span>. </p>
+<p><img src="/articles/2016-08-05-blackstar-security/settings.png" alt="Settings"></p>
+<p>Access is restricted in two categories: editing and reading. For each category you can specify who has permission: everyone, all authenticated users, or a specific set of authenticated&nbsp;users. </p>
+<p>The above configuration restricts access to the admin application, and all editing functions, to the users <code>Liam</code> and <code>Anne-Marie</code>. Reading content via the <span class="caps">API</span> is open to everyone and does not require authentication. Many scenarios will use a similar setting - editing is restricted, reading is&nbsp;not.</p>
+<p>Where authentication is required, clients require an <span class="caps">API</span> key. The admin application has an API / Keys page where API keys can be&nbsp;created.</p>
+<p><img src="/articles/2016-08-05-blackstar-security/api.png" alt="API / Keys Page"></p>
+<p>Keys are given a name to help you remember what they are for. You should create one key per channel that accesses content, for example, one for your web application and one for your mobile application. Each key provides complete access to everything so they must be kept&nbsp;secret. </p>
+<h1 id="api-security"><span class="caps">API</span>&nbsp;Security</h1>
+<p>The <span class="caps">API</span> is Blackstar’s most important interface, so let’s start there. When connecting to the Blackstar API client’s may need to authenticate. Authentication is the process of establishing a trusted identity and is achieved using <a href="https://jwt.io/introduction/"><span class="caps">JSON</span> Web Tokens</a> (<span class="caps">JWT</span>). A JWT is a cryptographically signed authentication claim. The client signs a claim using a secret API key. The server validates the token with the same API key. If the token validates then the server knows that the client has the same key and the claim can be&nbsp;trusted. </p>
+<p>Once the client has created a <span class="caps">JWT</span> it is then included with every request, in the <code>Authorization</code> header, like&nbsp;so:</p>
+<pre><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTGlhbSIsImlhdCI6MTQ3MDM3MTQ1MCwiZXhwIjoxNDcwNDU3ODUwfQ.Nl2k32tcAHWhxDURL_fN08bgbrxfA9CSXWeA0nDPwso
+</code></pre><p>Every request received by the server will check the authorization header and attempt to validate the token. The token includes the current user’s identifier, which can then be used for&nbsp;authorization. </p>
+<p>When using the <a href="https://github.com/Blackstar-CMS/javascript-client">Blackstar JavaScript client</a> this is all taken care of for you. The only requirement is to supply a <span class="caps">JWT</span> when instantiating a new client, like&nbsp;this:</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> blackstar = <span class="keyword">new</span> Blackstar.Client(<span class="string">'https://demo.blackstarcms.net'</span>, { 
+  showEditControls: <span class="literal">false</span>,
+  token: <span class="string">'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTGlhbSIsImlhdCI6MTQ3MDM3MTQ1MCwiZXhwIjoxNDcwNDU3ODUwfQ.Nl2k32tcAHWhxDURL_fN08bgbrxfA9CSXWeA0nDPwso'</span>,
+  authCallback: <span class="function"><span class="keyword">function</span> <span class="params">(response)</span> {</span>
+    <span class="comment">// do something if the server return 401 Unauthorized</span>
+  }
+});
+</code></pre>
+<p>To create a token in your application first acquire an <span class="caps">API</span> key from the Blackstar CMS admin application, then build a JWT token with a <code>name</code> value containing the current user’s user name and an optional <code>expiresIn</code> value. For&nbsp;example:</p>
+<pre><code class="lang-javascript">jwt.sign({ name: <span class="string">"liam"</span> }, <span class="string">"BatrVb7cIh7QYA218iqM"</span>, {
+    expiresIn: <span class="number">3600</span> * <span class="number">24</span>
+});
+</code></pre>
+<p>(note: <code>&quot;BatrVb7cIh7QYA218iqM&quot;</code> is the <span class="caps">API</span>&nbsp;key)</p>
+<h1 id="admin-application-security">Admin Application&nbsp;Security</h1>
+<p>To authenticate with the admin application simply append <code>?t=&lt;JWT token&gt;</code> to the <span class="caps">URL</span>. If the user named in the token has the <code>editing</code> permission then you will get access. This is the recommended way to access the admin application, however, if you have not yet setup your application to be able to produce the <span class="caps">JWT</span> token, then you can authenticate via the login&nbsp;page:</p>
+<p><img src="/articles/2016-08-05-blackstar-security/login.png" alt="Login page"></p>
+<p>The use of the login page is <strong>not recommended</strong> because it requires knowledge of an <span class="caps">API</span> key, and they need to be kept secret. The login page simply creates a JWT token (as above) and redirects to <code>&lt;url&gt;?t=&lt;JWT token&gt;</code>.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>Blackstar <span class="caps">CMS</span>’s security features are designed to be simple, yet flexible. Please provide your feedback to <code>liam</code> at <code>blackstarcms.net</code>. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

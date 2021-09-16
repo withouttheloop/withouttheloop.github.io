@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>On Developer Testing - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>On Developer Testing</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><h1 id="on-developer-testing">On Developer&nbsp;Testing</h1>
+<h2 id="why">Why</h2>
+<p>A developer’s responsibility is to create software that&nbsp;works. </p>
+<blockquote>
+<p>If it has not been tested it has not been shown to&nbsp;work. </p>
+</blockquote>
+<p>As part of the planning for implementing a new feature the developer should think about and plan how the feature will be tested, and have agreement from the product owner (or appropriate stakeholder). This is sometimes called documenting acceptance&nbsp;criteria.</p>
+<p><a href="http://web.archive.org/web/20130729213428id_/http://itc.conversationsnetwork.org/shows/detail301.html">More information on developer testing</a>.</p>
+<h2 id="test-design-prior-to-implementation">Test Design Prior to&nbsp;Implementation</h2>
+<p>Acceptance criteria may be recorded in the classic <span class="caps">BDD</span>&nbsp;syntax:</p>
+<pre><code class="lang-gherkin">GIVEN some preconditions
+WHEN an action happens
+THEN a result occurs
+</code></pre>
+<p>For&nbsp;example,</p>
+<pre><code class="lang-gherkin">GIVEN an authenticated user
+WHEN they submit the enquiry form
+THEN the contents of their enquiry is sent to info@acme.com
+AND a copy is stored in the database
+</code></pre>
+<p>Repeat until all scenarios have been described. This process ensures: that developers and their stakeholders share an understanding of what is to be built, that the developer has thought through the alternatives that must be accounted for in the&nbsp;implementation. </p>
+<h2 id="test-implementation">Test&nbsp;Implementation</h2>
+<p>Theoretically, tests should exist for all enumerated scenarios. In practice some may be difficult to implement or may have insufficient value to justify their existence. Having tests for all scenarios provides a convenient scaffold for the developer. They begin with a complete set of unimplemented tests, make progress by implementing the scenarios, and have confidence that the implementation task is complete when all scenarios have passing&nbsp;tests. </p>
+<p>Good tests should only fail because the code they test is wrong. Therefore, most tests should be <a href="http://withouttheloop.com/articles/2013-04-07-unit-tests/">‘unit’ tests</a>. Integration tests can fail for many reasons so they are undesirable. However, the value of a small number of integration tests is extremely high, as they show that the system functions together as a unit. Start with a small number of end-to-end integration tests, then favour small, focused unit&nbsp;tests. </p>
+<h2 id="code-for-testing">Code for&nbsp;Testing</h2>
+<p>Write code that is easy to test. The easiest code to test is code that transforms an input to an output, e.g. a function. Separate computation from side effects, and test the computation (testing side effects pushes you into an integration test). Although this is counterintuitive it leaves more testable and maintainable code that is also more reusable (via composition). It is a happy coincidence that good code and testabe code happen to be the same&nbsp;thing.</p>
+<p>Here is an example of how computation and side effects are commonly&nbsp;mixed:</p>
+<pre><code class="lang-javascript"><span class="keyword">if</span> (<span class="keyword">new</span> <span class="built_in">Date</span>().getHours() &gt; <span class="number">11</span>) {
+    console.log(<span class="string">"Good afternoon"</span>);
+} <span class="keyword">else</span> {
+    console.log(<span class="string">"Good morning"</span>);
+}
+</code></pre>
+<p>Accessing the current date via <code>new Date()</code> is a side effect that introduces a hidden variable that a test cannot control. Producing a result via <code>console.log</code> similarly prevents a test from evaluating behaviour. The computation here is choosing a greeting based on the time of day, so extract that and test&nbsp;it.</p>
+<p>A better version&nbsp;is:</p>
+<pre><code class="lang-javascript"><span class="comment">// this is a testable function</span>
+<span class="function"><span class="keyword">function</span> <span class="title">chooseGreeting</span><span class="params">(hourOfDay)</span> {</span>
+  <span class="keyword">let</span> isAfternoon = hourOfDay &gt; <span class="number">11</span>;
+  <span class="keyword">return</span> isAfternoon 
+    ? <span class="string">"Good afternoon"</span>
+    : <span class="string">"Good morning"</span>;    
+}
+
+<span class="comment">// group the side effects together</span>
+console.log(chooseGreeting(<span class="keyword">new</span> <span class="built_in">Date</span>().getHours()));
+</code></pre>
+<h2 id="test-execution">Test&nbsp;Execution</h2>
+<p>The goal is to know as early as possible when a mistake has been made. This is one reason why a good type system is surperior to any testing. I like to&nbsp;say,</p>
+<blockquote>
+<p>every test is an admission of&nbsp;failure.</p>
+</blockquote>
+<p>What I mean is that any other technique for preventing errors is surperior to testing. This could be a static type checker, design-by-contract, transactions or some particular design. When those techniques have been exhausted then we must fallback to&nbsp;testing. </p>
+<p>The strength of testing is its flexibility to detect any type of errors (not just type errors). The weakness of testing is its inability to give any information about anything other than the exact scenario tested (hence the power of <a href="https://en.wikipedia.org/wiki/QuickCheck">property testing</a>). </p>
+<p>To receive the test results as early as possible it is helpful to have a system that runs the tests when changes are detected that may change the test results. Since tests are primarily a function of source code this is usually implemented via a file system watcher that detects changes to the tests or the code that they test, and reruns the&nbsp;tests. </p>
+<p>Each developer should check the tests, and not commit code that causes a test to fail, however, human discipline is flawed and we should only rely upon it when there is no alternative. In the case of testing the usual solution is to make test execution part of the continuous integration build process triggered by every code commit to the shared main branch, which should happen at least once every day. This guarantees that all deployment candidates have passed all&nbsp;tests. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

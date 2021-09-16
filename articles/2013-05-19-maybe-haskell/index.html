@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Maybe Haskell? - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Maybe Haskell?</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Usual disclaimer - I don’t know Haskell at all. What follows is my rambling experimentation with the <code>Maybe</code> type.</p>
+<p>Haskell has <a href="http://www.haskell.org/ghc/docs/6.12.2/html/libraries/base-4.2.0.1/Data-Maybe.html">a useful type called <code>Maybe</code></a>. F# and probably most other functional languages have something similar. Even C# has Nullable<T> which is somewhat in similar in that its purpose is <a href="http://www.haskell.org/ghc/docs/6.12.2/html/libraries/base-4.2.0.1/Data-Maybe.html">“to encapsulate an optional value”</a>. To put it another way, <code>Maybe</code> is a parameterised or polymorphic type that represents that we possibly have a value of the type parameter. So <code>Maybe Int</code> means maybe we have an <code>Int</code>, maybe we don’t (ie we have&nbsp;Nothing).</p>
+<p>Because Haskell doesn’t allow <code>null</code> values we might use <code>Maybe</code> for a function that returns its input if the input is a positive&nbsp;number.</p>
+<pre><code>giveIfEvan :: Int -&gt; Maybe Int
+giveIfEvan n = if n `mod` 2 == 0
+                then Just n 
+                else Nothing
+</code></pre><p><code>Maybe</code> is a monad, which, to me, means primarily that it provides a function to convert from a <code>Maybe</code> of some type to a <code>Maybe</code> of some other type (<code>&gt;&gt;= :: Maybe a -&gt; Maybe b</code>).</p>
+<p>Imagine I want a function that given a <code>Maybe Int</code> adds 1 to the value (if there is a value). One terrible way to write this&nbsp;is:</p>
+<pre><code>addOne :: Maybe Int -&gt; Maybe Int
+addOne n = if isJust n
+            then Just (fromJust n + 1)
+            else Nothing
+</code></pre><p>or with pattern&nbsp;matching:</p>
+<pre><code>addOne :: Maybe Int -&gt; Maybe Int
+addOne (Just a) = Just (a + 1)
+addOne Nothing = Nothing
+</code></pre><p>since <code>Maybe</code> is a monad we can use do&nbsp;notation:</p>
+<pre><code>addOne n = do
+        v &lt;- n
+        return (v + 1)
+</code></pre><p>The benefit here is that <code>addOne</code> handles the nothing case without an explicit&nbsp;conditional. </p>
+<p>If you don’t mind using a lambda you can use the de-sugared version of do <code>&gt;&gt;=</code> (bind):</p>
+<pre><code>addOne n = n &gt;&gt;= \v -&gt; return (v + 1)
+</code></pre><p>Or instead of a lambda we could define an extra&nbsp;function:</p>
+<pre><code>increment :: Int -&gt; Maybe Int
+increment v = return (v + 1)
+
+addOne :: Maybe Int -&gt; Maybe Int
+addOne n = n &gt;&gt;= increment
+</code></pre><p>Here is a complete program. Try changin the 8 to an odd number to see the nothing&nbsp;case.</p>
+<pre><code>import Data.Maybe
+
+giveIfEvan :: Int -&gt; Maybe Int
+giveIfEvan n = if n `mod` 2 == 0
+                then Just n 
+                else Nothing
+
+addOne :: Maybe Int -&gt; Maybe Int
+addOne n = do
+            v &lt;- n
+            return (v + 1)
+
+main = do
+  return (addOne $ giveIfEvan 8)
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

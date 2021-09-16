@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Implementing Tetris with React and Redux - V - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Implementing Tetris with React and Redux - V</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>In the previous article we refactored the domain model, simplified the React rendering, and added some JavaScript unit&nbsp;tests.</p>
+<p>In this addition we work on collision detection and add event handling for rotation and lateral&nbsp;movement.</p>
+<p>To follow along with this article checkout the commit <a href="https://github.com/liammclennan/tetris/commit/ce0c318f9d85ff7cf4edd05cc255395da0bd7294">ce0c31</a>.</p>
+<pre><code>$ git clone https://github.com/liammclennan/tetris.git
+$ git checkout ce0c31
+$ npm install
+$ npm run away
+</code></pre><h1 id="adding-event-handlers">Adding Event&nbsp;Handlers</h1>
+<p>Normally in a React application the events come out of the <span class="caps">DOM</span>, and therefore come via the React eventing system. For tetris the relevant events are not DOM events but keyboard events. To work with keyboard events we will use the <a href="https://craig.is/killing/mice">mousetrap</a>&nbsp;library.</p>
+<pre><code>$ npm install --save mousetrap
+</code></pre><p>When the application starts we register some keyboard listeners for the relevant&nbsp;keys:</p>
+<pre><code>import * as Mousetrap from &#39;mousetrap&#39;;
+
+Mousetrap.bind(&#39;space&#39;, ()=&gt; store.dispatch({type:&#39;ROTATE&#39;}));
+Mousetrap.bind(&#39;left&#39;, ()=&gt; store.dispatch({type:&#39;LEFT&#39;}));
+Mousetrap.bind(&#39;right&#39;, ()=&gt; store.dispatch({type:&#39;RIGHT&#39;}));
+</code></pre><p>With that in place the <strong>space</strong>, <strong>left</strong>, and <strong>right</strong> keys will dispatch corresponding actions to Redux. Therefore, we need to update our Redux reducer function to correctly process these new&nbsp;actions.</p>
+<pre><code>function reducer(state = new Model.Game(), action) {
+  switch (action.type) {
+      case &#39;TICK&#39;:
+        const revedState = state.tick();
+        setTimeout(() =&gt; store.dispatch({ type: &#39;TICK&#39; }),500);
+        return revedState;
+      case &#39;ROTATE&#39;:
+        return state.rotate();
+      case &#39;LEFT&#39;:
+        return state.left();
+      case &#39;RIGHT&#39;:
+        return state.right();
+      default: return state;
+  }
+}
+</code></pre><p>The <code>TICK</code> case has also changed slightly. Previously I used <code>setInterval()</code> to trigger a tick on a time interval. The disadvantage of <code>setInterval()</code> is that it does not allow the debugger to stop the game. If we stop on a breakpoint to do some debugging <code>setInterval()</code> carries on triggering ticks every 500ms. The solution is to process a tick and then use <code>setTimeout()</code> to queue the next tick. This way if execution stops on a breakpoint we won’t get the next tick until we resume&nbsp;execution.</p>
+<p>The <code>ROTATE</code>, <code>LEFT</code> and <code>RIGHT</code> actions are handled by delegating to corresponding methods on the game object. Keeping the heavy lifting out of the reducer function makes it easier to understand and makes the application easier to&nbsp;test.</p>
+<h1 id="implementing-rotation">Implementing&nbsp;Rotation</h1>
+<p>The <code>Piece</code> type is aware of its possible rotations (N,E,S,W) and is capable of producing the correct set of points given any of those rotations. Therefore, for the game to rotate the current piece it merely needs to update the piece’s <code>rotation</code> property. This is done be delegating to the <code>Piece</code> object, so the <code>Game</code>‘s <code>rotate()</code> method is&nbsp;just:</p>
+<pre><code>rotate() {
+  this.fallingPiece.rotate();
+  return this;
+}
+</code></pre><p>Note that rotate must return the game object so that the reducer function can then return it as the updated Redux&nbsp;state.</p>
+<p>The <code>rotate()</code> method of <code>Piece</code> then does the work of calculating what the ‘next’ rotation is (i.e. if the current rotation is ‘N’ then ‘next’ rotation will be&nbsp;‘E’).</p>
+<pre><code>rotate() {
+    const rotations = Piece.rotations();
+    this.rotation = rotations[(rotations.indexOf(this.rotation)+1) % 4];
+},
+static rotations() {
+    return [&#39;N&#39;,&#39;E&#39;,&#39;S&#39;,&#39;W&#39;];
+}
+</code></pre><h1 id="implementing-lateral-movement">Implementing Lateral&nbsp;Movement</h1>
+<p>As this is Tetris, the player may move the piece from side to side. Like rotation the <code>Game</code>‘s <code>left()</code> and <code>right()</code> methods simply delegate to <code>left()</code> and <code>right()</code> methods on the <code>Piece</code>.</p>
+<p>A <code>Piece</code> is a <code>Shape</code> plus a rotation plus an offset. When moving laterally the shape stays the same and the rotation stays the same. Only the offset has to change. A left move requires decreasing the column of the offset by one and a right move requires increasing the column of the offset by one, hence the <code>left()</code> and <code>right()</code> methods of <code>Piece</code> are:</p>
+<pre><code>left() {
+  this.offset = new Point(this.offset.row, this.offset.col-1);
+}
+right() {
+  this.offset = new Point(this.offset.row, this.offset.col+1);
+}
+</code></pre><h1 id="preventing-boundary-violations-and-collisions">Preventing Boundary Violations and&nbsp;Collisions</h1>
+<p>Our rotation and lateral movement, as implemented, is entirely unconstrained. The player is able to move the pieces outside the boundary of the game, and also to move pieces over the top of rubble. Preventing these violations is non-trivial, especially for rotations. How do you know if a rotation will cause the piece to go out of bounds or to overlap with some rubble? The easier way is to allow the operation to occur, then check for boundary violations and collisions, and if a problem is found apply a compensating action that reverses the original&nbsp;action.</p>
+<p>If a left movement causes the piece to go out of bounds apply a right movement to compensate. If a rotation causes the piece to overlap some rubble apply a rotation in the opposite direction to compensate. Because React separates the calculation of the <span class="caps">UI</span> state from the rendering, all of this happens without causing any change to the DOM. The user does not see the action and its compensation. This strategy is implemented in the <code>Game</code>‘s <code>transactionDo</code> method:</p>
+<pre><code>transactionDo(thing, compensation) {
+  thing();
+  if (this.fallingPieceIsOutOfBounds() || this.fallingPieceOverlapsRubble()) {
+    compensation();
+  }
+}
+</code></pre><p>The argument <code>thing</code> is the operation we are attempting. <code>compensation</code> is the compensating action to apply in the event that <code>thing</code> puts the game into an invalid state. An invalid state is defined as a point out of bounds or a point overlapping rubble. The detection is accomplished with the following two simple methods of the <code>Game</code> type:</p>
+<pre><code>fallingPieceIsOutOfBounds() {
+  return this.fallingPiece.minCol() &lt; 1 ||
+    this.fallingPiece.maxCol() &gt; this.cols ||
+    this.fallingPiece.maxRow() &gt; this.rows;
+}
+fallingPieceOverlapsRubble() {
+  return this.fallingPiece.points().some(p =&gt; this.rubble.some(r =&gt; r.sameAs(p)));
+}
+</code></pre><p>The <code>rotate</code>, <code>left</code> and <code>right</code> methods on <code>Game</code> can then use <code>transactionDo</code>:</p>
+<pre><code>rotate() {
+  this.transactionDo(
+    ()=&gt;this.fallingPiece.rotate(),
+    ()=&gt; this.fallingPiece.unRotate());
+  return this;
+}
+left() {
+  this.transactionDo(
+    ()=&gt;this.fallingPiece.left(),
+    ()=&gt; this.fallingPiece.right());
+  return this;
+}
+right() {
+  this.transactionDo(
+    ()=&gt;this.fallingPiece.right(),
+    ()=&gt; this.fallingPiece.left());
+  return this;
+}
+</code></pre><p><code>unRotate</code> is simply the inverse of <code>rotate</code>:</p>
+<pre><code>unRotate() {
+  this.rotation = Piece.rotations()[(Piece.rotations().indexOf(this.rotation)-1) % 4];
+}
+</code></pre><h1 id="improving-the-development-workflow">Improving the Development&nbsp;Workflow</h1>
+<p>Development is more efficient if we can see the changes to our application without having to save changes, run the build, and refresh the browser. We can automate the rebuilding process using a filesystem watcher. For this project we will use <a href="http://gulpjs.com/">gulp</a> to orchestrate this&nbsp;process.</p>
+<pre><code>npm install --save gulp gulp-shell
+</code></pre><p>Gulp is configured by writing a build script in a file <strong>gulpfile.js</strong>. To accomplish our goal this can be as simple&nbsp;as:</p>
+<pre><code>var gulp = require(&#39;gulp&#39;);
+var shell = require(&#39;gulp-shell&#39;);
+
+gulp.task(&#39;buildandtest&#39;, shell.task([
+  &#39;browserify -t [ babelify --presets [ react es2015 ] ] app.js -o bundle.js&#39;,
+  &#39;node_modules/mocha/bin/mocha --compilers js:babel-register&#39;
+]));
+
+gulp.task(&#39;default&#39;, function() {
+    gulp.watch([&#39;*.js&#39;, &#39;test/*.js&#39;], [&#39;buildandtest&#39;]);
+});
+</code></pre><p>The <code>default</code> task establishes a file system watch for files matching the pattern <code>*.js</code> and <code>test/*.js</code>. If a change is detected then the <code>buildandtest</code> task is&nbsp;run.</p>
+<p><code>buildandtest</code> uses the shell to build the application (using the same commands that we had in <strong>package.json</strong>) and then runs the mocha&nbsp;tests.</p>
+<p>With Gulp setup we no longer need to use npm as build tool and can simplify the <code>scripts</code> section of <strong>package.json</strong>&nbsp;to:</p>
+<pre><code>&quot;scripts&quot;: {
+    &quot;away&quot;: &quot;node node_modules/gulp/bin/gulp.js&quot;
+  },
+</code></pre><p>I called the script <code>away</code> so that the command to start the build&nbsp;is:</p>
+<pre><code>$ npm run away
+</code></pre><p>We now have a mostly playable&nbsp;Tetris.</p>
+<p><img src="screenshot.png" alt="mostly playable tetris" /></p>
+<p>The big things missing are collapsing complete rows and ending the game. Hopefully you can see how those features will be&nbsp;implemented.</p>
+<h1 id="next-time-">Next&nbsp;Time…</h1>
+<p>The next installment will cover collapsing completed rows and ending the&nbsp;game. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

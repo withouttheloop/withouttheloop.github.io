@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning Cycle.js - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning Cycle.js</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="cyclejs_logo.svg" alt="Cycle.js logo" style="width:250px;" align="right"></p>
+<p><a href="http://cycle.js.org/">Cycle.js</a> is clearly React inspired, but it attempts to fix some areas where React is deficient, or weird. It also advocates (forces?) a functional style, composing immutable state via&nbsp;observables.</p>
+<p>Even with a React background the learning curve is steep. I started to see how it is possible to reason about Cycle.js applications when I saw <a href="https://meet.lync.com/readify-net/liam.mclennan/LW6W5FMZ">the refactoring to the Intent-Model-View pattern</a>. See <a href="http://jsbin.com/vikaga/1/edit?js,output">jsbin</a>.</p>
+<p>This post includes graphics and code samples from the <a href="http://cycle.js.org/">Cycle.js</a>&nbsp;website.</p>
+<h1 id="intent">Intent</h1>
+<p>Intent is typically a function from sources of input (drivers) (<span class="caps">DOM</span>, HTTP, etc) to a set of observables, named according to the user’s intent (e.g. <code>changeHeight$</code>, <code>receiveUserDetails$</code>).</p>
+<pre><code>function intent(DOM) {
+  return {
+    changeWeight$: DOM.get(&#39;#weight&#39;, &#39;input&#39;)
+      .map(ev =&gt; ev.target.value),
+    changeHeight$: DOM.get(&#39;#height&#39;, &#39;input&#39;)
+      .map(ev =&gt; ev.target.value)
+  };
+}
+</code></pre><h1 id="model">Model</h1>
+<p>Model is a function from intents (produced by the <code>Intent</code> function) to a <code>state$</code> observable. The latest value of the <code>state$</code> observable is the current state of the component. <code>state$</code> is observed by the view, so changes to <code>state$</code> cause changes to the view. Earlier examples had the state spread across multiple observables (e.g. one for the <span class="caps">DOM</span>, one for each possible HTTP request). Consolidating state into a single observable takes some work but makes the component easier to reason about and the view easier to&nbsp;implement.</p>
+<pre><code>function model(actions) {
+  return Cycle.Rx.Observable.combineLatest(
+    actions.changeWeight$.startWith(70),
+    actions.changeHeight$.startWith(170),
+    (weight, height) =&gt;
+      ({weight, height, bmi: calculateBMI(weight, height)})
+  );
+}
+</code></pre><h1 id="view">View</h1>
+<p>View is a function from the model observable (<code>state$</code>) to a vdom observable. This is equivalent to React’s <code>Render</code> function.</p>
+<pre><code>function view(state$) {
+  return state$.map(({weight, height, bmi}) =&gt;
+    h(&#39;div&#39;, [
+      renderWeightSlider(weight),
+      renderHeightSlider(height),
+      h(&#39;h2&#39;, &#39;BMI is &#39; + bmi)
+    ])
+  );
+}
+</code></pre><h1 id="main-">main()</h1>
+<svg  style="width:100px;" viewBox="0 0 209 507" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>Group</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="human-computer" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Group" sketch:type="MSLayerGroup" transform="translate(-45.000000, -15.000000)">
+            <circle id="Oval-1" stroke="#9AC572" stroke-width="10" fill="#A5FF51" sketch:type="MSShapeGroup" cx="146" cy="419" r="38"></circle>
+            <circle id="Oval-2" stroke="#B9B9B9" stroke-width="10" fill="#DDDDDD" sketch:type="MSShapeGroup" cx="146" cy="140" r="38"></circle>
+            <text id="Human" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" sketch:alignment="middle" fill="#7DA25A">
+                <tspan x="68.4" y="521">Human</tspan>
+            </text>
+            <text id="Computer" sketch:type="MSTextLayer" font-family="Source Sans Pro" font-size="50" font-weight="normal" sketch:alignment="middle" fill="#747474">
+                <tspan x="43.7" y="49">Computer</tspan>
+            </text>
+            <g id="Path-15-+-Path-2" transform="translate(98.500000, 282.000000) scale(1, -1) translate(-98.500000, -282.000000) translate(75.000000, 183.000000)" stroke="#979797" sketch:type="MSShapeGroup">
+                <path d="M37.3775229,1.50509088 L16.9737944,18.4291738 L37.3775229,34.2764494" id="Path-15" stroke-width="7" transform="translate(27.175659, 17.890770) rotate(125.000000) translate(-27.175659, -17.890770) "></path>
+                <path d="M26.9129005,197.154998 C26.9129005,197.154998 -34.8157014,98.8736491 31,12.3678484" id="Path-2" stroke-width="9"></path>
+            </g>
+            <g id="Path-15-+-Path-3" transform="translate(194.500000, 279.000000) scale(-1, 1) translate(-194.500000, -279.000000) translate(171.000000, 180.000000)" stroke="#9BC672" sketch:type="MSShapeGroup">
+                <path d="M37.3775229,1.50509088 L16.9737944,18.4291738 L37.3775229,34.2764494" id="Path-15" stroke-width="7" transform="translate(27.175659, 17.890770) rotate(125.000000) translate(-27.175659, -17.890770) "></path>
+                <path d="M26.9129005,197.154998 C26.9129005,197.154998 -34.8157014,98.8736491 31,12.3678484" id="Path-2" stroke-width="9"></path>
+            </g>
+        </g>
+    </g>
+</svg>
+
+<p>A cycle.js application includes a function that represents the computer side of the human-computer interaction, often called <code>main</code>. It is a function from input drivers (http responses, <span class="caps">DOM</span> events) to output drivers (http requests, vdom structure). The <a href="http://jsbin.com/yizisa/6/edit?js,output">Get Random User</a> example shows working with two drivers (<span class="caps">HTTP</span> and&nbsp;DOM).</p>
+<pre><code>function main({DOM}) {
+  return {DOM: view(model(intent(DOM)))};
+}
+</code></pre><h1 id="cycle-run-">Cycle.run()</h1>
+<p>An application is started by calling <code>Cycle.run()</code> specifying the <code>main</code> function and the required drivers.&nbsp;E.g.</p>
+<pre><code>Cycle.run(main, {
+  DOM: makeDOMDriver(&#39;#app&#39;),
+  HTTP: makeHTTPDriver()
+});
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

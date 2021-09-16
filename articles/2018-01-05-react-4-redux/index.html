@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning React 4 - Redux - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning React 4 - Redux</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>The post <a href="/articles/2018-01-03-react-3-data-out/">Learning React 3 - Data out with props</a> finished with a 
+component that is customised by data passed in, and that publishes user events, which modifies that application state, and causes the component to&nbsp;update. </p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">({ day, onNext })</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+                Today is {day.toString()}
+                <span class="tag">&lt;<span class="title">button</span> <span class="attribute">type</span>=<span class="value">"button"</span> <span class="attribute">onClick</span>=<span class="value">{onNext}</span>&gt;</span>Next<span class="tag">&lt;/<span class="title">button</span>&gt;</span>
+            <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+
+<span class="keyword">let</span> day = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="number">2018</span>,<span class="number">2</span>,<span class="number">20</span>);
+
+<span class="function"><span class="keyword">function</span> <span class="title">onNext</span><span class="params">()</span> {</span>
+    day = <span class="keyword">new</span> <span class="built_in">Date</span>(day.getTime() + (<span class="number">24</span>*<span class="number">3600</span>*<span class="number">1000</span>)); 
+    render();
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">render</span><span class="params">()</span> {</span>
+    ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="title">Today</span> <span class="attribute">day</span>=<span class="value">{day}</span> <span class="attribute">onNext</span>=<span class="value">{onNext}</span> /&gt;</span>, 
+        document.getElementById('root'));
+}
+render();</span>
+</code></pre>
+<p>To keep the <code>Today</code> component simple and composable the state has been entirely pulled out of the component (into the <code>day</code> variable).</p>
+<p>As applications become more complex it becomes more difficult to work with this external state and keep track of the modifications that need to be made in response to&nbsp;events. </p>
+<h1 id="redux">Redux</h1>
+<p><a href="https://redux.js.org/docs/introduction/">Redux</a> is a tool for managing application state and controlling changes to that state. I find the Redux documentation unnecessarily confusing. All you really need to know to understand Redux&nbsp;is:</p>
+<ul>
+<li>Redux holds state in a single Javascript object, called a&nbsp;store.</li>
+<li>Redux uses functions (sometimes referred to as reducers) to apply events (sometimes called actions) to update the application&nbsp;state. </li>
+<li>Redux has a function <code>createStore</code> that creates a&nbsp;store.</li>
+<li>Redux has a function <code>getState</code> that gets the application state from the&nbsp;store.</li>
+<li>Redux has a function <code>subscribe</code> that registers listeners to be called when the application state&nbsp;changes. </li>
+<li>Redux has a function <code>dispatch</code> that is used to send an event (action) to the reducer to update the&nbsp;store.</li>
+</ul>
+<p>Consider our Today component. First we add redux to our&nbsp;project:</p>
+<pre><code>&gt; npm install redux --save
+</code></pre><p>Now we can put our application state into a redux&nbsp;store:</p>
+<pre><code class="lang-javascript">function reducer(state = { day: new Date(2018,2,20) }, action) {
+    return state;
+}
+const store = createStore(reducer);
+
+store.subscribe(() =&gt; {
+    ReactDOM.render(&lt;Today day={store.getState().day} onNext={onNext} /&gt;, 
+        document.getElementById('root'));
+});
+
+store.dispatch({type: "START"});
+</code></pre>
+<p>That is enough to get the application to render with its initial state. Note that the initial application state (<code>{ day: new Date(2018,2,20) }</code>) is set as the default value of the <code>state</code> argument. </p>
+<p>The event handling is broken because we can no longer directly modify the <code>day</code> variable. Instead we must dispatch an appropriate action (<code>NEXT_DAY</code>) to the redux store. In the reducer function, if we see our action (<code>NEXT_DAY</code>) then we return a new application state with the <code>day</code> value advanced by one&nbsp;day:</p>
+<pre><code class="lang-javascript">function onNext() {
+    store.dispatch({type: &quot;NEXT_DAY&quot;});
+}
+
+function reducer(state = { day: new Date(2018,2,20) }, action) {
+    switch (action.type) {
+        case &quot;NEXT_DAY&quot;:
+            const currentDay = store.getState().day;
+            return { day: new Date(currentDay.getTime() + (24*3600*1000))};
+        default: return state;
+    }
+}
+</code></pre>
+<p>Both the state object and the action objects can be any Javascript value. It is a convention to include a <code>type</code> property on action values. The <code>type</code> property can then be used in reducer functions to determine which event/action has occurred so that the application state can be updated&nbsp;appropriately. </p>
+<p>The full program is&nbsp;now:</p>
+<pre><code class="lang-javascript">function Today({ day, onNext }) {
+    return &lt;div&gt;Today is {day.toString()}
+        &lt;button type="button" onClick={onNext}&gt;Next&lt;/button&gt;&lt;/div&gt;;
+}
+
+function onNext() {
+    store.dispatch({type: "NEXT_DAY"});
+}
+
+function reducer(state = { day: new Date(2018,2,20) }, action) {
+    switch (action.type) {
+        case "NEXT_DAY":
+            const currentDay = store.getState().day;
+            return { day: new Date(currentDay.getTime() + (24*3600*1000))};
+        default: return state;
+    }
+}
+const store = createStore(reducer);
+
+store.subscribe(() =&gt; {
+    ReactDOM.render(&lt;Today day={store.getState().day} onNext={onNext} /&gt;, 
+        document.getElementById('root'));
+});
+
+store.dispatch({type: "START"});
+</code></pre>
+<h1 id="summary">Summary</h1>
+<p>Redux can be confusing, because of all the additional machinery that has accumulated around it, and because of the way the documentation is presented. At its core Redux is just a container for application state and a formalized way of modifying that application&nbsp;state.</p>
+<p>Good React components are simple, pure functions of their inputs (props). Redux is a helpful tool that makes this much&nbsp;easier.</p>
+<blockquote>
+<p>Next: <a href="/articles/2018-01-05-react-5-react-redux/">Learning React 5 -&nbsp;React-redux</a></p>
+</blockquote>
+<h2 id="get-the-code">Get The&nbsp;Code</h2>
+<p>The code for this example is <a href="https://github.com/liammclennan/today-react-app">on Github</a>. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this&nbsp;post. </p>
+<pre><code class="lang-bash">git clone https://github.com/liammclennan/today-react-app.git
+git checkout react4 
+</code></pre>
+<p>or browse at <a href="https://github.com/liammclennan/today-react-app/tree/9f17db0e8d19c505efaaa7e828cb71e535e2377a">https://github.com/liammclennan/today-react-app/tree/9f17db0e8d19c505efaaa7e828cb71e535e2377a</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Implementing Tetris with React and Redux - VI - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Implementing Tetris with React and Redux - VI</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Last time I promised you collapsing completed rows and ending the game. That will have to wait. I have something <strong>even more exciting!</strong>.</p>
+<blockquote>
+<p>Converting to&nbsp;typescript</p>
+</blockquote>
+<p>To follow along with this article checkout the commit <a href="https://github.com/liammclennan/tetris/commit/70fa71e6893c73dff57ae29ff006ab51f3896136">70fa71</a>.</p>
+<pre><code>$ git clone https://github.com/liammclennan/tetris.git
+$ git checkout 70fa71
+$ npm run bootstrap
+$ npm run likehell
+</code></pre><h1 id="typescript">Typescript</h1>
+<p>Having a type checking compiler eliminates a large set of bugs, and makes a heap of tests redundant. Tests are a debt that must be serviced so we should aim to get maximum value from the fewest&nbsp;tests.</p>
+<p><a href="http://www.typescriptlang.org/">Typescript</a> adds compile time type checking to JavaScript. Converting our application to typescript&nbsp;requires:</p>
+<ul>
+<li>converting the application code from JavaScript to&nbsp;Typescript</li>
+<li>acquiring <a href="http://www.typescriptlang.org/Handbook#writing-dts-files">Typescript type definitions</a> for all&nbsp;dependencies</li>
+<li>modifying the build process to include the Typescript&nbsp;compiler</li>
+</ul>
+<h1 id="adding-typescript-to-the-build">Adding Typescript to the&nbsp;Build</h1>
+<p>Working backwards we can start by acquiring the required Typescript dev&nbsp;tools:</p>
+<pre><code>npm install typescript tsd --save
+</code></pre><p>Typescript is the npm package including the typescript compiler. <a href="http://definitelytyped.org/tsd/">Tsd</a> is a tool for acquiring Typescript type definition files for popular JavaScript&nbsp;libraries.</p>
+<p>We can then use tsd to fetch the type definitions we&nbsp;need:</p>
+<pre><code>tsd install react-global mousetrap mocha node underscore --save
+</code></pre><p>The type definitions are saved into a <em>typings/</em> directory and listed in a manifest <em>tsd.json</em>. A Typescript file <em>typings/tsd.d.ts</em> references all of the type definitions as a shortcut way to import them all. I could not find a tsd definition for Redux so I manually included the type definition at <em>src/redux.d.ts</em>.</p>
+<p>Next we prepend another build command in <em>gulpfile.js</em>.</p>
+<pre><code>tsc src/app.tsx test/modelsTests.ts --jsx react --outDir build/es6 -t ES6
+</code></pre><p><code>tsc</code> is the typescript&nbsp;compiler.</p>
+<p><code>src/app.tsx</code> and <code>test/modelsTests.ts</code> are the entry point files. All other files are found by following dependencies. The <code>.tsx</code> extension indicates that the file contains <a href="https://facebook.github.io/jsx/">jsx</a> embedded in&nbsp;Typescript.</p>
+<p><code>--jsx react</code> tells the compiler that when it finds jsx it should compile it to React&nbsp;JavaScript.</p>
+<p><code>--outDir build/es6</code> specifies where the output should be&nbsp;written.</p>
+<p><code>-t ES6</code> sets the compiler to target <span class="caps">ES6</span>&nbsp;(ES2015).</p>
+<h1 id="converting-to-typescript">Converting to&nbsp;Typescript</h1>
+<p>The easiest way to convert an application from JavaScript to Typescript is to start from the leaves of the dependency tree and work back to the root. That means starting with the modules that have the fewest dependencies. For this Tetris app <em>model.js</em> is the best&nbsp;choice.</p>
+<p>Firstly we can change the file extension to <em>.ts</em> and attempt to compile&nbsp;using:</p>
+<pre><code>tsc src/model.js -t ES6
+</code></pre><p>which won’t work. The typescript compiler will give messages indicating the things that need to be fixed. For <em>model.js</em> this is mostly the syntax of classes. Typescript has a shortcut syntax for specifying the properties of classes that looks&nbsp;like:</p>
+<pre><code>export class Tetromino {
+  constructor(public name:string, public rotator: (rotation:string)=&gt;Point[]) {}
+}
+</code></pre><p>This automatically creates public properties <code>name</code> and <code>rotator</code>. <code>name</code> has the type <code>string</code>. <code>rotator</code> has the type <code>(rotation:string)=&gt;Point[]</code> which means a function from a <code>string</code> to an array of <code>Point</code>.</p>
+<p>When all the type errors in <em>model.ts</em> are fixed we move to <em>components.ts</em>. This file is slightly more complicated because it has dependencies. The first thing to do is add a reference to <em>tsd.d.ts</em>.</p>
+<pre><code>/// &lt;reference path=&quot;../typings/tsd.d.ts&quot; /&gt;
+</code></pre><p>This is a directive to the typescript compiler that tells it where to find type information. From <em>tsd.d.ts</em> typescript can find type definitions for all of the libraries we are using (except&nbsp;Redux).</p>
+<p>The big change in this file is specifying the <code>props</code> and <code>state</code> type parameters for each React component by passing the types to the <code>createClass</code> function.</p>
+<p>For the <code>GameView</code> component the type of its props&nbsp;is:</p>
+<pre><code>interface GameViewProps {
+  game: Model.Game;
+}
+</code></pre><p><code>GameView</code> does not use state (none of our components do) so the component changes&nbsp;to:</p>
+<pre><code>export var GameView = React.createClass&lt;GameViewProps,any&gt;({
+  render: function () {
+    return &lt;div className=&quot;border&quot; style={
+      {
+        width: this.props.game.cols*25,
+        height: this.props.game.rows*25
+      }}&gt;
+      &lt;PieceView piece={this.props.game.fallingPiece} /&gt;
+      &lt;RubbleView rubble={this.props.game.rubble} /&gt;
+    &lt;/div&gt;;
+  }
+});
+</code></pre><p>We now move up the dependency tree to <em>app.tsx</em> which needs to reference <em>tsd.d.ts</em> and <em>redux.d.ts</em>:</p>
+<pre><code>/// &lt;reference path=&quot;../typings/tsd.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;redux.d.ts&quot; /&gt;
+</code></pre><p>The file is otherwise much the&nbsp;same.</p>
+<p>The test file <em>modelsTests.ts</em> also needs a reference to <em>tsd.d.ts</em>. Then everything should compile properly, the tests should run successfully and the application should&nbsp;run.</p>
+<p>And now we have type&nbsp;safety.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

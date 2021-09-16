@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Implementing Tetris with React and Redux - III - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Implementing Tetris with React and Redux - III</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>In the previous article we began implementing tetris with React and Redux and got as far rendering the tetris shapes (called&nbsp;tetrominos).</p>
+<p>In this addition we will add some animation and introduce Redux for managing <span class="caps">UI</span>&nbsp;state.</p>
+<p>To follow along with this article checkout the commit <a href="https://github.com/liammclennan/tetris/commit/9f2c695d4e766d03d9280f086dd5429520cd03e3">9f2c69</a>.</p>
+<pre><code>$ git clone https://github.com/liammclennan/tetris.git
+$ git checkout 9f2c69
+</code></pre><h1 id="introducing-redux">Introducing&nbsp;Redux</h1>
+<p>React provides two&nbsp;features:</p>
+<ol>
+<li>It generates a <span class="caps">UI</span> from a model and maintains the&nbsp;synchronization.</li>
+<li>It provides an eventing system for detecting and handling <span class="caps">UI</span>&nbsp;events.</li>
+</ol>
+<p>By itself then, React is not a sufficient basis for a user interface. Facebook filled the gap with Flux. Flux has the right idea (unidirectional data flow) but over-complicates it with actions, dispatchers and stores. It may be a good design for Facebook, but it is not a good generalized solution for web&nbsp;development.</p>
+<p><a href="http://redux.js.org/">Redux</a> is a simpler library that started with the ideas of Flux and then left them all out. It provides management of <span class="caps">UI</span> state, and the ways in which that state is modified. Here is how it&nbsp;works.</p>
+<ul>
+<li>React events are translated to <em>actions</em>. Actions are application level values indicating the users intent, e.g. <strong>add todo item</strong> or <strong>remove calendar entry</strong>. Actions often have associated data, so an actual action might be <code>{type:&#39;ADD_TODO_ITEM&#39;, title:&#39;Buy some milk&#39;}</code>. There are no rules about the format of&nbsp;actions.</li>
+<li>Redux is configured with functions called <em>reducers</em> that apply actions to the current state, and produce an updated&nbsp;state.</li>
+<li>Redux notifies React that the <span class="caps">UI</span> state has changed and the UI should be&nbsp;updated.</li>
+</ul>
+<p>To add Redux we install two new npm&nbsp;packages:</p>
+<pre><code>npm install --save redux react-redux
+</code></pre><p>Then in <code>app.js</code> we create a redux reducer function that knows how to apply actions to the <span class="caps">UI</span> state. This is often a switch statement that branches on the type of the action. If you wanted you could instead put the logic in the action and delegate to&nbsp;it.</p>
+<pre><code>function reducer(state = [new Model.O(1,1), new Model.L(1,4)], action) {
+  switch (action.type) {
+    case &#39;TICK&#39;:
+      state.push(new Model.O(action.data*2,action.data*2));
+      return state;
+    default: return state;
+  }
+  return state;
+}
+</code></pre><p>The parameters to the function are the existing state and an action. We use the <span class="caps">ES2015</span> default parameter feature to initialize the state to an array containing two tetrominos. Then we switch on the type of the action. If the action is a <em><span class="caps">TICK</span></em> then we append a new <em>O</em> tetromino to the state. The value returned from a reducer is the new&nbsp;state.</p>
+<p>With a fresh reducer function we can now create a redux store to wrap the <span class="caps">UI</span>&nbsp;state:</p>
+<pre><code>let store = createStore(reducer);
+</code></pre><p>and register with react to re-render when the state&nbsp;changes:</p>
+<pre><code>store.subscribe(() =&gt; {
+  ReactDOM.render(
+  &lt;div&gt;
+    {store.getState().map(c =&gt; &lt;Components.ShapeView shape={c} /&gt;)}
+  &lt;/div&gt;,
+      document.getElementById(&#39;container&#39;)
+  );
+});
+</code></pre><p>Note that the state is extracted from the store by means of the <code>getState()</code> method.</p>
+<h1 id="adding-some-animation">Adding Some&nbsp;Animation</h1>
+<p>Tetris is a 2-dimensional animated game. We need some way to make the pieces move. I like to work in small increments instead of trying to jump immediately to the final solution, so I will be happy with any sort of regular <span class="caps">UI</span> change. The simplest thing I can think of is to generate ticks on a timer, and include an increasing value as&nbsp;data.</p>
+<pre><code>var counter = 1;
+setInterval(() =&gt; store.dispatch({ type: &#39;TICK&#39;, data: counter++ }),1000);
+</code></pre><p>Remember that <code>store</code> is our redux wrapper around application state. The <code>dispatch</code> method is how we publish an&nbsp;action. </p>
+<p>This combined with our reducer means that every second a square tetromino will be added to the board diagonally to the lower right of the previous piece. The result is something&nbsp;like:</p>
+<p><img src="screenshot.png" /></p>
+<h1 id="next-time-">Next&nbsp;Time…</h1>
+<p>The next installment of this series will add falling, rotation and&nbsp;testing.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

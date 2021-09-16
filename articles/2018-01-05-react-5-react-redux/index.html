@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning React 5 - React-Redux - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning React 5 - React-Redux</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>In <a href="/articles/2018-01-05-react-4-redux/">Learning React 4 - Redux</a> we learnt about what Redux can do for your React 
+application and how it can be integrated. The result was the following&nbsp;code:</p>
+<pre><code class="lang-javascript">function Today({ day, onNext }) {
+    return &lt;div&gt;Today is {day.toString()}
+        &lt;button type="button" onClick={onNext}&gt;Next&lt;/button&gt;&lt;/div&gt;;
+}
+
+function onNext() {
+    store.dispatch({type: "NEXT_DAY"});
+}
+
+function reducer(state = { day: new Date(2018,2,20) }, action) {
+    switch (action.type) {
+        case "NEXT_DAY":
+            const currentDay = store.getState().day;
+            return { day: new Date(currentDay.getTime() + (24*3600*1000))};
+        default: return state;
+    }
+}
+const store = createStore(reducer);
+
+store.subscribe(() =&gt; {
+    ReactDOM.render(&lt;Today day={store.getState().day} onNext={onNext} /&gt;, 
+        document.getElementById('root'));
+});
+
+store.dispatch({type: "START"});
+</code></pre>
+<p>Note that the <code>Today</code> component is not coupled to the Redux store (which is good), but also that we are manually passing data into and out of the <code>Today</code> component. This is fine for our example but typically a component is contained many levels deep in a component hierarchy. The design we have so far would require us to pass the <code>day</code> prop manually down through each level of the hierarchy and the <code>onNext</code> prop manually back up through each level of the&nbsp;hierarchy. </p>
+<h1 id="react-redux">React-redux</h1>
+<p>React, and Redux, provide a solution to this problem, implemented in a package called <a href="https://github.com/reactjs/react-redux">React-redux</a>. Install in the usual&nbsp;way:</p>
+<pre><code>&gt; npm install react-redux --save
+</code></pre><p>React-redux provides a way to connect a component’s props to the pieces of the Redux state that the component cares about. When creating a component you get this work&nbsp;by:</p>
+<ul>
+<li>defining the mapping from the Redux state to the components <code>props</code></li>
+<li>defining the mapping from the components props to actions dispatched to the Redux&nbsp;store</li>
+</ul>
+<p>The above mappings are combined with an existing component to produce a new component, that is connected to Redux. For the <code>Today</code> component this&nbsp;is:</p>
+<pre><code class="lang-javascript">import { connect, Provider } from <span class="string">'react-redux'</span>;
+
+<span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">({ day, onNext })</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>Today is {day.toString()}
+        <span class="tag">&lt;<span class="title">button</span> <span class="attribute">type</span>=<span class="value">"button"</span> <span class="attribute">onClick</span>=<span class="value">{onNext}</span>&gt;</span>Next<span class="tag">&lt;/<span class="title">button</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+
+<span class="keyword">const</span> ConnectedToday = connect(
+    <span class="comment">// Today uses the 'day' property of the Redux state. </span>
+    <span class="comment">// Which is the whole thing. </span>
+    <span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span><span class="params">(state)</span> {</span>
+        <span class="keyword">return</span> state;
+    }, 
+    <span class="function"><span class="keyword">function</span> <span class="title">mapDispatchToProps</span><span class="params">(dispatch)</span> {</span>
+        <span class="keyword">return</span> {
+            <span class="comment">// This 'onNext' function is provided as a prop to the 'Today' component, </span>
+            <span class="comment">// but with 'dispatch' in scope. </span>
+            onNext: ()=&gt; { dispatch({type: <span class="string">"NEXT_DAY"</span>}); }
+        };
+    }
+    )(Today);
+</code></pre>
+<p><code>ConnectedToday</code> is a new component that wraps the <code>Today</code> component and connects it to the Redux store. Now when we <code>render</code> our application we can use the <code>ConnectedToday</code> component instead of the <code>Today</code> component, and remove the&nbsp;props. </p>
+<p>To make it work we must wrap our component tree in a <code>Provider</code>, that makes the store available to connected components. We can also drop the subscription to the store (React-redux takes care of this for&nbsp;us):</p>
+<pre><code class="lang-javascript">ReactDOM.render(
+    <span class="xml"><span class="tag">&lt;<span class="title">Provider</span> <span class="attribute">store</span>=<span class="value">{store}</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">ConnectedToday</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>, 
+    document.getElementById('root'));</span>
+</code></pre>
+<p>Now we have achieved our goal. The today component is still independent of the Redux store, and we have avoided manually passing state and events up and down the component hierarchy. Here is the final&nbsp;code:</p>
+<pre><code class="lang-javascript">import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import registerServiceWorker from './registerServiceWorker';
+import { createStore } from 'redux';
+import { connect, Provider } from 'react-redux';
+
+function Today({ day, onNext }) {
+    return &lt;div&gt;Today is {day.toString()} 
+        &lt;button type="button" onClick={onNext}&gt;Next&lt;/button&gt;&lt;/div&gt;;
+}
+
+const ConnectedToday = connect(
+    function mapStateToProps(state) {
+        return state;
+    }, 
+    function mapDispatchToProps(dispatch) {
+        return {
+            onNext: ()=&gt; { dispatch({type: "NEXT_DAY"}); }
+        };
+    }
+    )(Today);
+
+function reducer(state = { day: new Date(2018,2,20) }, action) {
+    switch (action.type) {
+        case "NEXT_DAY":
+            const currentDay = store.getState().day;
+            return { day: new Date(currentDay.getTime() + (24*3600*1000))};
+        default: return state;
+    }
+}
+const store = createStore(reducer);
+
+ReactDOM.render(
+    &lt;Provider store={store}&gt;
+        &lt;ConnectedToday /&gt;
+    &lt;/Provider&gt;, 
+    document.getElementById('root'));
+
+store.dispatch({type: "START"});
+
+registerServiceWorker();
+</code></pre>
+<h1 id="summary">Summary</h1>
+<p>When React and Redux are used together ‘React-redux’ is usually used as a convenient way to join them together. It is simply a matter&nbsp;of:</p>
+<ul>
+<li>Wrapping the component tree in a <code>&lt;Provider/&gt;</code></li>
+<li>Providing a <code>mapStateToProps</code> and <code>mapDispatchToProps</code> function for each connected&nbsp;component</li>
+</ul>
+<blockquote>
+<p>Next: <a href="/articles/2018-01-08-react-6-react-router/">Learning React 6 - React&nbsp;Router</a></p>
+</blockquote>
+<h2 id="get-the-code">Get The&nbsp;Code</h2>
+<p>The code for this example is <a href="https://github.com/liammclennan/today-react-app">on Github</a>. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this&nbsp;post. </p>
+<pre><code class="lang-bash">git clone https://github.com/liammclennan/today-react-app.git
+git checkout react-<span class="number">5</span> 
+</code></pre>
+<p>or browse at <a href="https://github.com/liammclennan/today-react-app/tree/18a03e73197b15eef0746a01fdd111942ff1a2d3">https://github.com/liammclennan/today-react-app/tree/18a03e73197b15eef0746a01fdd111942ff1a2d3</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

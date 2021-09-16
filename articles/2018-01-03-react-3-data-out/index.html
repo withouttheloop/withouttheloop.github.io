@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning React 3 - Data out with props - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning React 3 - Data out with props</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="/articles/2018-01-03-react-2-props/">Learing React 2 - Data in with props</a> showed how to reuse a component by passing data in to that component. This post will show how to pass data back out of a component, again using&nbsp;props.</p>
+<blockquote>
+<p>Data is passed out of a React component by calling functions passed in as&nbsp;props</p>
+</blockquote>
+<p>Recall our <code>Today</code> component:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">({ day })</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>Today is {day.toString()}<span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+</code></pre>
+<p>We add a&nbsp;button:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">({ day })</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+                Today is {day.toString()}
+                <span class="tag">&lt;<span class="title">button</span> <span class="attribute">type</span>=<span class="value">"button"</span>&gt;</span>Next<span class="tag">&lt;/<span class="title">button</span>&gt;</span>
+            <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+</code></pre>
+<p>Now our <span class="caps">UI</span> has a button. Let’s modify the usage of <code>Today</code> to pass a function that will be called when the ‘Next’ button is&nbsp;clicked:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">onNext</span><span class="params">()</span> {</span>
+    console.log(<span class="string">'Next!'</span>);
+}
+
+ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="title">Today</span> <span class="attribute">day</span>=<span class="value">{new</span> <span class="attribute">Date</span>(<span class="attribute">2018</span>, <span class="attribute">2</span>, <span class="attribute">20</span>)} <span class="attribute">onNext</span>=<span class="value">{onNext}</span> /&gt;</span>, 
+    document.getElementById('root'));</span>
+</code></pre>
+<p>and connect this to the <code>onClick</code> event of the&nbsp;button:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">({ day, onNext })</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+                Today is {day.toString()}
+                <span class="tag">&lt;<span class="title">button</span> <span class="attribute">type</span>=<span class="value">"button"</span> <span class="attribute">onClick</span>=<span class="value">{onNext}</span>&gt;</span>Next<span class="tag">&lt;/<span class="title">button</span>&gt;</span>
+            <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+</code></pre>
+<p>Now when the button is clicked the text ‘Next!’ is written to the console. By passing arguments to the <code>onNext</code> function we have a mechanism for getting events and data out of our&nbsp;component.</p>
+<p>Now we can use the <code>onNext</code> event to modify the <code>day</code> value and update the <span class="caps">UI</span>, completing the circle of data&nbsp;flow.</p>
+<pre><code class="lang-javascript"><span class="keyword">let</span> day = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="number">2018</span>,<span class="number">2</span>,<span class="number">20</span>);
+
+<span class="function"><span class="keyword">function</span> <span class="title">onNext</span><span class="params">()</span> {</span>
+    day = <span class="keyword">new</span> <span class="built_in">Date</span>(day.getTime() + (<span class="number">24</span>*<span class="number">3600</span>*<span class="number">1000</span>)); 
+    render();
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">render</span><span class="params">()</span> {</span>
+    ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="title">Today</span> <span class="attribute">day</span>=<span class="value">{day}</span> <span class="attribute">onNext</span>=<span class="value">{onNext}</span> /&gt;</span>, 
+        document.getElementById('root'));
+}
+render();</span>
+</code></pre>
+<p>Note that I had to move the call to <code>ReactDOM.render</code> into a function and call that function after updating the value of <code>day</code>. This is because React does not automatically now that its model data has changed and it needs to&nbsp;re-render. </p>
+<h1 id="summary">Summary</h1>
+<p>Data is passed into a React component as a value supplied as props. Data is passed out of a React component by calling a function passed in as props. Components created in this style have a wonderful simplicity. Their interface is defined entirely by props. You should try to code all of your React components in this&nbsp;way. </p>
+<blockquote>
+<p>Next: <a href="/articles/2018-01-05-react-4-redux/">Learning React 4 -&nbsp;Redux</a></p>
+</blockquote>
+<h2 id="get-the-code">Get The&nbsp;Code</h2>
+<p>The code for this example is <a href="https://github.com/liammclennan/today-react-app">on Github</a>. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this&nbsp;post. </p>
+<pre><code class="lang-bash">git clone https://github.com/liammclennan/today-react-app.git
+git checkout react3
+</code></pre>
+<p>or browse at <a href="https://github.com/liammclennan/today-react-app/tree/b59c3dbeb3597395d6c0c7d9b2831bf3999e870a">https://github.com/liammclennan/today-react-app/tree/b59c3dbeb3597395d6c0c7d9b2831bf3999e870a</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

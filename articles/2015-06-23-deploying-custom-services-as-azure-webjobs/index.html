@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Deploying custom services as Azure Webjobs - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Deploying custom services as Azure Webjobs</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Azure has this thing called <a href="http://www.hanselman.com/blog/IntroducingWindowsAzureWebJobs.aspx">webjobs</a>. It is a curious way of deploying continous or scheduled services as sub-processes of an Azure website. This may be a desirable option&nbsp;because:</p>
+<ul>
+<li>it’s a PaaS thing. You don’t have to manage a&nbsp;server.</li>
+<li>you get configurable scale - including&nbsp;autoscaling</li>
+<li>you can run many logical services within a single management unit (Azure&nbsp;Website)</li>
+</ul>
+<p>I did not enjoy my time with the <span class="caps">MSDN</span> documentation for Azure Webjobs. They document the manual process for working with Webjobs, either the Visual Studio Azure tooling or through the Azure portal. Manual deployment processes, involving clicking lots of buttons with a mouse, a not going to be workable on my team, so I need a way to automate deployment. Also, the documentation only shows how to write services that are coupled to Azure. I want to be able to run my service&nbsp;locally. </p>
+<h2 id="step-1-use-a-console-app-for-your-service">Step 1: Use a console app for your&nbsp;service</h2>
+<p>The holy grail of .net services has been wrapping console apps for a long time, often using something like Topshelf. The goal is to get the reliability of a service for deployment but the ease of development and testing of a console&nbsp;app. </p>
+<p>To create a console app for deployment as an Azure&nbsp;Webjob:</p>
+<ul>
+<li>create a normal, regular, vanilla, wonderful console&nbsp;application.</li>
+<li>create a web&nbsp;project</li>
+<li>in the web projects context menu choose Add -&gt; Existing project as Azure webjob and select your console&nbsp;application</li>
+</ul>
+<h2 id="step-2-packaging-for-deployment">Step 2: Packaging for&nbsp;deployment</h2>
+<p>The secret to Azure Webjob deployment is to include your executable in the web project&nbsp;at:</p>
+<blockquote>
+<p>App_Data\jobs\{job type}\{job&nbsp;name}</p>
+</blockquote>
+<p>That is the one bit of information to really need to know and it is conspicuously absent from the&nbsp;documentation. </p>
+<p><img src="shake.gif"/></p>
+<p>There are a number of different ways to accomplish this goal. One is to use a post-build step&nbsp;like:</p>
+<pre><code>copy &quot;$(SolutionDir)mywebjob\bin\$(ConfigurationName)\*.*&quot; &quot;$(ProjectDir)App_Data\jobs\continuous\mywebjob&quot;
+</code></pre><p>which you can add via the <code>Build Events</code> tab of the web project’s properties&nbsp;page. </p>
+<p>Because we are using Teamcity to build and package our web project as a nuget package for deployment via Octopus Deploy we can use a nuspec file&nbsp;instead. </p>
+<p>A simple nuspec file looks something&nbsp;like:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;package &gt;
+  &lt;metadata&gt;
+    &lt;id&gt;MyProjectName&lt;/id&gt;
+      &lt;version&gt;0.0.0.0&lt;/version&gt;
+      &lt;authors&gt;NA&lt;/authors&gt;
+    &lt;owners&gt;NA&lt;/owners&gt;
+    &lt;requireLicenseAcceptance&gt;false&lt;/requireLicenseAcceptance&gt;
+    &lt;description&gt;NA&lt;/description&gt;
+    &lt;copyright&gt;Copyright 2015&lt;/copyright&gt;
+  &lt;/metadata&gt;
+    &lt;files&gt;
+        &lt;file src=&quot;..\MyWebJob\bin\release\**&quot; target=&quot;App_Data\jobs\continuous\MyWebJob&quot;/&gt;
+    &lt;/files&gt;
+&lt;/package&gt;
+</code></pre><p>Using Octopack in Teamcity to produce a nupkg package from this nuspec file will fail because the <code>files</code> element will override the default behaviour of Octopack and only include the listed files. To instruct Octopack to include all the normal project files, as well as the webjob files listed in the nuspec file, add the following element to the web project’s csproj file (in the <code>&lt;PropertyGroup&gt;</code> element):</p>
+<pre><code>&lt;OctoPackEnforceAddingFiles&gt;True&lt;/OctoPackEnforceAddingFiles&gt;
+</code></pre><p>This seems to be an undocumented feature, but it&nbsp;works. </p>
+<h2 id="step-3-deploy">Step 3:&nbsp;Deploy</h2>
+<p>Deploy the website to Azure Websites using your favourite method (my family likes to use Octopus Deploy 3 every day). Check in the Azure portal and you will hopefully have a Webjob listed in your Web App. If not, you can connect the Visual Studio Azure tooling to your Azure subscription and use the Service Explorer (App Service node) to see if the files have been deployed as&nbsp;expected. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

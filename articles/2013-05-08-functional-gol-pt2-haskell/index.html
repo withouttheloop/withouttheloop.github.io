@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Functional Game of Life part 2 (Haskell) - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Functional Game of Life part 2 (Haskell)</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><style>
+.cell {
+    border: 2px solid black;
+    width: 18px;
+    height: 18px;
+    position: absolute;background-color: #eee;
+}
+.on {
+    background-color: #333;
+}
+</style>
+
+<blockquote>
+<p><span class="caps">DISCLAIMER</span>: I don’t know Haskell at all. I know the code in this article is not idiomatic and I look forward to receiving constructive&nbsp;criticism.</p>
+</blockquote>
+<p>In <a href="/articles/2013-05-06-functional-game-of-life/">part 1 of this series</a> I began to implement the game of life cellular automaton in C# using the functional programming style (at least as I know it). Part 1 defined the data model and implemented a function to render the state of the system to&nbsp;<span class="caps">HTML</span>. </p>
+<p>For this part 2 of the series I port my C# solution to&nbsp;Haskell. </p>
+<p>Firstly, the data structure. As with the C# version I model the game of life as a list of living cells. The definition of a <code>cell</code> is:</p>
+<pre><code>data Cell = Cell {
+  x       :: Int,
+  y       :: Int
+} deriving (Show)
+</code></pre><p>where x and y are functions that return the cartesian coordinates of the cell. It is the same as the C# version, except that this <code>Cell</code> type is&nbsp;immutable.</p>
+<p>Having defined my <code>Cell</code> type I then defined a set of functions to do useful things with a <code>Cell</code> or a list of cells. <code>renderLocation</code> is a function that converts a point (xv,yv) and a boolean (indicating if the cell at that location is living) into its <span class="caps">HTML</span>&nbsp;string.</p>
+<pre><code>renderLocation :: Int -&gt; Int -&gt; Bool -&gt; String
+renderLocation xv yv on = printf 
+                          &quot;&lt;div class=\&quot;cell %s\&quot; style=\&quot;left: %dpx; top: %dpx;\&quot;&gt;&amp;nbsp;&lt;/div&gt;\n&quot; 
+                          (if on then &quot;on&quot; else &quot;&quot;) (20 * (xv+1)) (20 * (yv+1))
+</code></pre><p>The first line is a type definition for the function. Its C# equivalent would be <code>Func&lt;int,int,bool,string&gt;</code>.</p>
+<p>To make <code>renderLocation</code> useful I need a function to determine if a given location contains a living&nbsp;cell:</p>
+<pre><code>isOn :: [Cell] -&gt; Int -&gt; Int -&gt; Bool
+isOn cs xv yv = any cellMatch cs
+  where cellMatch c = x c == xv &amp;&amp; y c == yv
+</code></pre><p>This roughly translates to the C# <code>cs.Any(c =&gt; x(c) == xv &amp;&amp; y(c) == yv)</code>.</p>
+<p>The other helper functions required calculate the largest X and Y values to determine the size of the&nbsp;system:</p>
+<pre><code>largestX :: [Cell] -&gt; Int
+largestX cs = maximum $ map x cs
+
+largestY :: [Cell] -&gt; Int
+largestY cs = maximum $ map y cs
+</code></pre><p><code>largestX</code> translated to C#&nbsp;is:</p>
+<pre><code>public int largestX(Cell[] cs) {
+  return cs.Select(c =&gt; x(c)).Max();
+}
+</code></pre><p>Next I created three living cells, at coordinates (1,2), (3,5) and&nbsp;(14,13):</p>
+<pre><code>cells = [Cell 1 2, Cell 3 5, Cell 14 13]
+</code></pre><p>Now I can create a <code>render</code> function that produces the <span class="caps">HTML</span> representation of a&nbsp;system:</p>
+<pre><code>render :: [Cell] -&gt; String
+render cs = concat [renderLocation x y (isOn cs x y) | x &lt;- [0..xBound], y &lt;- [0..yBound]]
+  where xBound = largestX cs
+        yBound = largestY cs
+</code></pre><p>The expression <code>[renderLocation x y (isOn cs x y) | x &lt;- [0..xBound], y &lt;- [0..yBound]]</code> is a list comprehension. The part after the pipe <code>x &lt;- [0..xBound], y &lt;- [0..yBound]</code> produces the cartesian product of all possible x values (<code>[0..xBound]</code>) and all possible y values (<code>[0..yBound]</code>). For each point the <code>renderLocation</code> function is called. The results are collected into a list of strings which is then flattened to a single string by the <code>concat</code> function.</p>
+<p>This is equivalent to the C#&nbsp;version:</p>
+<pre><code>var results = from x in Enumerable.Range(0, largestX+1)
+              from y in Enumerable.Range(0, largestY+1)
+              select buildCell(x, y, IsOn(cells, x, y));
+</code></pre><p>Now to get the program to actually do something I define a list of cells and then use the programs <code>main</code> function to render my list of cells and write the result to&nbsp;stdout.</p>
+<pre><code>cells = [Cell 1 2, Cell 3 5, Cell 14 13]
+
+main = (putStrLn . render) cells
+</code></pre><p>The output of this program&nbsp;is:</p>
+<div style="clear:both;height: 400px;">
+<div style="position:relative">
+  <div style="left: 20px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 20px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 60px;" class="cell on">&nbsp;</div>
+  <div style="left: 40px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 40px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 60px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 120px;" class="cell on">&nbsp;</div>
+  <div style="left: 80px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 80px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 100px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 120px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 140px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 160px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 180px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 200px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 220px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 240px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 260px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 280px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 300px; top: 280px;" class="cell on">&nbsp;</div>
+  <div style="left: 300px; top: 300px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 20px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 40px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 60px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 80px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 100px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 120px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 140px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 160px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 180px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 200px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 220px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 240px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 260px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 280px;" class="cell ">&nbsp;</div>
+  <div style="left: 320px; top: 300px;" class="cell ">&nbsp;</div>
+</div>
+</div>
+
+<p>Here is the full&nbsp;program:</p>
+<pre><code>import Text.Printf
+import Data.List
+
+data Cell = Cell {
+    x       :: Int,
+    y       :: Int
+  } deriving (Show)
+
+renderLocation :: Int -&gt; Int -&gt; Bool -&gt; String
+renderLocation xv yv on = printf 
+                     &quot;&lt;div class=\&quot;cell %s\&quot; style=\&quot;left: %dpx; top: %dpx;\&quot;&gt;&amp;nbsp;&lt;/div&gt;\n&quot; 
+                     (if on then &quot;on&quot; else &quot;&quot;) (20 * (xv+1)) (20 * (yv+1))
+
+isOn :: [Cell] -&gt; Int -&gt; Int -&gt; Bool
+isOn cs xv yv = any cellMatch cs
+  where cellMatch c = x c == xv &amp;&amp; y c == yv
+
+largestX :: [Cell] -&gt; Int
+largestX cs = maximum $ map x cs
+
+largestY :: [Cell] -&gt; Int
+largestY cs = maximum $ map y cs
+
+render :: [Cell] -&gt; String
+render cs = concat [renderLocation x y (isOn cs x y) | x &lt;- [0..xBound], y &lt;- [0..yBound]]
+  where xBound = largestX cs
+        yBound = largestY cs
+
+--cells = [Cell 1 2, Cell 3 5, Cell 14 13]
+--new Cell(1,0), new Cell(0,1), new Cell(2,1), new Cell(7,16)
+cells = [Cell 1 0, Cell 0 1, Cell 2 1, Cell 7 16]
+
+main = (putStrLn . render) cells
+</code></pre><p>It is a bit longer than the C# version, but that is because I have used more explicit functions and specified more explicit&nbsp;types.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

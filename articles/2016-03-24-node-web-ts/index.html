@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Building a Web Application with Node and Typescript - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Building a Web Application with Node and Typescript</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>For the purpose of this article I define a <em>web application</em> as a <span class="caps">HTTP</span> network service, such as what we might build with Asp.NET MVC, Ruby on Rails, Django, Php etc. This article will demonstrate how to write a web application in Typescript that runs on&nbsp;Node.js. </p>
+<h1 id="why-do-this-">Why do&nbsp;this?</h1>
+<p>Running as much of an application as possible on the client creates a richer user experience and a better perception of performance. Unfortunately, the client cannot be trusted so enevitably a lot of an application’s logic must remain on the server, within the circle of&nbsp;trust. </p>
+<p><img src="/articles/2016-03-24-node-web-ts/circle.jpg" alt="Circle of trust"></p>
+<h2 id="enable-code-sharing">Enable code&nbsp;sharing</h2>
+<p>This unpleasent client/server split can be made a little more bearable by sharing code between the two halves of the application, and this is easier if the code on both sides is written in the same programming language. Useful things to share include types, validation and application specific&nbsp;computations.</p>
+<p><img src="/articles/2016-03-24-node-web-ts/share.jpg" alt="Sharing"></p>
+<h2 id="benefits-of-node">Benefits of&nbsp;Node</h2>
+<p>Node has some advantages as a web server. It is fast, simple and inherently  safely&nbsp;asynchronous. </p>
+<p>Node enables cross platform development and deployment by running well on windows, mac and&nbsp;linux. </p>
+<p>Node has the fastest growing, if not the best quality, package repository. It is a vibrant and creative ecosystem of people who are excited about programming. Consequently, they <a href="https://www.reddit.com/r/learnprogramming/comments/4bo951/eli5_this_whole_fiasco_with_javascript_node_and/">wet their pants</a> from time to&nbsp;time.</p>
+<h2 id="benefits-of-typescript">Benefits of&nbsp;Typescript</h2>
+<p>The static vs dynamic typing debate is beyond the scope of this article. Suffice to say that having compile time type checking can help the self-aware programmer to write more correct software. It is also useful when sharing types between the server and&nbsp;client. </p>
+<p>Typescript has <em>‘optional static typing’</em>, meaning that you can relax the type checking when it feels good to do so. This can be useful when you want to do dynamic type things and when you are integrating with JavaScript&nbsp;libraries. </p>
+<h1 id="get-started-with-node-and-typescript">Get Started With Node and&nbsp;Typescript</h1>
+<p>Step 1, <a href="/articles/2016-03-24-node-web-ts/install%20node.js">https://nodejs.org/en/</a>. Node itself is just an executable, so you don’t really <strong>need</strong> to install it, but doing so will be easier and will install the node package manager (npm) as&nbsp;well. </p>
+<p>Next, install typescript, via&nbsp;npm:</p>
+<pre><code>$ npm install -g typescript
+</code></pre><p>Now create your first typescript program&nbsp;(person.ts):</p>
+<pre><code>interface Person {
+    name: string;
+    age: number;
+}
+
+function birthday(someone : Person) : Person {
+    return {name: someone.name, age: someone.age+1};
+}
+
+console.dir(birthday({name:&quot;Judy&quot;,age:39}));
+</code></pre><p>and compile using the typescript compiler&nbsp;(tsc):</p>
+<pre><code>$ tsc person.ts
+</code></pre><p>The output of the typescript compiler is the javascript file <code>person.js</code>, which&nbsp;contains:</p>
+<pre><code>function birthday(someone) {
+    return { name: someone.name, age: someone.age + 1 };
+}
+console.dir(birthday({ name: &quot;Judy&quot;, age: 39 }));
+</code></pre><p>Wooh! That’s just the typescript with the type annotations striped out. This makes sense because typescript is a compile time system, not a runtime&nbsp;system.</p>
+<blockquote>
+<p>Typescript is a compile time system, not a runtime&nbsp;system. </p>
+</blockquote>
+<p>Keeping this in mind will help you as you pickup&nbsp;typescript. </p>
+<p>Now we can run our program with&nbsp;node.js</p>
+<pre><code>$ node person.js
+{ name: &#39;Judy&#39;, age: 40 }
+</code></pre><p>Now to show what makes typescript useful. Let’s intentionally introduce a type error into our&nbsp;program:</p>
+<pre><code>interface Person {
+    name: string;
+    age: number;
+}
+
+function birthday(someone : Person) : Person {
+    return {handle: someone.name, age: someone.age+1};
+}
+
+console.dir(birthday({name:&quot;Judy&quot;,age:39}));
+</code></pre><p>See the type error? The <code>birthday</code> function returns a value that is not valid for the type <code>Person</code>. When we&nbsp;compile:</p>
+<pre><code>$ tsc person.ts
+person.ts(7,13): error TS2322: Type &#39;{ handle: string; age: number; }&#39; 
+is not assignable to type &#39;Person&#39;.
+  Object literal may only specify known properties, 
+  and &#39;handle&#39; does not exist in type &#39;Person&#39;.
+</code></pre><h1 id="adding-a-web-framework">Adding a Web&nbsp;Framework</h1>
+<p>Typescript relies heavily on the JavaScript ecosystem. As mentioned previously typescript does not exist at runtime. So it needs the JavaScript runtime, the JavaScript (or node) standard library, and JavaScript&nbsp;packages. </p>
+<p>For this article we will work with the node web framework <a href="http://definitelytyped.org/tsd/">hapi</a>. Hapi is a javascript framework. To use it in a typescript project we need a type definition file to tell typescript about the types used in hapi. To find Typescript type definitions search the <a href="http://definitelytyped.org/tsd/">definitely typed site</a> which is a repository of typescript type definition files. The easiest way to install a type definition is to use <a href="https://github.com/Definitelytyped/tsd#install">tsd</a>.</p>
+<pre><code>$ npm install tsd -g
+</code></pre><p>Now you can install the type definitions for&nbsp;Hapi:</p>
+<pre><code>$ tsd install hapi --save
+</code></pre><p>Unfortunately there is nothing synchonizing typescript type definitions to the libraries they define, and when the two get out of sync it causes frustration. I&nbsp;recommend:</p>
+<ol>
+<li>Start by choosing libraries that have <span class="caps">TSD</span> type definitions. You can create your own but it is not&nbsp;easy. </li>
+<li>Install the type definition. Inspect its source to discover which version of the JavaScript library the type definition was written&nbsp;for.</li>
+<li>Install that version of the JavaScript&nbsp;library.</li>
+</ol>
+<p>For me, <span class="caps">TSD</span> installed type definitions for hapi 13.0.0, so that is the version of the Javascript library I want to&nbsp;install:</p>
+<pre><code>$ npm install hapi@13.0.0 --save
+</code></pre><p>Now create a new typescript program <code>server.ts</code>. The first line should&nbsp;be:</p>
+<pre><code>/// &lt;reference path=&quot;typings/tsd.d.ts&quot; /&gt;
+</code></pre><p><code>tsd.d.ts</code> is a file created by <span class="caps">TSD</span> that references the type definitions for all included libraries. This comment tells the typescript compiler where to find type&nbsp;definitions. </p>
+<p>Next, add the code for a simple hapi web&nbsp;server:</p>
+<pre><code>/// &lt;reference path=&quot;typings/tsd.d.ts&quot; /&gt;
+
+import * as Hapi from &#39;hapi&#39;;
+
+const server = new Hapi.Server();
+server.connection({ 
+    host: &#39;localhost&#39;, 
+    port: 8000 
+});
+
+server.route({
+    method: &#39;GET&#39;,
+    path:&#39;/hello/{name}&#39;, 
+    handler: function (request, reply) {
+
+        return reply(&#39;hello &#39; + request.params[&#39;name&#39;]);
+    }
+});
+
+server.start((err) =&gt; {
+    if (err) { throw err; }
+    console.log(&#39;Server running at:&#39;, server.info.uri);
+});
+</code></pre><p>Compile and&nbsp;start:</p>
+<pre><code>$ tsc server.ts
+$ node server.js
+Server running at: http://localhost:8000
+</code></pre><p>Now navigate your browser (or curl) to <code>http://localhohst:8000/hello/Eugene</code>:</p>
+<pre><code>$ curl http://localhost:8000/hello/Eugene
+hello Eugene
+</code></pre><h2 id="automatically-compiling-and-restarting-the-server">Automatically Compiling and Restarting the&nbsp;Server</h2>
+<p>The development workflow at this point is clunky. When a change is made to the typescript source you need to recompile the application, then restart the hapi server to pickup the&nbsp;changes.</p>
+<pre><code>$ tsc server.ts
+$ node server.js
+</code></pre><p>This gets old quickly. We can have typescript automatically detect and compile changes by using the -w&nbsp;flag:</p>
+<pre><code>$ tsc server.ts -w
+</code></pre><p>Not only is this more convenient, it is also faster. By keeping the process alive typescript is able to implement incremental compilation (only recompile the bits that have&nbsp;changed). </p>
+<p>To automatically restart the server we can use the <code>node-dev</code> package.</p>
+<pre><code>$ npm install node-dev -g
+</code></pre><p>Then run the program with <code>node-dev</code> instead of <code>node</code>.</p>
+<pre><code>$ node-dev server.js
+</code></pre><p><code>node-dev</code> detects when a required module is changed and restarts the&nbsp;process. </p>
+<h1 id="performance">Performance</h1>
+<p>Node is supposed to be fast right? As written, our simple server is processes about 1,600&nbsp;reqs/s. </p>
+<p><img src="/articles/2016-03-24-node-web-ts/single.png" alt="single threaded"></p>
+<p>Not bad, but nothing special considering it doesn’t do much. This is because node is single threaded and therefore only capable of utilizing a single <span class="caps">CPU</span> core. We can fix this (somewhat) using node’s ‘cluster’ module to start a process per CPU core. The clustered code looks&nbsp;like:</p>
+<pre><code>/// &lt;reference path=&quot;typings/tsd.d.ts&quot; /&gt;
+
+import * as cluster from &#39;cluster&#39;;
+import { cpus } from &#39;os&#39;;
+import * as Hapi from &#39;hapi&#39;;
+
+const numCPUs = cpus().length;
+
+if (cluster.isMaster) {
+  for (var i = 0; i &lt; numCPUs; i++) {
+    cluster.fork();
+  }
+  cluster.on(&#39;exit&#39;, (worker, code, signal) =&gt; {
+    console.log(`worker ${worker.process.pid} died`);
+  });
+} else {
+    const server = new Hapi.Server();
+    server.connection({ 
+        host: &#39;localhost&#39;, 
+        port: 8000 
+    });
+
+    server.route({
+        method: &#39;GET&#39;,
+        path:&#39;/hello/{name}&#39;, 
+        handler: (request, reply) =&gt; reply(&#39;hello &#39; + request.params[&#39;name&#39;])
+    });
+
+    server.start((err) =&gt; {
+        if (err) { throw err; }
+        console.log(&#39;Server running at:&#39;, server.info.uri);
+    }); 
+}
+</code></pre><p>This pushes the reqs/s up to&nbsp;5,700.</p>
+<p><img src="/articles/2016-03-24-node-web-ts/rps.png" alt="requests per second"></p>
+<p>That’s better&nbsp;:)</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

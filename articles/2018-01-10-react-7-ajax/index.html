@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning React 7 - AJAX - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning React 7 - AJAX</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>In <a href="/articles/2018-01-08-react-6-react-router/">Learning React 6 - React Router</a> we learned how to connect a client-side router to a React&nbsp;application. </p>
+<p>In this post we will look at how to add <span class="caps">AJAX</span> HTTP requests to a React application. This requires more thought than introducing AJAX to products built with other libraries, because our React application so far has used pure components (components that produce output entirely determined by their inputs) and been entirely synchronous (processing proceeds continuously without having to wait for any external&nbsp;events).</p>
+<h1 id="movie-library">Movie&nbsp;Library</h1>
+<p>For this demonstration we will need a more complicated application than the one we have used so far, so we will build a movie library. The application will allow the user&nbsp;to:</p>
+<ul>
+<li>search the <a href="http://www.omdbapi.com"><span class="caps">OMDB</span> movie database API</a> for&nbsp;movies.</li>
+<li>view the details of a&nbsp;movie </li>
+<li>select movies to add to their favourite&nbsp;list</li>
+<li>view their favourite&nbsp;list</li>
+</ul>
+<p>Start by creating a new application with&nbsp;create-react-app:</p>
+<pre><code class="lang-bash">$ create-react-app movie-library
+</code></pre>
+<p>and start the&nbsp;app:</p>
+<pre><code class="lang-bash">$ npm start
+</code></pre>
+<p>Install redux, react-redux and a router (<a href="https://github.com/faceyspacey/redux-first-router">redux-first-router</a>):</p>
+<pre><code class="lang-bash">$ npm install --save redux react-redux history redux-first-router redux-first-router-link
+</code></pre>
+<p>Modify <code>index.js</code> to use a default redux&nbsp;implementation:</p>
+<pre><code class="lang-javascript">import React from <span class="string">'react'</span>;
+import ReactDOM from <span class="string">'react-dom'</span>;
+import <span class="string">'./index.css'</span>;
+import registerServiceWorker from <span class="string">'./registerServiceWorker'</span>;
+import { createStore } from <span class="string">'redux'</span>;
+import { Provider } from <span class="string">'react-redux'</span>;
+import App from <span class="string">'./App'</span>;
+
+<span class="function"><span class="keyword">function</span> <span class="title">reducer</span><span class="params">(state = { }, action)</span> {</span>
+    <span class="keyword">switch</span> (action.type) {
+        <span class="keyword">default</span>: <span class="keyword">return</span> state;
+    }
+}
+<span class="keyword">const</span> store = createStore(reducer);
+
+ReactDOM.render(
+    <span class="xml"><span class="tag">&lt;<span class="title">Provider</span> <span class="attribute">store</span>=<span class="value">{store}</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">App</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>, 
+    document.getElementById('root'));
+
+store.dispatch({type: "<span class="caps">START</span>"});
+
+registerServiceWorker();</span>
+</code></pre>
+<h1 id="the-search-component">The Search&nbsp;Component</h1>
+<p>The starting page of the movie library will feature a movie search&nbsp;component. </p>
+<p>Start by creating a new file, <code>Search.js</code> containing a minimal Search&nbsp;component:</p>
+<pre><code class="lang-javascript">import React from <span class="string">'react'</span>;
+import { connect } from <span class="string">'react-redux'</span>;
+
+<span class="function"><span class="keyword">function</span> <span class="title">Search</span><span class="params">()</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">h1</span>&gt;</span>Search<span class="tag">&lt;/<span class="title">h1</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+
+export <span class="keyword">const</span> ConnectedSearch = connect(
+    <span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span><span class="params">(state)</span> {</span>
+        <span class="keyword">return</span> state;
+    }, 
+    <span class="function"><span class="keyword">function</span> <span class="title">mapDispatchToProps</span><span class="params">(dispatch)</span> {</span>
+        <span class="keyword">return</span> {};
+    }
+)(Search);
+</code></pre>
+<p>The <code>Search</code> module exports a component <code>ConnectedSearch</code> that is our search component wrapped in a react-redux connector to give it access to the redux store (we will need this later). Now, modify <code>App.js</code> to import and use the <code>ConnectedSearch</code> component:</p>
+<pre><code class="lang-javascript"> import React, { Component } from <span class="string">'react'</span>;
+import <span class="string">'./App.css'</span>;
+import { ConnectedSearch } from <span class="string">'./Search'</span>;
+
+<span class="keyword">class</span> App extends Component {
+  render() {
+    <span class="keyword">return</span> (
+      <span class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">className</span>=<span class="value">"App"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">header</span> <span class="attribute">className</span>=<span class="value">"App-header"</span>&gt;</span>
+          <span class="tag">&lt;<span class="title">h1</span> <span class="attribute">className</span>=<span class="value">"App-title"</span>&gt;</span>Movie Library<span class="tag">&lt;/<span class="title">h1</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">header</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">ConnectedSearch</span> /&gt;</span>
+      <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    );
+  }
+}
+
+export default App;</span>
+</code></pre>
+<p>Now the application should be working a displaying a heading&nbsp;‘Search’.</p>
+<p>The <code>Search</code> component needs a text input. We will create a new component <code>SearchForm</code> to contain the text input. To get the form to function properly we must use React’s component ‘state’ feature, which means using the <a href="https://reactjs.org/docs/state-and-lifecycle.html">class component syntax</a> instead of the function syntax. Both ‘state’ and the class syntax are undesirable, hence why they are contained in the smallest possible area where they are absolutely needed (the <code>SearchForm</code> component).</p>
+<pre><code class="lang-javascript"><span class="keyword">class</span> SearchForm extends React.Component {
+    constructor(props) {
+        super(props);
+        <span class="keyword">this</span>.state = {title: <span class="string">""</span>}
+        <span class="keyword">this</span>.titleChange = <span class="keyword">this</span>.titleChange.bind(<span class="keyword">this</span>);
+        <span class="keyword">this</span>.search = <span class="keyword">this</span>.search.bind(<span class="keyword">this</span>);
+    }
+
+    titleChange(event) {
+        <span class="keyword">this</span>.setState({title: event.target.value});
+    }
+
+    search(event) {
+        event.preventDefault();
+        <span class="keyword">this</span>.props.onSearch(<span class="keyword">this</span>.state.title);
+    }
+
+    render() {
+        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">form</span> <span class="attribute">onSubmit</span>=<span class="value">{this.search}</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">htmlFor</span>=<span class="value">"title"</span>&gt;</span>Title: <span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">type</span>=<span class="value">"text"</span> <span class="attribute">name</span>=<span class="value">"title"</span> <span class="attribute">value</span>=<span class="value">{this.state.title}</span> <span class="attribute">onChange</span>=<span class="value">{this.titleChange}</span>/&gt;</span>
+        <span class="tag">&lt;/<span class="title">form</span>&gt;</span>;</span>
+    }
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">Search</span><span class="params">()</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">h1</span>&gt;</span>Search<span class="tag">&lt;/<span class="title">h1</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">SearchForm</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+
+export <span class="keyword">const</span> ConnectedSearch = connect(
+    <span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span><span class="params">(state)</span> {</span>
+        <span class="keyword">return</span> state;
+    }, 
+    <span class="function"><span class="keyword">function</span> <span class="title">mapDispatchToProps</span><span class="params">(dispatch)</span> {</span>
+        <span class="keyword">return</span> {
+            onSearch: (title)=&gt; { dispatch({type: <span class="string">"<span class="caps">SEARCH</span>"</span>, title}); }
+        };
+    }
+)(Search);
+</code></pre>
+<p>When a user types a character in the textbox it fires the <code>onChange</code> event, which <a href="https://reactjs.org/docs/forms.html">updates the components state to have the latest value of the textbox</a>, which causes the component to re-render and display the character the user typed in the&nbsp;textbox. </p>
+<p>When the form is submitted we call the <code>onSearch</code> function on <code>props</code>. The React-Redux connection translates this into a dispatch of an action with <code>type: &quot;SEARCH&quot;</code>.</p>
+<h1 id="summary">Summary</h1>
+<p>We started building a React movie library with React, Redux, react redux, and redux-first-router. We implemented a class component for a form, with local state and connected everything to our Redux&nbsp;store. </p>
+<blockquote>
+<p>Next: <a href="/articles/2018-01-10-react-8-ajax-continued/">Learning React 8 - <span class="caps">AJAX</span>&nbsp;Continued</a></p>
+</blockquote>
+<h2 id="get-the-code">Get The&nbsp;Code</h2>
+<p>The code for this example is <a href="https://github.com/liammclennan/movie-library">on Github</a>. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this&nbsp;post. </p>
+<pre><code class="lang-bash">git clone https://github.com/liammclennan/movie-library.git
+git checkout react7 
+</code></pre>
+<p>or browse at <a href="https://github.com/liammclennan/movie-library/tree/7548d450b7727f124070dd7ee9b73575d740e9b3">https://github.com/liammclennan/movie-library/tree/7548d450b7727f124070dd7ee9b73575d740e9b3</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

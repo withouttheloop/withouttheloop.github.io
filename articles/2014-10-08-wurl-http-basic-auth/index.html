@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>HTTP Basic Authentication Support in Wurl - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>HTTP Basic Authentication Support in Wurl</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="http://wurl.io">Wurl</a> (web curl) is a browser-based <span class="caps">HTTP</span> test client that I <a href="http://withouttheloop.com/articles/2014-03-11-wurl/">slapped together earlier this year (2014)</a>, partly because it is a useful tool and partly because it gives me a play project to experiment with React, Typescript and&nbsp;F#. </p>
+<h2 id="how-it-works">How it&nbsp;works</h2>
+<p>Wurl describes http requests using the jquery <a href="http://api.jquery.com/jquery.ajax/">$.ajax syntax</a>. I chose this because most developers are familiar with it and because it is capable of describing a wide variety of request&nbsp;options.</p>
+<p>Wurl first attempts to make the request by directly evaluating the request using jquery from the browser. Try <a href="http://wurl.io/request?url=https%3A%2F%2Fapi.github.com">this fun example</a> of querying the github <span class="caps">API</span>. Often this strategy will fail due to <a href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">cross-origin resource sharing</a> (<span class="caps">CORS</span>) restrictions. Wurl is smart enough to detect CORS errors and fallback to making the request via a proxy, which is not subject to CORS&nbsp;restrictions. </p>
+<p>Unfortunately the proxy is not jquery and does not use jquery (it uses <a href="http://msdn.microsoft.com/en-us/library/system.net.http.httpclient%28v=vs.118%29.aspx">HttpClient</a>) so the query must be parsed and translated. Therefore queries that go via the <span class="caps">CORS</span> proxy do not implement the full set of $.ajax&nbsp;features. </p>
+<h2 id="http-basic-authentication"><span class="caps">HTTP</span> basic&nbsp;authentication</h2>
+<p>Recently I added support for the Authorization header. The options that are honoured now are: url, type (http verb), headers (Authorization only). This means that basic authentication can be used from Wurl for all services, regardless of <span class="caps">CORS</span>&nbsp;support.  </p>
+<iframe src="http://wurl.io/template/d3ba57f1-ebd4-44a6-ad8c-729881cd495f" style="width: 100%;height:400px;" frameborder="0"></iframe>
+
+<p>Here is an <a href="http://wurl.io/template/d3ba57f1-ebd4-44a6-ad8c-729881cd495f">example showing a request to the github <span class="caps">API</span> that uses basic authentication</a>. It fails, but only because I have removed my&nbsp;password. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Making a Single Page Application - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Making a Single Page Application</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><h1 id="should-i-">Should&nbsp;I?</h1>
+<p>Conventional wisdom holds that in 2017 all applications are best implemented as single page applications (SPAs). Having seen the transformation from server-side <span class="caps">MVC</span> to client-side single page applications the cynical part of me wonders if the preference for SPAs has more to do with developer career planning that technical&nbsp;merits. </p>
+<p>Some hard truths.&nbsp;SPAs:</p>
+<ul>
+<li>are more&nbsp;complicated </li>
+<li>take longer to&nbsp;build</li>
+<li>are much slower to render database&nbsp;content </li>
+</ul>
+<p>So, for me, applications that primarily publish content and have simple user interaction are much better as server side <span class="caps">MVC</span> applications. Applications requiring rich user interaction need to be SPAs. Everything else is somewhere in the&nbsp;middle. </p>
+<h2 id="get-started-with-a-starter-kit">Get Started With A Starter&nbsp;Kit</h2>
+<p>There are many prebuilt application starter kits available for building SPAs. They typically solve the modern nightmare of configuring a JavaScript build process and maybe throw in a few other&nbsp;goodies. </p>
+<p>For Angular there&nbsp;is:</p>
+<ul>
+<li><a href="https://github.com/angular/quickstart">the Angular Quickstart Seed</a>. This an official Angular (Google) published quickstart&nbsp;repository. </li>
+<li><a href="https://github.com/angular/angular-cli">Angular cli</a> includes a way to setup new&nbsp;projects. </li>
+</ul>
+<p>For React we&nbsp;have:</p>
+<ul>
+<li><a href="https://github.com/mozilla/neo">Mozilla Neo</a>, a fully featured and opinionated application&nbsp;generator.</li>
+<li><a href="https://github.com/facebookincubator/create-react-app">create-react-app</a> the facebook idea of what a starter kit should be. Neat, but extremely&nbsp;minimal.   </li>
+</ul>
+<p>There are hundreds of others available. Unfortunately, evaluating them is more difficult than you might think. The relative strenghts and weaknesses of these systems often don’t present themself until a project is well underway, or when the developer decides that it is necessary to deviate in some way from the choices made by their chosen starter&nbsp;kit. </p>
+<p>I like React, and I think there is a lot of benefit in choosing the “official” starter kit creted and maintained by Facebook and the React team. The trouble with create-react-app is that it includes the absolute minimum required to make React work, which is not enough to build an application. For example, there is no routing, validation or application state management&nbsp;included. </p>
+<p>The best of both worlds then is to chose a minimal starter kit, upgrade it to include your favourite tools and match your preferences, then publish that as your own custom starter kit. This lets consumers use your starter kit as a single dependency in their applications, just as create-react-app does. It also means that starter kits are composable, and someone could further customise your starter kit into their own starter&nbsp;kit. </p>
+<h2 id="what-i-did-to-create-react-app">What I Did To&nbsp;create-react-app</h2>
+<p>I used create-react-app as the basis for my starter kit. Then proceeded to add react-router for routing, bootstrap for styles and redux for state&nbsp;management. </p>
+<h3 id="adding-react-router">Adding React&nbsp;router</h3>
+<p>The easy and obvious start is to install&nbsp;react-router:</p>
+<pre><code>npm install react-router --save
+</code></pre><p>The fundamental abstraction of a web application is the resource (or page) identified by a <span class="caps">URL</span>. This is why routing is so important. Each application state should be addressable by an unique URL. If you don’t have this then your application fails to meet the expectations of the web, such as a working back button, pages that can be bookmarked etc. To capture this I like to create page components that export everything required to hook a new page into the application, including a route string and a factory for creating the React component that represents the page. For example, the component for an about page might&nbsp;be:</p>
+<pre><code class="lang-javascript"><span class="keyword">let</span> AboutPage = {
+
+    <span class="comment">// function that returns the React component for the page</span>
+    pageFactory: aboutPageFactory,
+
+    <span class="comment">// the route to match to this page</span>
+    route: <span class="string">'about'</span>
+};
+export <span class="keyword">default</span> AboutPage;
+</code></pre>
+<p>When rendering the application (this happens in <code>index.js</code> for create-react-app) we now have everything we need to connect routes to&nbsp;pages.</p>
+<pre><code class="lang-javascript">ReactDOM.render(
+    <span class="xml"><span class="tag">&lt;<span class="title">Router</span> <span class="attribute">history</span>=<span class="value">{browserHistory}</span> &gt;</span>
+        <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">path</span>=<span class="value">"/"</span> <span class="attribute">component</span>=<span class="value">{Layout}</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">IndexRoute</span> <span class="attribute">component</span>=<span class="value">{Home}</span>/&gt;</span>
+            {[aboutPage, loginPage].map(page =&gt; 
+                <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">key</span>=<span class="value">{page.route}</span> <span class="attribute">path</span>=<span class="value">{page.route}</span> <span class="attribute">component</span>=<span class="value">{page.pageFactory(store,</span> <span class="attribute">page.sideEffects</span>)} /&gt;</span>
+            )}    
+        <span class="tag">&lt;/<span class="title">Route</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">Router</span>&gt;</span>,
+    document.getElementById('root')</span>
+</code></pre>
+<p>For the about page, this means that the route <code>/about</code> will cause the about page component (returned from aboutPageFactory) to render within the <code>Layout</code> component. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

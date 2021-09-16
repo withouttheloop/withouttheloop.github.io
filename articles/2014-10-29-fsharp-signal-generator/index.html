@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Implementing an F# Signal Generator - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Implementing an F# Signal Generator</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="sg.jpg" alt="signal generator" align="right" style="width:400px"/></p>
+<p>As part of a larger project I have been working on a signal generator. A signal generator is a device (in this case an F# program) that is often used to generate waves at a particular frequency that can be interpreted as sound (by applying to a speaker as a&nbsp;voltage). </p>
+<p>For my project I want to generate pitches and then convert the signal to <span class="caps">PCM</span> audio data, wrapped in the windows WAVE file format. PCM format means that the signal is represented as a series of positive or negative values within a certain range. The number of samples per second is called the sample rate (44,100 for CD audio). The range of the values is governed by the bit depth, again I will stick with the CD audio standard 16 bit audio, giving me a range of -32768 to&nbsp;32767.</p>
+<h2 id="generating-signals">Generating&nbsp;Signals</h2>
+<p>The simplest and purest representation of a particular frequency is given by a sine&nbsp;wave. </p>
+<p><img src="sine.gif" alt="A sine wave"/></p>
+<p><em>This graph was generated using FSharp.Charting and the following fsx&nbsp;file</em></p>
+<pre><code>#load &quot;../packages/FSharp.Charting.0.90.7/FSharp.Charting.fsx&quot;
+open FSharp.Charting
+let c = seq { for x in [1.0..0.1..20.0] do yield (x, sin x) } |&gt; Chart.Line
+</code></pre><p>Note that the wave has a range from -1 to 1 and a recurring regular frequency. But what is that regular frequency? The F# <code>sin</code> function operates on an angle given in radians. Experimenting in the F# repl (fsi) we can find that <code>sin</code> of <span class="caps">PI</span> radians is&nbsp;0</p>
+<pre><code>&gt; sin System.Math.PI;;
+val it : float = 1.224606354e-16
+</code></pre><p>Interesting. What about the <code>sin</code> of 2 <span class="caps">PI</span>&nbsp;radians?</p>
+<pre><code>&gt; sin (2. * System.Math.PI);;
+val it : float = -2.449212708e-16
+</code></pre><p>Those accustomed to working with floating point numbers will recognise that anything x 10^-16 is floating points version of 0. So sin (n * <span class="caps">PI</span>) is 0. This tells us, or at least suggests, that the graph crosses the x axis every PI change in x. Now let’s look at mid-points between x&nbsp;intercepts:</p>
+<pre><code>&gt; sin (1.5 * System.Math.PI);;
+val it : float = -1.0
+&gt; sin (2.5 * System.Math.PI);;
+val it : float = 1.0
+&gt; sin (3.5 * System.Math.PI);;
+val it : float = -1.0
+</code></pre><p>Half way between <span class="caps">PI</span> and 2 x PI the y value is -1. Half way between 2 x PI and 3 x PI the y value is 1. Half way between 3 x PI and 4 x PI the y value is back to -1, so we see that the graph repeats every 2 x&nbsp;PI. </p>
+<p>Now we can start generating <span class="caps">PCM</span> data. First we need to list the samples we want to&nbsp;create:</p>
+<pre><code>let requiredSamples = seq { 1.0..(seconds * sampleRate) }
+</code></pre><p>We need <code>sampleRate</code> samples for every second. Next we plot those points using the <code>sin</code> function, and scale them by the expected range for 16 bit&nbsp;audio.</p>
+<pre><code>let samples = Seq.map 
+                (fun x -&gt; x |&gt; sin |&gt; (*) 32767 |&gt; int16) 
+                requiredSamples
+</code></pre><p>Now we have <span class="caps">PCM</span> audio samples that we can pack and send to an audio player for listening&nbsp;pleasure.</p>
+<h2 id="packing-pcm-data-into-a-wave-file">Packing <span class="caps">PCM</span> data into a WAVE&nbsp;File</h2>
+<p>The <a href="https://ccrma.stanford.edu/courses/422/projects/WaveFormat/"><span class="caps">WAVE</span> file format</a> is a binary format defined as part of Microsoft’s <span class="caps">RIFF</span> specification. The details of the format are not very interesting. It has some headers that describe the format in use, and details of the audio data, such as sample rate, bit depth and number of channels. To encode 16 bit mono samples at 44,100<span class="ord">th</span>e following is&nbsp;sufficient:</p>
+<pre><code>let pack (d:int16[]) = 
+    let stream = new MemoryStream();
+    let writer = new BinaryWriter(stream, System.Text.Encoding.ASCII);
+    let dataLength = Array.length d * 2
+
+    // RIFF
+    writer.Write(System.Text.Encoding.ASCII.GetBytes(&quot;RIFF&quot;))
+    writer.Write(Array.length d)
+    writer.Write(System.Text.Encoding.ASCII.GetBytes(&quot;WAVE&quot;))
+
+    // fmt
+    writer.Write(System.Text.Encoding.ASCII.GetBytes(&quot;fmt &quot;))
+    writer.Write(16)
+    writer.Write(1s)        // PCM
+    writer.Write(1s)        // mono
+    writer.Write(44100)     // sample rate
+    writer.Write(44100 * 16 / 8)     // byte rate
+    writer.Write(2s)        // bytes per sample
+    writer.Write(16s)       // bits per sample
+
+    // data
+    writer.Write(System.Text.Encoding.ASCII.GetBytes(&quot;data&quot;))
+    writer.Write(dataLength)
+    let data:byte[] = Array.zeroCreate dataLength
+    System.Buffer.BlockCopy(d, 0, data, 0, data.Length)
+    writer.Write(data)
+    stream
+</code></pre><h2 id="tuning">Tuning</h2>
+<p>So far we have a signal generator that generates audio data following a sine wave, but we have no control of the pitch (frequency) of the sound. We know that the wave repeats every 2 x <span class="caps">PI</span>, and we know that we have 44,100 samples per second. What we need is a way to expand and contract the wave horizontally to hit target frequencies. The graph transformation that controls horizontal stretch is achieved by multiplying the argument by a factor prior to applying the original function.&nbsp;ie</p>
+<pre><code>let square x = x * x
+let squareStretched x = (2 * x) * (2 * x)
+</code></pre><p>The frequence of the wave&nbsp;is</p>
+<pre><code>freq = 44100 / period
+</code></pre><p>and the period is 2 x <span class="caps">PI</span>. To add a horizontal stretching factor we multiply by some&nbsp;factor.</p>
+<pre><code>freq = 44100 / 2 x PI x factor
+</code></pre><p>solving for the&nbsp;factor</p>
+<pre><code>factor = 44100 / 2 * PI * freq
+</code></pre><p>Now we can update our signal generating function to be tuneable using the inverse of&nbsp;factor</p>
+<pre><code>let frequency = 440.
+let samples = Seq.map 
+                (fun x -&gt; x 
+                |&gt; (*) (2. * System.Math.PI * frequency / 44100.)
+                |&gt; sin 
+                |&gt; (*) 32767 
+                |&gt; int16) 
+                requiredSamples
+</code></pre><p>Now we can tune our data to frequencies. Above I have used 440Hz (concert A). To pack into a <span class="caps">WAVE</span> and save to a&nbsp;file</p>
+<pre><code>let write (ms:MemoryStream) =
+    use fs = new FileStream(Path.Combine(__SOURCE_DIRECTORY__,&quot;test.wav&quot;), FileMode.Create)
+    ms.WriteTo(fs)
+
+samples |&gt; pack |&gt; write
+</code></pre><h2 id="admiring-the-results">Admiring the&nbsp;Results</h2>
+<p>What is the result of all that effort? <a href="/articles/2014-10-29-fsharp-signal-generator/test.wav">A few seconds of concert pitch</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

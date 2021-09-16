@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Applying Functional Programming to .net Consulting Projects - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Applying Functional Programming to .net Consulting Projects</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>The benefits of <a href="http://en.wikipedia.org/wiki/Functional_programming">functional programming</a> are <a href="http://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf">well known</a>, and <a href="http://callvirt.net/blog/post/Why-F-%28TechEd-09-DEV450%29.aspx">well documented</a>. The rest of this article will assume that this argument has been digested and accepted.  Given the benefits of functional programming the relatively low adoption can be attributed to general resistance to change, the front-loaded learning curve, a degree of complacency, and uncertainty about how to accomplish common programming tasks with a functional toolset. This article focuses on the latter, particularly in the context of .net consulting&nbsp;projects.</p>
+<h2 id="functional-programming-for-the-net-programmer">Functional Programming for the .net&nbsp;Programmer</h2>
+<p>A common fallacy is that we can achieve the benefits of functional programming by applying a functional style within a procedural language. Immutability is essential to functional programming and procedural languages, such as c#, do not encourage or support immutability. Whilst a functional style of c# programming is certainly an improvement we must not pretend that it is a reasonable substitute for a proper functional programming language. For the programmer working with .net tools in the .net ecosystem F# is the obvious prime candidate for a functional programming language. It is the only first-class, functional-first .net&nbsp;language.</p>
+<p>Some project managers worry that embracing a functional programming language will cause hiring difficulty. This fallacy possibly occurs because the push for functional programming generally comes from the programmers themselves. Non-programmers associated with software projects have little visibility into the rise and popularity of functional programming. Here in Brisbane the <a href="http://www.meetup.com/Brisbane-Functional-Programming-Group/">local functional programming user group</a> has 484 members. Each year Brisbane hosts a <a href="http://www.yowconference.com.au/lambdajam/">well attended conference</a> dedicated to functional programming. The amount of functional programming talent available for hire is&nbsp;underestimated. </p>
+<p>Finally, the notion of sticking to tools that make hiring easier contradicts the ‘right tool for the job’ directive that we should strive for. If the majority of unemployed programmers were assembler experts would you chose assembler for your next&nbsp;project?</p>
+<h2 id="mixed-solutions">Mixed&nbsp;Solutions</h2>
+<p>An important tool when introducing F# to a project is the ability to include F# and other .net languages within the same application. This reduces risk considerably because we retain the ability to fall back to another .net language (usually c#) in the event that F# is deemed to be unsuitable for a particular purpose. The reality is that this is not likely to ever be necessary - still there is value in reducing the perception of&nbsp;risk. </p>
+<p>A solution will be simpler, and more cohesive, if F# is used exclusively, however .net supports mixed solutions by allowing different projects to use different languages, and by supporting interoperability in both&nbsp;directions. </p>
+<h2 id="interoperability-between-f-and-c-">Interoperability Between F# and&nbsp;C#</h2>
+<p>Calling from F# into c# is a simple matter of using c# style&nbsp;syntax. </p>
+<pre><code>new RiakObjectId(&quot;logs&quot;, kvp.Key)
+</code></pre><p>Note the use of the new keyword to create an object, paranthesis to delimit method arguments, and commas to separate method&nbsp;arguments. </p>
+<p>Calling from c# into F# is similarly straightforward. F# functions appear in c# as static methods on static classes that map to the F# modules. The following F# and c# code are&nbsp;equivalent:</p>
+<pre><code>open Data
+nowToTodayString DateTime.Now
+
+Data.nowToTodayString(DateTime.Now)
+</code></pre><h2 id="f-for-web-applications">F# for Web&nbsp;Applications</h2>
+<p>F# is unfortunately not currently treated as a first-class .net language by visual studio. There is no built-in template for creating a web or desktop application with F#. The only supported scenarios are library and command line projects. In the absense of built-in templates the community has provided some excellent templates for a wide variety of&nbsp;scenarios.</p>
+<p>The visual studio online project templates include an excellent template called <a href="http://visualstudiogallery.msdn.microsoft.com/3d2bf938-fc9e-403c-90b3-8de27dc23095">F# and C# Web Application template</a>. It creates a minimal c# web project and an auxillary F# library containing as much of the code as possible, including the controllers, view models, and application instance. The only application code required to be implemented within the c# web application project is the views. The case study discussed later is built on this&nbsp;template.</p>
+<h2 id="f-for-windows-services">F# for Windows&nbsp;Services</h2>
+<p>Despite there being no built-in template for F# windows services, F# is well suited to this task. The Visual C# Windows Service project actually does very little so it is trivial to manually implement an F# service, as described in the <span class="caps">MSDN</span> article <a href="http://msdn.microsoft.com/en-us/library/vstudio/hh297113%28v=vs.100%29.aspx#gff">Creating Windows Services in F#</a>.</p>
+<p>Implementing a service only requires a <code>ServiceBase</code> implementation and a service <code>Installer</code> implementation. </p>
+<h2 id="f-tooling-support">F# Tooling&nbsp;Support</h2>
+<p>F# tooling support is minimal, compared to c# and <span class="caps">VB</span>.NET. As mentioned previously there is a shortage of built-in project templates, but this is easily rectified by the online, community contributed templates. Many .net technologies, such as asp.net and WPF, do not explicitly support F#, meaning that the F# programmer has some extra work to do. Also, third party productivity tools, such as ReSharper, typically do not support F#. When our productivity tools become a contributing factor for foundational technology decisions it is time to question, “have we lost&nbsp;control?”.</p>
+<h2 id="f-data-access">F# Data&nbsp;Access</h2>
+<p>Most data access methods assume mutability, which negates some of the benefits of <span class="caps">FP</span>. The exceptions are the explicity immutable data stores, such as <a href="http://www.datomic.com/">Datomic</a> and <a href="http://geteventstore.com/">Event Store</a> and the http based datastores like <a href="http://couchdb.apache.org/">CouchDB</a> and <a href="http://basho.com/riak/">Riak</a>. </p>
+<p>The case study included with this article uses Riak for its data store. F# has no direct support for Riak, however, it is trivial to use the <a href="http://corrugatediron.org/">CorrugatedIron</a> client (written in c#) to communicate with Riak. All of the aforementioned data stores provide an <span class="caps">HTTP</span> interface, so a specialized client is not strictly&nbsp;necessary. </p>
+<h2 id="case-study-logging-you">Case Study - Logging&nbsp;You</h2>
+<p><img src="screen.png" alt="Logging You - A data driven web application written in F#" /></p>
+<p><a href="http://loggingyou.azurewebsites.net/">Logging You</a> is a bad demonstration of F#’s advantages. It includes none of F#’s core competency (computation) and lots of F#’s weaker areas (interop, <span class="caps">GUI</span> programming, transactional data access). Indeed the purpose of this case study is to investigate the feasibility of F# as a standard tool for .net consultants, therefore the important question to answer is, “how well does it handle those weaker&nbsp;areas?”.</p>
+<p>Logging you is a log dashboard built as an asp.net mvc web application. It’s two use cases&nbsp;are:</p>
+<ul>
+<li>display a summary of the currently stored logs. This includes the alltime total count of logs, the count of today’s logs, and the list of today’s log&nbsp;messages.</li>
+<li>allow the user to enter a new informational log&nbsp;message</li>
+</ul>
+<p>These simple requirements forced the development of mvc integration, data queries and mvc model binding. F# handled all of these non-ideal (for a functional programming language) tasks with aplomb. Being a standard asp.net website Logging You is hosted on Azure without any special modifications. The <a href="https://bitbucket.org/liammclennan/loggingyou">source</a> is available on&nbsp;bitbucket. </p>
+<h2 id="find-out-more">Find Out&nbsp;More</h2>
+<p>If you are interested in learning more about applied functional programming in .net, here are some helpful&nbsp;resources:</p>
+<ul>
+<li><a href="http://fsharpforfunandprofit.com/why-use-fsharp/">FSharp for Fun and&nbsp;Profit</a></li>
+<li><a href="http://fsharp.org/">The F# Software&nbsp;Foundation</a></li>
+<li><a href="http://www.tryfsharp.org/">Try&nbsp;F#</a></li>
+</ul>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

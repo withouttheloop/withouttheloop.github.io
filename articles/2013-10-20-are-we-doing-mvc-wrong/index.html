@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Are we doing MVC wrong? - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Are we doing MVC wrong?</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>The naive way to build user interfaces with the <span class="caps">MVC</span> pattern is to include the application’s logic in controller actions - effectively recreating <a href="http://martinfowler.com/eaaCatalog/transactionScript.html">transaction script</a> that&nbsp;is: </p>
+<blockquote>
+<p>organizes business logic by procedures where each procedure handles a single request from the&nbsp;presentation.</p>
+</blockquote>
+<p>Recognising that this is bad, many <a href="http://lostechies.com/jimmybogard/2013/07/17/how-we-do-mvc-4-years-later/">smart people</a> have thought about <a href="http://paulstovell.com/blog/clean-aspnet-mvc-controllers">how to do mvc better</a>. A couple of things still bother&nbsp;me:</p>
+<ol>
+<li><p>What is the responsibility of the controller? They always seem to combine <span class="caps">UI</span> decisions (choosing a view, reading the request, http status codes, http redirects) with application&nbsp;logic.</p>
+</li>
+<li><p>The application itself has no interface. Controllers are a <span class="caps">UI</span> that consume the application, but there is no clear application boundary that defines what the application itself&nbsp;does.</p>
+</li>
+</ol>
+<p>To solve these problems I have started using a different technique for mvc. I will demonstrate by refactoring a typical&nbsp;controller.</p>
+<h2 id="a-typical-controller">A Typical&nbsp;Controller</h2>
+<pre><code>public class LibraryController : Controller
+{
+    private readonly IBookRepository _bookRepository;
+    private readonly IBorrowings _borrowings;
+    private readonly IUsers _users;
+
+    public LibraryController(IBookRepository bookRepository, IBorrowings borrowings, IUsers users)
+    {
+        _bookRepository = bookRepository;
+        _borrowings = borrowings;
+        _users = users;
+    }
+
+    public ActionResult Catalogue()
+    {
+        return View(_bookRepository.AllBooks());
+    }
+
+    public ActionResult Borrow(BookModel book)
+    {
+        var fullCatalogue = _bookRepository.AllBooks();
+        var bookIsInCatalogue = fullCatalogue.Any(b =&gt; b.ISBN == book.ISBN);
+        if (!bookIsInCatalogue)
+        {
+            SetErrorFlash(&quot;The selected book is not in the catalogue&quot;);
+            return RedirectToAction(&quot;Catalogue&quot;);
+        }
+
+        var borrowedBooks = _borrowings.BorrowedBooks();
+        var bookIsOutOnLoan = borrowedBooks.Any(b =&gt; b.ISBN == book.ISBN);
+        if (bookIsOutOnLoan)
+        {
+            SetErrorFlash(&quot;The selected book is currently out on loan&quot;);
+            return RedirectToAction(&quot;Catalogue&quot;);
+        }
+
+        var user = _users.GetAuthenticatedUser();
+        var canBorrow = user.HasPermissionToBorrow();
+        if (!canBorrow)
+        {
+            SetErrorFlash(&quot;The selected book is currently out on loan&quot;);
+            return RedirectToAction(&quot;Catalogue&quot;);
+        }
+
+        var bookEntity = _bookRepository.GetByISBN(book.ISBN);
+        var result = _borrowings.Borrow(bookEntity);
+
+        if (result != null)
+        {
+            SetSuccessFlash(&quot;Book borrowed&quot;);
+            return View(&quot;Borrowed&quot;, result);
+        }
+        else
+        {
+            return View(&quot;BorrowFailed&quot;);
+        }
+    }
+
+    private void SetErrorFlash(string message) {}
+    private void SetSuccessFlash(string message) {}
+}
+</code></pre><p>One problem here is that there is no differentiation between the user interface behaviour and the function provided by the application. Both are implemented in the controller, mixed together in the same method (<code>Borrow</code>).</p>
+<p>Another problem is that as the library functionality grows more dependencies will be added to the controller. Not all of the actions will use all of the dependencies, so cohesion is low, and coupling is&nbsp;high.</p>
+<h2 id="application-feature-api">Application Feature&nbsp;<span class="caps">API</span></h2>
+<p>Instead of the above controller I prefer to make the features an application provides into a first class <span class="caps">API</span>. I model each feature as a class, so the logic in <code>Borrow</code> action moves into a feature class called <code>BorrowABook</code>.</p>
+<p>The genesis of the ideas show here come from Uncle Bob’s presentation <a href="http://www.youtube.com/watch?v=WpkDN78P884">‘Architecture the Lost Years’</a>.</p>
+<pre><code>public class BorrowABook
+{
+    public enum BorrowABookOutcomes
+    {
+        NotInCatalogue,
+        OutOnLoan,
+        InsufficientPermission,
+        BorrowFailed,
+        BorrowSucceeded
+    }
+
+    public Feature&lt;BorrowABookOutcomes,Book&gt; Borrow(BookModel book)
+    {
+        // .. implement application logic
+        return new Feature&lt;BorrowABookOutcomes,Book&gt;(BorrowABookOutcomes.BorrowSucceeded, borrowedBook);
+    }
+}
+</code></pre><p>Features return a glorified tuple (<code>Feature&lt;TOutcome,TResult&gt;</code>) that combines an enum value that represents what the outcome was, with a value that represents the result of the operation. In this case I am returning the success outcome and the book that was borrowed. As the boundary of your application Features are an excellent target for behaviour tests. You can <a href="https://gist.github.com/liammclennan/78ea542e2fc120bc643b">test them without dealing with <span class="caps">UI</span> layer concerns</a>.  </p>
+<h2 id="simplified-controller">Simplified&nbsp;Controller</h2>
+<p>Given a feature such as <code>BorrowABook</code> the controller action simplifies to the&nbsp;following:</p>
+<pre><code>public ActionResult Borrow(BookModel book)
+{
+    var result = _feature.Borrow(book);
+    switch (result.Outcome)
+    {
+        case BorrowABook.BorrowABookOutcomes.NotInCatalogue:
+            {
+                SetErrorFlash(&quot;The selected book is not in the catalogue&quot;);
+                return RedirectToAction(&quot;Catalogue&quot;);
+            }
+        case BorrowABook.BorrowABookOutcomes.OutOnLoan:
+            {
+                SetErrorFlash(&quot;The selected book is currently out on loan&quot;);
+                return RedirectToAction(&quot;Catalogue&quot;);
+            }
+        case BorrowABook.BorrowABookOutcomes.InsufficientPermission:
+            {
+                SetErrorFlash(&quot;You do not have permission to borrow books&quot;);
+                return RedirectToAction(&quot;Catalogue&quot;);
+            }
+        case BorrowABook.BorrowABookOutcomes.BorrowFailed:
+            {
+                return View(&quot;BorrowFailed&quot;);
+            }
+        case BorrowABook.BorrowABookOutcomes.BorrowSucceeded:
+            {
+                SetSuccessFlash(&quot;Book borrowed&quot;);
+                return View(&quot;Borrowed&quot;, result.Result);
+            }
+        default: throw new Exception(&quot;Unknown result &quot; + result.Outcome);
+    }
+}
+</code></pre><p>Note that the application logic has all been removed. The controller action is reduced to the minimum required to implement the&nbsp;<span class="caps">UI</span>.</p>
+<h2 id="update">Update</h2>
+<p>Thanks to David Tchepak for providing <a href="https://gist.github.com/dtchepak/7168143">this F# version</a> of the above example. Note that it is untested and meant simply as an example of what an F# version might look&nbsp;like.</p>
+<script src="https://gist.github.com/dtchepak/7168143.js"></script>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>
