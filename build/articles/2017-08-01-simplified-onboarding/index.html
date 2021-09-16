@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Komo Passwordless Authentication - Simplified Onboarding - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Komo Passwordless Authentication - Simplified Onboarding</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="https://komo.tech/">Komo</a> was already a secure and easy way to add passwordless authentication to web applications. However, it is now even&nbsp;easier. </p>
+<p>The process of adding Komo passwordless authentication to a web applications has been reduced to two&nbsp;steps:</p>
+<ol>
+<li><p>Add the form code to your&nbsp;application</p>
+<p> The Komo dashboard shows the source code for the required login form. Simply copy and paste the form code into your application where you would like your login form to&nbsp;appear.</p>
+<p> <img src="/articles/2017-08-01-simplified-onboarding/form.png" alt="Login form code"></p>
+</li>
+<li><p>Implement a&nbsp;webhook</p>
+<p> Your webhook endpoint is sent an authentication token. Post the token to <code>https://komo.tech/verify</code>. The response will look something&nbsp;like:</p>
+<pre><code> {
+     &quot;isValid&quot;: true,
+     &quot;email&quot;: &quot;john@adomain.com&quot;,
+     &quot;message&quot;: &quot;&quot;
+ }
+</code></pre><p> See the <a href="https://app.swaggerhub.com/apis/liammclennan/Komo/1.0.0">full <span class="caps">API</span> documentation</a>.</p>
+<p> If <code>isValid</code> is true, then you have verified that the current user has access to the email address in the response (<a href="mailto:`john@adomain.com">`john@adomain.com</a>` in the example above) and may login the user using your web&nbsp;framework. </p>
+</li>
+</ol>
+<p>See <a href="https://glitch.com/edit/#!/immense-sneeze?path=server.js:22:11">https://glitch.com/edit/#!/immense-sneeze?path=server.js:22:11</a> for a full working&nbsp;example.</p>
+<p>(Note: It is also possible to directly verify the <a href="https://en.wikipedia.org/wiki/JSON_Web_Token"><span class="caps">JWT</span> token</a> if you wish to avoid the network request to <code>https://komo.tech/verify</code>.)</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

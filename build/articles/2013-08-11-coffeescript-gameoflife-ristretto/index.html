@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>CoffeeScript Game of Life with Ristretto Type Annotations - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>CoffeeScript Game of Life with Ristretto Type Annotations</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>This weekend at <a href="http://campjs.com/">campjs</a> one of my projects has been porting my <a href="http://withouttheloop.com/articles/2013-05-12-functional-game-of-life-3-haskell/">Haskell Game of Life</a> to CoffeeScript, with type annotations courtesy of <a href="http://code.google.com/p/ristretto-js/">Ristretto</a>. </p>
+<p><a href="https://github.com/liammclennan/coffeescript-game-of-life">https://github.com/liammclennan/coffeescript-game-of-life</a></p>
+<h2 id="ristretto">Ristretto</h2>
+<p>Given a function from string to&nbsp;int:</p>
+<pre><code>number_of_chars = (s) -&gt; s.length
+</code></pre><p>Ristretto can enfore the types given the following annotated&nbsp;version:</p>
+<pre><code>number_of_chars = T &#39;number_of_chars :: String -&gt; Int&#39;, (s) -&gt;
+    s.length
+</code></pre><p>The format of the type annotation will be familiar to Haskellers. Read <code>::</code> as ‘has the type’. All types to the left of a -&gt; are function arguments and the type to the right of the last -&gt; is the return type. So the above function <code>number_of_chars</code> has the type <code>String</code> to <code>Int</code>. </p>
+<p>Ristretto can also define data types. For&nbsp;example:</p>
+<pre><code>T &#39;typedef Person :: { name: String, age: Int }&#39;
+class Person
+    constructor: (@name, @age) -&gt;
+</code></pre><p>The JavaScript equivalent&nbsp;is:</p>
+<pre><code>T(&#39;typedef Person :: { name: String, age: Int }&#39;);
+function Person(name,age) {
+    this.name = name;
+    this.age = age;
+}
+</code></pre><h2 id="game-of-life">Game of&nbsp;Life</h2>
+<p>Here is my Game of Life&nbsp;implementation:</p>
+<pre><code>require &#39;coffee-script&#39;
+T = require &#39;./ristrettoAssert&#39;
+_ = require &#39;underscore&#39;
+
+# Define a type for a living cell
+T &#39;typedef Cell :: {x:Int, y:Int}&#39;
+class Cell
+    constructor: (@x,@y) -&gt;
+
+# seed the initial living cells
+r_pentomino = [new Cell(2, 1), new Cell(3, 1), new Cell(1,2), new Cell(2,2), new Cell(2,3)]
+
+# determine if a coordinate (x,y) is a neighbour of a cell
+is_neighbour = T(&#39;is_neighbour :: Cell -&gt; Int -&gt; Int -&gt; Bool&#39;, (c, x, y) -&gt;
+    Math.abs(x-c.x) &lt; 2 and Math.abs(y-c.y) &lt; 2 and (not (x is c.x and y is c.y))
+)
+
+living_neighbours = T(&#39;living_neighbours :: [Cell] -&gt; Int -&gt; Int -&gt; Int&#39;, (cs,x,y) -&gt;
+    (cell for cell in cs when is_neighbour cell, x, y).length
+)
+
+is_on = T(&#39;is_on :: [Cell] -&gt; Int -&gt; Int -&gt; Bool&#39;, (cs,x,y) -&gt;
+    (cell for cell in cs when cell.x is x and cell.y is y).length &gt; 0
+)
+
+largest_x = T &#39;largest_x :: [Cell] -&gt; Int&#39;, (cs) -&gt;
+    _.max(cs, (i) -&gt; i.x).x
+
+largest_y = T &#39;largest_y :: [Cell] -&gt; Int&#39;, (cs) -&gt;
+    _.max(cs, (i) -&gt; i.y).y
+
+alive_next_generation = T &#39;alive_next_generation :: [Cell] -&gt; Int -&gt; Int -&gt; Bool&#39;, (cs,x,y) -&gt;
+    false
+    (is_on(cs, x, y) and 2 &lt;= living_neighbours(cs, x, y) &lt;=3) or ((not is_on(cs, x, y)) and (living_neighbours(cs,x,y) is 3))
+
+tick = T &#39;tick :: [Cell] -&gt; [Cell]&#39;, (cs) -&gt;
+    ncs = []
+    for x in [0..largest_x(cs)+1]
+        for y in [0..largest_y(cs)+1]
+            ncs.push(new Cell(x,y)) if alive_next_generation cs, x, y
+    ncs
+
+visualize = T &#39;visualize :: [Cell] -&gt; String&#39;, (cs) -&gt;
+    result = &#39;&#39;
+    for y in [0..largest_y(cs)+1]
+        for x in [0..largest_x(cs)+1]
+            result += if is_on(cs,x,y) then &#39;x&#39; else &#39;-&#39;
+            if x is largest_x(cs)+1
+                result += &#39;\n&#39;
+    result
+
+[1..50].reduce((p,c,i) -&gt;
+    console.log visualize p
+    tick p
+, r_pentomino)
+</code></pre><h2 id="thoughts">Thoughts</h2>
+<p>While re-implementing game of life my experience was that ristretto frequently alerted me to type errors. Without Ristretto these errors would have manifested later in the program with a greater distance between the problem and the runtime&nbsp;error. </p>
+<p>Ristretto does not provide the full benefits of a static type checker. It is more like a type-based <a href="http://en.wikipedia.org/wiki/Design_by_contract">design-by-contract</a> library. Personally, I have been frustrated by type errors in Javascript, which led me to implement a <a href="https://github.com/liammclennan/dbc">basic runtime type checker for JavaScript</a>, but I think that Ristretto is a better and more logically consistent&nbsp;solution.</p>
+<h2 id="output">Output</h2>
+<p>The output of my CoffeeScript Game of Life for the first 50 generations takes 22s on my Chromebook and is printed below. To generate the full 1103 generations before this pattern stabilises will likely require a better&nbsp;algorithm. </p>
+<pre><code>-----
+--xx-
+-xx--
+--x--
+-----
+
+-----
+-xxx-
+-x---
+-xx--
+-----
+
+--x--
+-xx--
+x--x-
+-xx--
+-----
+
+-xx--
+-xxx-
+x--x-
+-xx--
+-----
+
+-x-x-
+x--x-
+x--x-
+-xx--
+-----
+
+--x---
+xx-xx-
+x--x--
+-xx---
+------
+
+-xxx--
+xx-xx-
+x--xx-
+-xx---
+------
+
+xx-xx-
+x-----
+x---x-
+-xxx--
+------
+
+xx----
+x--xx-
+x-xx--
+-xxx--
+--x---
+------
+
+xx----
+x--xx-
+x-----
+------
+-xxx--
+------
+
+xx--
+x---
+----
+-xx-
+--x-
+--x-
+----
+
+xx---
+xx---
+-x---
+-xx--
+--xx-
+-----
+
+xx---
+--x--
+-----
+-x-x-
+-xxx-
+-----
+
+-x---
+-x---
+--x--
+-x-x-
+-x-x-
+--x--
+-----
+
+-----
+-xx--
+-xx--
+-x-x-
+-x-x-
+--x--
+-----
+
+-----
+-xx--
+x--x-
+xx-x-
+-x-x-
+--x--
+-----
+
+------
+-xx---
+x--x--
+xx-xx-
+xx-x--
+--x---
+------
+
+------
+-xx---
+x--xx-
+---xx-
+x--xx-
+-xx---
+------
+
+-------
+-xxx---
+-x--x--
+--x--x-
+-x--x--
+-xxx---
+-------
+
+--x----
+-xxx---
+-x--x--
+-xxxxx-
+-x--x--
+-xxx---
+--x----
+-------
+
+-xxx---
+-x-x---
+x----x-
+xx---x-
+x----x-
+-x-x---
+-xxx---
+-------
+
+-x-x----
+xx-xx---
+x-x-x---
+xx--xxx-
+x-x-x---
+xx-xx---
+-x-x----
+--x-----
+--------
+
+xx-xx-
+x---x-
+--x---
+x-x-x-
+--x---
+x---x-
+xx-xx-
+--x---
+------
+
+xx-xx-
+x-x-x-
+------
+--x---
+------
+x-x-x-
+xxxxx-
+-xxx--
+------
+
+xxxxx-
+x-x-x-
+-x-x--
+------
+-x-x--
+x-x-x-
+x---x-
+x---x-
+--x---
+------
+
+x-x-x--
+x---x--
+-xxx---
+-------
+-xxx---
+x-x-x--
+x---xx-
+-x-x---
+-------
+
+-x-x---
+x---x--
+-xxx---
+-------
+-xxx---
+x-x-xx-
+x-x-xx-
+----x--
+-------
+
+-------
+x---x--
+-xxx---
+-------
+-xxxx--
+x----x-
+-------
+---xxx-
+-------
+
+-------
+-xxx---
+-xxx---
+----x--
+-xxxx--
+-xxxx--
+-----x-
+----x--
+----x--
+-------
+
+--x----
+-x-x---
+-x--x--
+----x--
+-x---x-
+-x---x-
+--x--x-
+----xx-
+-------
+
+--x-----
+-x-x----
+--xxx---
+----xx--
+----xx--
+-xx-xxx-
+-----xx-
+----xx--
+--------
+
+--x-----
+-x--x---
+--x--x--
+--------
+--------
+---x----
+---x----
+----xxx-
+--------
+
+-------
+-xxx---
+-------
+-------
+-------
+-------
+---x-x-
+----xx-
+-----x-
+-------
+
+--x-----
+--x-----
+--x-----
+--------
+--------
+--------
+-----x--
+-----xx-
+----xx--
+--------
+
+--------
+-xxx----
+--------
+--------
+--------
+--------
+-----xx-
+------x-
+----xxx-
+--------
+
+--x------
+--x------
+--x------
+---------
+---------
+---------
+-----xx--
+----x--x-
+-----xx--
+-----x---
+---------
+
+---------
+-xxx-----
+---------
+---------
+---------
+---------
+-----xx--
+----x--x-
+----xxx--
+-----xx--
+---------
+
+--x------
+--x------
+--x------
+---------
+---------
+---------
+-----xx--
+----x--x-
+----x--x-
+----x-x--
+---------
+
+---------
+-xxx-----
+---------
+---------
+---------
+---------
+-----xx--
+----x--x-
+---xx-xx-
+-----x---
+---------
+
+--x------
+--x------
+--x------
+---------
+---------
+---------
+-----xx--
+---xx--x-
+---xx-xx-
+----xxx--
+---------
+
+---------
+-xxx-----
+---------
+---------
+---------
+---------
+----xxx--
+---x---x-
+-------x-
+---xx-xx-
+-----x---
+---------
+
+--x-------
+--x-------
+--x-------
+----------
+----------
+-----x----
+----xxx---
+----xx-x--
+---xx--xx-
+----xxxx--
+----xxx---
+----------
+
+----------
+-xxx------
+----------
+----------
+----------
+----xxx---
+----------
+-------xx-
+---x----x-
+--------x-
+----x--x--
+-----x----
+----------
+
+--x--------
+--x--------
+--x--------
+-----------
+-----x-----
+-----x-----
+-----xxx---
+-------xx--
+--------xx-
+-------xx--
+-----------
+
+-----------
+-xxx-------
+-----------
+-----------
+-----------
+----xx-----
+-----x-xx--
+---------x-
+---------x-
+-------xxx-
+-----------
+
+--x---------
+--x---------
+--x---------
+------------
+------------
+----xxx-----
+----xxx-x---
+---------x--
+---------xx-
+--------xx--
+--------x---
+------------
+
+------------
+-xxx--------
+------------
+------------
+-----x------
+----x-xx----
+----x-xx----
+-----x--xxx-
+----------x-
+--------x-x-
+--------xx--
+------------
+
+--x----------
+--x----------
+--x----------
+-------------
+-----xx------
+----x--x-----
+----x----x---
+-----xxxxxx--
+--------x-xx-
+--------x-x--
+--------xx---
+-------------
+
+-------------
+-xxx---------
+-------------
+-------------
+-----xx------
+----x-x------
+----x----xx--
+-----xxx---x-
+------x----x-
+-------xx-xx-
+--------xx---
+-------------
+
+--x-----------
+--x-----------
+--x-----------
+--------------
+-----xx-------
+----x-x-------
+----x--x--x---
+-----xxx---x--
+-----x--x--xx-
+-------xx-xx--
+-------xxxx---
+--------------
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

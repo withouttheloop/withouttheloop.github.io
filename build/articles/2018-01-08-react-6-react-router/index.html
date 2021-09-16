@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning React 6 - React Router - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning React 6 - React Router</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="/articles/2018-01-05-react-5-react-redux/">Learning React 5 - React-Redux</a> explored the helpers provided by Redux for integration into a React application. Our today application is now using Redux to store and manage&nbsp;state. </p>
+<p>Applications designed for the web should be <span class="caps">URL</span> oriented. Adhering to this expectations enables navigation, caching, book marking and many other standard activities. Implmenting routing in a React application requires a routing library, and the most popular is <a href="https://reacttraining.com/react-router/web/guides/quick-start">React Router</a>.</p>
+<h1 id="react-router">React&nbsp;Router</h1>
+<p>In this post we will add routing, using React Router, to our today application. We will support URLs&nbsp;like,</p>
+<pre><code>localhost:3000/day/2018-03-20
+</code></pre><p>That will set the <code>day</code> value to March 20. Instead of having to use the ‘Next’ button users will be able to navigate directly to day of their choosing, and instead of the ‘Next’ button being implemented as a state change it will become a simple navigation link to the next&nbsp;day. </p>
+<p>To start, as always, install the new&nbsp;library:</p>
+<pre><code>&gt; npm install react-router-dom --save
+</code></pre><p>To add the router, without modifying the existing behaviour&nbsp;we: </p>
+<ul>
+<li>import some React Router&nbsp;functions</li>
+<li>add a <code>Router</code> to our component&nbsp;tree</li>
+<li>add a <code>Route</code> component that maps a <span class="caps">URL</span> to a&nbsp;component</li>
+</ul>
+<pre><code class="lang-javascript">import { BrowserRouter as Router, Route } from <span class="string">'react-router-dom'</span>;
+
+ReactDOM.render(
+    <span class="xml"><span class="tag">&lt;<span class="title">Provider</span> <span class="attribute">store</span>=<span class="value">{store}</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">Router</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">exact</span> <span class="attribute">path</span>=<span class="value">"/"</span> <span class="attribute">component</span>=<span class="value">{ConnectedToday}</span> /&gt;</span>
+        <span class="tag">&lt;/<span class="title">Router</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>, 
+    document.getElementById('root'));</span>
+</code></pre>
+<p>This declares that the root path (‘/‘) should result in the the <code>ConnectedToday</code> component being rendered in the position&nbsp;specified. </p>
+<p>Now our application is using a router, but behaving exactly as&nbsp;before. </p>
+<p>Let’s add another route for <strong>/day/<span class="caps">YYYY</span>-MM-DD</strong>:</p>
+<pre><code class="lang-html">ReactDOM.render(
+    <span class="tag">&lt;<span class="title">Provider</span> <span class="attribute">store</span>=<span class="value">{store}</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">Router</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">div</span>&gt;</span>
+                <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">exact</span> <span class="attribute">path</span>=<span class="value">"/"</span> <span class="attribute">component</span>=<span class="value">{ConnectedToday}</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">path</span>=<span class="value">"/day/:datestring"</span> <span class="attribute">component</span>=<span class="value">{ConnectedToday}</span> /&gt;</span>
+            <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">Router</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>,
+    document.getElementById('root'));
+</code></pre>
+<p>Note that <code>:datestring</code> represents a querystring parameter variable. Next, modify the <code>Today</code> component to read its date from the router instead of from&nbsp;Redux:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">(props)</span> {</span>
+    <span class="keyword">const</span> day = <span class="keyword">new</span> <span class="built_in">Date</span>(props.match.params.datestring);
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>Today is {day.toString()} 
+        <span class="tag">&lt;<span class="title">button</span> <span class="attribute">type</span>=<span class="value">"button"</span> <span class="attribute">onClick</span>=<span class="value">{props.onNext}</span>&gt;</span>Next<span class="tag">&lt;/<span class="title">button</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+</code></pre>
+<p>React Router uses <a href="https://reactjs.org/docs/context.html">the same trick</a> as Redux to supply route parameters to components without having to manually pass them as&nbsp;props. </p>
+<p>Now you can navigate to a <span class="caps">URL</span> like <em><a href="http://localhost:3000/day/1994-5-8">http://localhost:3000/day/1994-5-8</a></em> to get the Today component rendered for the 8<span class="ord">th</span> May 1994. We have broken the next button because it increments a <code>day</code> value in the Redux store, but our component takes its day value from the router. Instead of incrementing a value in the store we can instead use a link to the next&nbsp;day:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Today</span><span class="params">(props)</span> {</span>
+    <span class="keyword">const</span> day = <span class="keyword">new</span> <span class="built_in">Date</span>(props.match.params.datestring);
+    <span class="keyword">const</span> nextDay = <span class="keyword">new</span> <span class="built_in">Date</span>(day.getTime() + (<span class="number">24</span>*<span class="number">3600</span>*<span class="number">1000</span>));
+    <span class="keyword">const</span> tomorrowDateString = `${nextDay.getFullYear()}-${nextDay.getMonth()+<span class="number">1</span>}-${nextDay.getDate()}`;
+    <span class="keyword">return</span> (
+        <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>Today is {day.toString()} 
+            <span class="tag">&lt;<span class="title">Link</span> <span class="attribute">to</span>=<span class="value">{"</span>/<span class="attribute">day</span>/" + <span class="attribute">tomorrowDateString</span>}&gt;</span>Next<span class="tag">&lt;/<span class="title">Link</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>);
+}</span>
+</code></pre>
+<p><code>Link</code> is a React Router component used to generate&nbsp;links.</p>
+<p>Now our <span class="caps">UI</span> is bound to the URL. As we navigate through consecutive days you will see the URL change. Also, if you manually change the URL the UI is updated to match. To make our routing more interesting, let’s add a <code>Home</code> component on the root&nbsp;<span class="caps">URL</span>:</p>
+<pre><code class="lang-html">ReactDOM.render(
+    <span class="tag">&lt;<span class="title">Provider</span> <span class="attribute">store</span>=<span class="value">{store}</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">Router</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">div</span>&gt;</span>
+                <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">exact</span> <span class="attribute">path</span>=<span class="value">"/"</span> <span class="attribute">component</span>=<span class="value">{Home}</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">Route</span> <span class="attribute">path</span>=<span class="value">"/day/:datestring"</span> <span class="attribute">component</span>=<span class="value">{ConnectedToday}</span> /&gt;</span>
+            <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">Router</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">Provider</span>&gt;</span>,
+    document.getElementById('root'));
+</code></pre>
+<p>The <code>Home</code> component should display a link to a randomly selected&nbsp;day:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Home</span><span class="params">()</span> {</span>
+    <span class="keyword">const</span> randomBetween = (min, max) =&gt; <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * (max-min+<span class="number">1</span>) + min);
+    <span class="keyword">const</span> randomDateString = 
+        `${randomBetween(<span class="number">1900</span>, <span class="number">2100</span>)}-${randomBetween(<span class="number">1</span>, <span class="number">12</span>)}-${randomBetween(<span class="number">1</span>, <span class="number">28</span>)}`;
+
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span><span class="tag">&lt;<span class="title">h1</span>&gt;</span>Home<span class="tag">&lt;/<span class="title">h1</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">Link</span> <span class="attribute">to</span>=<span class="value">{`</span>/<span class="attribute">day</span>/${<span class="attribute">randomDateString</span>}`}&gt;</span>{randomDateString}<span class="tag">&lt;/<span class="title">Link</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+</code></pre>
+<p>With this completed we have a home component that links to a random day, that has a next button that advances (via the <span class="caps">URL</span>) to the next day. For this particular application at this time we could delete all of the Redux and Redux-router code, because we are no longer managing any state in&nbsp;Redux. </p>
+<h1 id="redux-first-router">redux-first-router</h1>
+<p>I chose Redux Router for this example because it is by far the most popular React router, but the awkwardness of integrating React Router and Redux into an application is bothersome. An alternative is to use a <a href="https://github.com/faceyspacey/redux-first-router">redux-first-router</a> instead of React Router. redux-first-router does not bind routes to components, instead it binds routes to actions. When a route is matched redux-first-router dispatches an action to that effect and everything else is handled the Redux way with&nbsp;reducers. </p>
+<h1 id="summary">Summary</h1>
+<p>URLs are the central abstraction of a well-behaved web application. To achieve this with React we need a router. React router is the popular choice although it does have some friction with state management solutions like Redux. redux-first-router is another&nbsp;alternative. </p>
+<blockquote>
+<p>Next: <a href="/articles/2018-01-10-react-7-ajax/">Learning React 7 -&nbsp;<span class="caps">AJAX</span></a></p>
+</blockquote>
+<h2 id="get-the-code">Get The&nbsp;Code</h2>
+<p>The code for this example is <a href="https://github.com/liammclennan/today-react-app">on Github</a>. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this&nbsp;post. </p>
+<pre><code class="lang-bash">git clone https://github.com/liammclennan/today-react-app.git
+git checkout react6 
+</code></pre>
+<p>or browse at <a href="https://github.com/liammclennan/today-react-app/tree/4f53d611e3ecaa3d5bcfe92e970e56fcf6981860">https://github.com/liammclennan/today-react-app/tree/4f53d611e3ecaa3d5bcfe92e970e56fcf6981860</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Implementing Tetris with React and Redux - VII - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Implementing Tetris with React and Redux - VII</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Previously, we converted the application to Typescript. In this episode we will implement collapsing rows, game ending and&nbsp;scoring.</p>
+<p>To follow along with this article checkout the commit <a href="https://github.com/liammclennan/tetris/commit/e843d275a52d7ad72862b663638bb84d098f9c07">e843d2</a>.</p>
+<pre><code>$ git clone https://github.com/liammclennan/tetris.git
+$ git checkout e843d2
+$ npm run bootstrap
+$ npm run likehell
+</code></pre><h1 id="collapsing-rows">Collapsing&nbsp;Rows</h1>
+<p>In tetris rows collapse when they are full. The first step required for implementing this behaviour is to be able to detect full rows. Start with a&nbsp;test:</p>
+<pre><code>describe(&#39;game with last row full&#39;, ()=&gt; {
+    var game = new Models.Game(()=&gt;{});
+    game.rubble = _.range(1, game.cols+1).map(col =&gt; new Models.Point(game.rows, col));
+
+    it(&#39;should have one completed row&#39;, ()=&gt; assert.equal(1, game.completedRows().length));
+    it(&#39;should have row 15 as completed&#39;, ()=&gt; assert.equal(15, game.completedRows()[0]));
+});
+</code></pre><p>and implement the <code>Game.completedRows()</code> method. I have used <a href="http://underscorejs.org/">underscore</a> to generate ranges. The method works by finding all the rows for which every column contains&nbsp;rubble.</p>
+<pre><code>completedRows() {
+    return _.range(1,this.rows+1).filter(row =&gt;
+          _.range(1,this.cols+1).every(col =&gt; this.rubbleHas(row,col))
+    );
+}
+rubbleHas(row,col) {
+        return this.rubble.some(point =&gt; point.row === row &amp;&amp; point.col === col);
+}
+</code></pre><p>Next we need to collapse full rows when they are found. This involves removing all the rubble in the collapsed row, and then shifting all other rubble down. Again, start with a&nbsp;test:</p>
+<pre><code>describe(&#39;collapsing&#39;, ()=&gt; {
+    var game = new Models.Game(()=&gt;{});
+
+    var row14 =  [new Models.Point(game.rows-1,1), new Models.Point(game.rows-1, 2)];
+    game.rubble = _.range(1, game.cols+1)
+      .map(col =&gt; new Models.Point(game.rows, col))
+      .concat(row14);
+
+    it(&#39;should move row 14 to row 15 (collapse)&#39;, ()=&gt; {
+      assert.equal(22, game.rubble.length);
+      game.collapseRow(15);
+      assert.equal(2, game.rubble.length, &#39;the full row has been deleted&#39;);
+      assert.ok(_.some(game.rubble, point =&gt; point.row === 15 &amp;&amp; point.col === 1), &#39;a point from the 2<span class="ord">nd</span> row has moved down&#39;);
+      assert.ok(_.some(game.rubble, point =&gt; point.row === 15 &amp;&amp; point.col === 2), &#39;the other point from the 2<span class="ord">nd</span> row has moved down&#39;);
+    });
+});
+</code></pre><p>And then&nbsp;implement:</p>
+<pre><code>collapseRow(row) {
+    this.rubble = this.rubble.filter(point =&gt; point.row !== row);
+    this.rubble.filter(point =&gt; point.row &lt; row).forEach(point =&gt; point.row += 1);
+}
+</code></pre><h1 id="ending-the-game">Ending the&nbsp;Game</h1>
+<p>The game should end when rubble reaches the top of the game area. The game object therefore has all the information required to know if the game has&nbsp;finished:</p>
+<pre><code>   isGameOver() {
+    return this.rubble.some(point =&gt; point.row === 1);
+  }
+</code></pre><p> Then at the end of the tick processing (<code>convertToRubble</code>) we know not to start a new piece if the game has&nbsp;ended:</p>
+<pre><code>convertToRubble() {
+    this.rubble = this.rubble.concat(this.fallingPiece.points());
+    this.completedRows().forEach(r =&gt; this.collapseRow(r));
+    if (!this.isGameOver()) {
+      this.startAPiece();
+    }
+}
+</code></pre><p>We should also check when processing&nbsp;actions:</p>
+<pre><code>function reducer(state = new Model.Game(()=&gt;{}), action) {
+  if (state.isGameOver()) return state;
+
+  switch (action.type) {
+      case &#39;TICK&#39;:
+        const revedState = state.tick();
+        if (!revedState.isGameOver()) {
+          setTimeout(() =&gt; store.dispatch({ type: &#39;TICK&#39; }),300);
+        }
+        return revedState;
+      case &#39;ROTATE&#39;:
+        return state.rotate();
+      case &#39;LEFT&#39;:
+        return state.left();
+      case &#39;RIGHT&#39;:
+        return state.right();
+      default: return state;
+  }
+}
+</code></pre><p>This effectively stops the <span class="caps">TICK</span> loop once the game&nbsp;ends.</p>
+<p>Then we can change <code>GameView</code> component to change the <span class="caps">UI</span> when the game&nbsp;ends:</p>
+<pre><code>export var GameView = React.createClass&lt;GameViewProps,any&gt;({
+  render: function () {
+    return &lt;div className=&quot;border&quot; style={{width: this.props.game.cols*25, height: this.props.game.rows*25}}&gt;
+      { this.props.game.isGameOver() ?
+        &lt;span&gt;GAME OVER&lt;/span&gt; : &lt;span&gt;
+        &lt;PieceView piece={this.props.game.fallingPiece} /&gt;
+        &lt;RubbleView rubble={this.props.game.rubble} /&gt;
+        &lt;/span&gt;
+      }
+    &lt;/div&gt;;
+  }
+});
+</code></pre><p><img src="gameover.png" alt="Game Over" /></p>
+<h1 id="scoring">Scoring</h1>
+<p>We will use a simplified tetris scoring system that awards points for clearing rows. The more rows cleared the higher the&nbsp;award.</p>
+<table>
+<thead>
+<tr>
+<th># Lines</th>
+<th style="text-align:center">Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align:center">40</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align:center">100</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align:center">300</td>
+</tr>
+<tr>
+<td>4</td>
+<td style="text-align:center">1200</td>
+</tr>
+</tbody>
+</table>
+<p>We know when a row collapses, so we can add a method to <code>Game</code> that calculates the points to award when rows collapse. It can be a simple encoding of the above points table, with the correct indexing to retrieve the right&nbsp;value:</p>
+<pre><code>calculateAward(completedRows) {
+  const map = {
+    0: 0,
+    1: 40,
+    2: 100,
+    3: 300,
+    4: 1200
+  };
+  return map[completedRows.length];
+}
+</code></pre><p>A nice property of this implementation is that it is valid for values of completed rows &gt;= 0. Tetris does not allow for more than 4 rows to be completed at the same&nbsp;time.</p>
+<p>We can use <code>calculateAward</code> in the <code>convertToRubble</code> method to increment a <code>Game.score</code> property that tracks the players&nbsp;score.</p>
+<pre><code>convertToRubble() {
+  this.rubble = this.rubble.concat(this.fallingPiece.points());
+  const completedRows = this.completedRows();
+  completedRows.forEach(r =&gt; this.collapseRow(r));
+  this.score += this.calculateAward(completedRows);
+  if (!this.isGameOver()) {
+    this.startAPiece();
+  }
+}
+</code></pre><p>Now the player needs to know what their score is, so we modify <code>GameView</code> to include a <code>ScoreView</code>:</p>
+<pre><code>export var GameView = React.createClass&lt;GameViewProps,any&gt;({
+  render: function () {
+    return &lt;div className=&quot;border&quot; style={{width: this.props.game.cols*25, height: this.props.game.rows*25}}&gt;
+      { this.props.game.isGameOver() ?
+        &lt;span&gt;GAME OVER&lt;/span&gt; : &lt;span&gt;
+        &lt;PieceView piece={this.props.game.fallingPiece} /&gt;
+        &lt;RubbleView rubble={this.props.game.rubble} /&gt;
+        &lt;ScoreView score={this.props.game.score} /&gt;
+        &lt;/span&gt;
+      }
+    &lt;/div&gt;;
+  }
+});
+</code></pre><p>and implement score view to dump the game score in a&nbsp;div:</p>
+<pre><code>interface ScoreViewProps { score:number; }
+const ScoreView = React.createClass&lt;ScoreViewProps,any&gt;({
+  render: function () {
+    return &lt;div className=&quot;score-display&quot;&gt;{this.props.score}&lt;/div&gt;;
+  }
+});
+</code></pre><p>et&nbsp;voilà!</p>
+<p><img src="score.png" alt="Tetris with score" /></p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

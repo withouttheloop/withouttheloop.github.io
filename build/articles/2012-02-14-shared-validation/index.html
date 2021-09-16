@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Sharing client and server validation - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Sharing client and server validation</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Client-side web applications (SPAs whatever) must perform client-side validation to achieve the required responsiveness. But the client is not a secure environment, so client-side validation is a convenience, not to be trusted. Validation has to be performed server-side to ensure security and data&nbsp;correctness. </p>
+<h2 id="traditional-solutions-to-the-client-server-validation-problem">Traditional Solutions to the Client / Server Validation&nbsp;Problem</h2>
+<h3 id="shared-metadata">Shared&nbsp;Metadata</h3>
+<p>Asp.net mvc exports validation metadata from server-side models and embeds it into form markup. This process is distributed throughout mvc’s form helpers. Each time a form element is generated the framework adds data- attributes to that element that describe that element’s&nbsp;validation. </p>
+<p>On the client-side a script runs that reads the validation metadata from the data- validation attributes and translates that metadata into a format suited to a client-side validation framework (asp.net mvc uses&nbsp;jquery.validation).</p>
+<p>By sharing metadata between the server and the client it is possible to have a validation framework on each side automatically working with the same&nbsp;metadata.</p>
+<h3 id="doing-it-twice">Doing It&nbsp;Twice</h3>
+<p>The solution that I am currently using is to implement completely separate validation - once on the client and once on the server. It works, but it is frustrating and boring. There is also a maintenance burden in keeping the validations&nbsp;synchronized.</p>
+<h2 id="moving-client-side-validation-to-the-server">Moving Client-Side Validation to the&nbsp;Server</h2>
+<p>The idea I have been considering is to move the client-side validation to the server. Client-side validation tests javascript objects against validation metadata and builds a set of results. Why can’t we do that on the&nbsp;server?</p>
+<p>My idea is to write a custom model binder that binds json data posted to the server. The post would have to include metadata that defines the schema of the data, so that we can lookup the required validation metadata. A JavaScript interpreter can then be used to apply the&nbsp;validation. </p>
+<p>The strength of this idea is that it uses the same validation engine and validation metadata on the client and the server. The validation only needs to be tested once and cannot possibly get out of&nbsp;sync.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

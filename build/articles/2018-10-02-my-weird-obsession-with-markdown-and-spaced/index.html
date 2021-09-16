@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>My Weird Obsession with Markdown and Spaced Repetition - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>My Weird Obsession with Markdown and Spaced Repetition</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Each time I go back to studying I decide that a better use of my time, instead of studying, is to solve the problem of markdown study notes with embedded spaced repetition flash cards. How’s that for&nbsp;procrastination?</p>
+<p>I studied mathematics in 2015 and compiled a <a href="https://github.com/liammclennan/maths">comprehensive set of markdown notes</a>. Here’s an&nbsp;excerpt:</p>
+<pre><code class="lang-markdown"><span class="header">Polynomial Derivatives
+---</span>
+
+$$\frac{dx^n}{dx} = nx^{n-1}$$
+
+<span class="xml"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"flashcard"</span>&gt;</span><span class="javascript"></span></span>
+Q&gt;&gt;&gt; What is the derivative of $$ 7x^4 $$? <span class="xml"><span class="tag">&lt;&lt;&lt;
+<span class="attribute">A</span>&gt;</span></span>&gt;&gt; $$ 28x^3 $$ <span class="xml"><span class="tag">&lt;&lt;&lt;
+&lt;/<span class="attribute">script</span>&gt;</span></span>
+
+<span class="header">### Constants</span>
+
+The derivative of a constant is <span class="code">`0`</span>.
+
+$$\frac{dc}{dx} = 0$$
+
+This can be found from the derivative of polynomials, since $5 = 5x^0 -&gt; 0 * 5x^-1 = 0$.
+
+<span class="xml"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"flashcard"</span>&gt;</span><span class="javascript"></span></span>
+Q&gt;&gt;&gt; What is the derivative of $$ 99 $$? <span class="xml"><span class="tag">&lt;&lt;&lt;
+<span class="attribute">A</span>&gt;</span></span>&gt;&gt; $$ 0 $$ because $$ 99 = 99x^0 = 0 * 99x^-1 = 0 $$ <span class="xml"><span class="tag">&lt;&lt;&lt;
+&lt;/<span class="attribute">script</span>&gt;</span></span>
+</code></pre>
+<p>Note the embedded microformat metadata describing flash&nbsp;cards:</p>
+<pre><code class="lang-html"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"flashcard"</span>&gt;</span><span class="javascript">
+Q&gt;&gt;&gt; What is the derivative of $$ <span class="number">7</span>x^<span class="number">4</span> $$? <span class="xml"><span class="tag">&lt;&lt;&lt;
+<span class="attribute">A</span>&gt;</span>&gt;&gt; $$ 28x^3 $$ <span class="tag">&lt;&lt;&lt;
+</span></span></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+</code></pre>
+<p>This information is not displayed in the notes, but is there to generate flash cards for <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition</a>. At the time I built a web application to pull out the flash cards for studying. Sometime in the last three years the domain expired, and the source code is trapped in my bitbucket account that I can’t login to anymore.  <code>¯\_(ツ)_/¯</code></p>
+<p>This year I’m starting an <span class="caps">MBA</span>, and immediately felt the need to record notes in markdown. Naturally, that was followed by a desire to embedd flash cards. Since I’ve lost my last solution, I created a new one. I’m using github to edit and store the markdown files, so I delimit the flash card with comments (this is the only content I could find that github doesn’t&nbsp;display):</p>
+<pre><code class="lang-xml"><span class="comment">&lt;!---
+
+---&gt;</span>
+</code></pre>
+<p>For the questions and answers I use an xml-like syntax for easy&nbsp;parsing:</p>
+<pre><code class="lang-xml"><span class="comment">&lt;!---
+&lt;question&gt;What is a blah?&lt;/question&gt;
+&lt;answer&gt;It's a foo!&lt;/answer&gt;
+
+&lt;question&gt;What is a foo?&lt;/question&gt;
+&lt;answer&gt;It's a blah!&lt;/answer&gt;
+---&gt;</span>
+</code></pre>
+<h2 id="fetching-content-from-github">Fetching Content From&nbsp;Github</h2>
+<p>Fortunately, Github provides a <a href="https://developer.github.com/v3/repos/contents/">simple <span class="caps">API</span> for fetching content from a repository</a>. My solution is currently a <a href="https://codepen.io/liammclennan/pen/oaXpya?editors=0010">codepen script</a>, so JavaScript. This function recursively navigates a github repository and builds a collection of urls to fetch those&nbsp;files. </p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> collectFilesInDirectory = (directoryUrl) =&gt; {
+  <span class="keyword">return</span> fetch(directoryUrl)
+    .then((response) =&gt; response.json())
+    .then((entries) =&gt; ({
+      files: entries.filter(e =&gt; e.type === <span class="string">"file"</span>),
+      directories: entries.filter(e =&gt; e.type === <span class="string">"dir"</span>)
+    }))
+    .then(({files, directories}) =&gt; Promise.all(directories.map((d) =&gt; collectFilesInDirectory(d.url)))
+          .then((fs) =&gt; flatten(fs))
+          .then((flattened) =&gt; flattened.concat(files.map(f =&gt; f.url)))
+    )
+};
+</code></pre>
+<p>At a high level, it adds the files in the current directory to a collection, as well as doing the same thing for all sub-directories (and their&nbsp;sub-directories).</p>
+<p>E.g.</p>
+<pre><code class="lang-javascript">collectFilesInDirectory(<span class="string">"https://api.github.com/repos/liammclennan/mba/contents"</span>)
+  .then(console.log);
+
+<span class="comment">// […]</span>
+<span class="comment">// 0: "https://api.github.com/repos/liammclennan/<span class="caps">MBA</span>/contents/Business-Analytics/index.md?ref=master"</span>
+​<span class="comment">// 1: "https://api.github.com/repos/liammclennan/<span class="caps">MBA</span>/contents/README.md?ref=master"</span>
+</code></pre>
+<h2 id="parsing-flash-card-data-out-of-markdown">Parsing Flash Card Data Out of&nbsp;Markdown</h2>
+<p>Next task was to extract the metadata blocks out of markdown files. This involved re-learning JavaScript regular expressions. The thing that slowed me down the most was that the <code>RegEx.exec</code> can only do one match at a time, so if you want to select all of the <code>&lt;!--- ---&gt;</code> blocks in a markdown file you must call <code>exec</code> repeatedly until it stops finding matches, which I did with this regular express <code>/(?:&lt;!---\n?)([\s\S]*?)(?:\n?---&gt;)/gm</code>. </p>
+<p>Once we have the microformat blocks we must extract the pairs of questions and anwsers. This calls for another regular expression, <code>/(?:&lt;question&gt;\n?)([\s\S]*?)&lt;\/question&gt;(?:[\s\S]*?)&lt;answer&gt;([\s\S]*?)(?:\n?&lt;\/answer&gt;)/gm</code>. </p>
+<p>This gives me a nice collection of question / answer pairs, each of which will become a study flash&nbsp;card.</p>
+<pre><code class="lang-javascript">[…]
+​
+<span class="number">0</span>: <span class="built_in">Object</span> { question: <span class="string">"What are the components of business analytics?"</span>, answer: <span class="string">"<span class="caps">BI</span> / IS, statistics, modelling and optimization"</span> }
+​
+<span class="number">1</span>: <span class="built_in">Object</span> { question: <span class="string">"What is descriptive analytics?"</span>, answer: <span class="string">"formatting data for understanding. Creating information from historical data."</span> }
+​
+<span class="number">2</span>: <span class="built_in">Object</span> { question: <span class="string">"What is predictive analytics?"</span>, answer: <span class="string">"using data to predict the future"</span> }
+​
+<span class="number">3</span>: <span class="built_in">Object</span> { question: <span class="string">"What is prescriptive analytics?"</span>, answer: <span class="string">"Using data to maximize or minimize some value. Using data to facilitate decision making."</span> }
+​
+<span class="number">4</span>: <span class="built_in">Object</span> { question: <span class="string">"What is price elasticity?"</span>, answer: <span class="string">"The extent to which price affects demand."</span> }
+​
+<span class="number">5</span>: <span class="built_in">Object</span> { question: <span class="string">"What is a model?"</span>, answer: <span class="string">"Abstraction that captures the most important features of a system and presents them in a form that is easy to interpret. "</span> }
+</code></pre>
+<p>Then I used <a href="https://www.papaparse.com/">Papa Parse</a> to format this data as&nbsp;csv:</p>
+<pre><code class="lang-csv">&quot;What are the components of business analytics?&quot;,&quot;BI / IS, statistics, modelling and optimization&quot;
+
+&quot;What is descriptive analytics?&quot;,&quot;formatting data for understanding. Creating information from historical data.&quot;
+
+&quot;What is predictive analytics?&quot;,&quot;using data to predict the future&quot;
+
+&quot;What is prescriptive analytics?&quot;,&quot;Using data to maximize or minimize some value. Using data to facilitate decision making.&quot;
+
+&quot;What is price elasticity?&quot;,&quot;The extent to which price affects demand.&quot;
+
+&quot;What is a model?&quot;,&quot;Abstraction that captures the most important features of a system and presents them in a form that is easy to interpret. &quot;
+</code></pre>
+<h2 id="using-my-flash-card-data-for-spaced-repetition-study">Using My Flash Card Data for Spaced Repetition&nbsp;Study</h2>
+<p>The leader in the apparently uncompetitive flash card sector is <a href="https://apps.ankiweb.net/">Anki</a>. Anki can import my <span class="caps">CSV</span> file. Now I have my flash cards available in Anki for&nbsp;studying. </p>
+<p><img src="/articles/2018-10-02-my-weird-obsession-with-markdown-and-spaced/imported.png" alt="Anki deck"></p>
+<p>Studying looks like&nbsp;this:</p>
+<video width="480" height="320" controls="controls">
+<source src="studying.mp4" type="video/mp4">
+</video>
+
+<h2 id="summary">Summary</h2>
+<p>Here is the full&nbsp;source:</p>
+<p><p data-height="265" data-theme-id="0" data-slug-hash="oaXpya" data-default-tab="js" data-user="liammclennan" data-pen-title="Parsing QA out of MD" class="codepen">See the Pen <a href="https://codepen.io/liammclennan/pen/oaXpya/">Parsing <span class="caps">QA</span> out of MD</a> by Liam McLennan (<a href="https://codepen.io/liammclennan">@liammclennan</a>) on <a href="https://codepen.io">CodePen</a>.</p></p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

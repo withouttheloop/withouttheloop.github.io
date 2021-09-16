@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Connascence of methods - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Connascence of methods</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>From&nbsp;wikipedia:</p>
+<pre><code>Two software components are connascent if a change in one would require the other to be modified in order to maintain the overall correctness of the system.
+</code></pre><p>Connascence is a useful tool for discussing different types of coupling that occur within&nbsp;software. </p>
+<p>Again from wikipedia, “connascence of name is when multiple components must agree on the name of an entity”. Connascence of name one is of the list harmful and most unavoidable types of connascence because it is simple to reason about and change. While connascence of name is still connascence, and therefore bad, it is among the most amenable to refactoring. If the name of something changes then everything that refers to that thing by name must also change. This is a simple change that can be mostly statically determined and applied by&nbsp;tools. </p>
+<p>Connascence of position is present when changing the order of something necessitates a change elsewhere. An example is the order of function arguments. If the order of a function’s arguments is changed then every client of that function must also change. Connascence of position is worse than connascence of name (usually) because it is less explicit and therefore more difficult to reason about and successfully&nbsp;change. </p>
+<h2 id="from-connascence-of-position-to-connascence-of-name">From connascence of position to connascence of&nbsp;name</h2>
+<p>Some modern languages have slowly been migrating to connascence of name from connascence of position. As well as converting to a less harmful form of coupling this has the additional benefit of documenting the client-side of a method&nbsp;call. </p>
+<h3 id="ruby">Ruby</h3>
+<p>Ruby supports positional method&nbsp;arguments.</p>
+<pre><code>def full_name(first_name, middle_name, last_name)
+    &quot;#{first_name} #{middle_name} #{last_name}&quot;
+end
+
+p full_name &#39;Eric&#39;, &#39;Arthur&#39;, &#39;Blair&#39;
+=&gt; &quot;Eric Arthur Blair&quot;
+</code></pre><p>but many ruby apis prefer the use of a single hash containing the method&nbsp;arguments:</p>
+<pre><code>def full_name(name)
+    &quot;#{name[:first]} #{name[:middle]} #{name[:last]}&quot;
+end
+
+p full_name :first=&gt;&#39;Eric&#39;, :middle=&gt;&#39;Arthur&#39;, :last=&gt;&#39;Blair&#39;
+=&gt; &quot;Eric Arthur Blair&quot;
+</code></pre><p>this has the benefit of converting positional parameters to named parameters and therefore connascence of position to connascence of&nbsp;name.</p>
+<h3 id="javascript">JavaScript</h3>
+<p>JavaScript has adopted the same convention. While positional function arguments&nbsp;work:</p>
+<pre><code>function fullName(first, middle, last) {
+    return first + &#39; &#39; + middle + &#39; &#39; + last;
+}
+
+fullName(&#39;Eric&#39;, &#39;Arthur&#39;, &#39;Blair&#39;);
+=&gt; &quot;Eric Arthur Blair&quot;
+</code></pre><p>most apis favour named arguments by passing a single object containing the method&nbsp;arguments:</p>
+<pre><code>function fullName(name) {
+    return name.first + &#39; &#39; + name.middle + &#39; &#39; + name.last;
+}
+
+fullName({ first: &#39;Eric&#39;, middle: &#39;Arthur&#39;, last: &#39;Blair&#39;});
+=&gt; &quot;Eric Arthur Blair&quot;
+</code></pre><h3 id="c-sharp">C&nbsp;sharp</h3>
+<p>C# now supports named arguments, but there usage is not popular. C# and .net has a dependable history of adopting, after a delay, the technology and techniques that have become dominant on other platforms. Therefore, I predict that usage of named method arguments in C# will increase over the next few years. Interestingly, C# is the only one of the three languages discussed that has a specific language feature for named arguments and it is also the only one that does not require a change to the definition of the method to take advantage of named arguments. The decision to use or not use named arguments is entirely at the client’s&nbsp;discretion.</p>
+<pre><code>string FullName(string first, string middle, string last) {
+    return String.Format(&quot;{0} {1} {2}&quot;, first, middle, last);
+}
+
+FullName(first: &quot;Eric&quot;, middle: &quot;Arthur&quot;, last: &quot;Blair&quot;);
+=&gt; &quot;Eric Arthur Blair&quot;
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Reactpress - React templates and universal / isomorphic rendering for Wordpress - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Reactpress - React templates and universal / isomorphic rendering for Wordpress</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="https://github.com/liammclennan/Reactpress">https://github.com/liammclennan/Reactpress</a></p>
+<h2 id="what">What</h2>
+<p>ReactPress is a standalone server that pulls content from the wordpress <span class="caps">API</span> and renders views using React.js. The views are rendered and returned from the server and then the React components are re-attached in the browser. This provides the benefits of server rendering (speed and SEO) with the benefits of React in the browser (interactivity). It also allows Wordpress to be used for content creation without requiring Wordpress or php for&nbsp;rendering. </p>
+<h2 id="why-">Why?</h2>
+<p>I’m really not sure. Because we can? Not because it is easy, but because it is&nbsp;hard?</p>
+<h2 id="get-started">Get&nbsp;Started</h2>
+<p>Create a wordpress instance, standalone or on <a href="https://wordpress.com">wordpress.com</a>.</p>
+<p>Implement the <a href="https://codex.wordpress.org/Theme_Development#Template_Files_List">wordpress template files</a> as React components. E.g. to render a post create a file <code>Single.tsx</code> with content&nbsp;like:</p>
+<pre><code class="lang-javascript">import * as React from <span class="string">"react"</span>;
+import * as ReactDOM from <span class="string">"react-dom"</span>;
+import { Menu } from <span class="string">"./Menu"</span>;
+import {Timer} from <span class="string">"./supporting/Timer"</span>;
+
+export <span class="function"><span class="keyword">function</span> <span class="title">render</span><span class="params">(getPost, getCategories)</span> {</span>
+    <span class="keyword">return</span> Promise.all([getPost(), getCategories()])
+        .then(([post, categories]) =&gt; {
+            <span class="keyword">return</span> {
+                component: Single,
+                props: { post, categories }
+            };
+        });
+}
+
+export <span class="function"><span class="keyword">function</span> <span class="title">Single</span><span class="params">({post, categories})</span> {</span>
+    <span class="keyword">return</span> (<span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">Menu</span> <span class="attribute">model</span>=<span class="value">{categories}</span> /&gt;</span>
+        <span class="tag">&lt;<span class="title">Post</span> <span class="attribute">model</span>=<span class="value">{post}</span> /&gt;</span>
+        <span class="tag">&lt;<span class="title">Timer</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>);
+}
+
+export function Post(props) {
+  return (
+    <span class="tag">&lt;<span class="title">div</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">h1</span> <span class="attribute">dangerouslySetInnerHTML</span>=<span class="value">{{__html:</span> <span class="attribute">props.model.title.rendered</span>}}&gt;</span><span class="tag">&lt;/<span class="title">h1</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">p</span>&gt;</span>{props.model.date}<span class="tag">&lt;/<span class="title">p</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">p</span> <span class="attribute">dangerouslySetInnerHTML</span>=<span class="value">{{__html:</span> <span class="attribute">props.model.excerpt.rendered</span>}} /&gt;</span>
+      <span class="tag">&lt;<span class="title">div</span> <span class="attribute">dangerouslySetInnerHTML</span>=<span class="value">{{__html:</span> <span class="attribute">props.model.content.rendered</span>}} /&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>);
+}</span>
+</code></pre>
+<p>This is regular React code with no restrictions, other than being able to run in the&nbsp;browser. </p>
+<p><code>getPost</code> and <code>getCategories</code> functions provide access to wordpress data. <code>getPost</code> returns data for the post identified by the posts slug, extracted from the&nbsp;url. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

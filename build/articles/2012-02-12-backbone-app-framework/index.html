@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Backbone app framework - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Backbone app framework</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Backbone is a library of tools that simplify the design and implementation of client-side web applications. It is explicitly not a framwework. Backbone does not provide guidance about how to assemble an application. This post will be an initial attempt at filling that gap. It assumes an intermediate level of Backbone.js knowledge. If you have never used Backbone.js try <a href="http://hackingon.net/post/Backbonejs-Basics.aspx">Backbone.js Basics</a> or the <a href="http://backbonejs.org/">Backbone.js homepage</a>.</p>
+<h2 id="the-application-root">The Application&nbsp;Root</h2>
+<p>I like to provide a root object/namespace for my application. Let’s call it <code>app</code>.</p>
+<pre><code>var app = {};
+</code></pre><h2 id="register-components-on-the-application-object">Register Components on the Application&nbsp;Object</h2>
+<pre><code>app.models =  {
+    Post: Backbone.Model.extend({}),
+    Comment: Backbone.Model.extend({})
+};
+
+app.views = {
+    PostView: Backbone.View.extend({}),
+    ComentView: Backbone.View.extend({})
+};
+</code></pre><h2 id="de-couple-components-by-using-an-event-aggregator">De-couple Components by using an Event&nbsp;Aggregator</h2>
+<p>An application event aggregator allows components to communicate indirectly. A simple event aggregator can be created by mixing the Backbone.Events modules into an application level&nbsp;object:</p>
+<pre><code>app.eventAggregator = _.extend({}, Backbone.Events);
+</code></pre><h2 id="actions">Actions</h2>
+<p>When a significant event occurs within your application raise an event. For example, the handler for the ‘add post’&nbsp;button:</p>
+<pre><code>_onAddPost: functin () {
+    app.eventAggregator.trigger(&#39;post:create&#39;, this.model);
+}
+</code></pre><p>Register an ‘action’ to handle the application&nbsp;event:</p>
+<pre><code>app.actions = {
+    createPost: Action.extend({
+        event: &#39;post:create&#39;,
+        handler: function (model) {
+            var newPost = new app.Views.CreatePost({model: model});
+            $(&#39;#content&#39;).html(newPost.render().el);
+        }
+    })
+};
+</code></pre><h2 id="routing">Routing</h2>
+<p>Use a route only when you want to change the url and handle the event. Otherwise just raise an event and register an&nbsp;action.</p>
+<p>When you do use a route, have it trigger an&nbsp;action. </p>
+<pre><code>app.routers = {
+    postRouter: Backbone.Router.extend({
+        &#39;view/:postname&#39;: function (postname) {
+            app.eventAggregator.trigger(&#39;post:view&#39;, postname);
+        }
+    })
+};
+</code></pre><h2 id="one-line-bootstrapping">One Line&nbsp;Bootstrapping</h2>
+<p>Reduce your application bootstrapping to a single&nbsp;line.</p>
+<pre><code>app.start();
+</code></pre><p>This makes it practical to test contexts that require the application to be in a usable&nbsp;state.</p>
+<pre><code>describe(&#39;adding a new post&#39;, function () {
+    describe(&#39;initiate new post process&#39;, function () {
+        before(function() {
+            app.start();
+            var testModel = new app.models.post();
+            app.eventAggregator.trigger(&#39;post:create&#39;, testModel);
+        });
+    });
+});
+</code></pre><p>The <code>start()</code> function is the framework part. It registers the routers and actions and does any other required&nbsp;bootstrapping. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

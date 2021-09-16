@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Functional Game of Life part 1 (C#) - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Functional Game of Life part 1 (C#)</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><style>
+.cell {
+    border: 2px solid black;
+    width: 18px;
+    height: 18px;
+    position: absolute;background-color: #eee;
+}
+.on {
+    background-color: #333;
+}
+</style>
+
+<p><img src="Gospers_glider_gun.gif" align="left" style="margin:20px;"/> I thought it might be interesting to solve the <a href="http://en.wikipedia.org/wiki/Conway&#39;s_Game_of_Life">Conway’s Game of Life</a> cellular automaton in a functional manner. Game of life is an interesting problem for experimentation because it is simple and well&nbsp;understood. </p>
+<h2 id="where-to-start-">Where to&nbsp;Start?</h2>
+<p>I’ll start by defining a way to render the world. I want to start here because it is useful to have a nice way to visualise the state of the system, also it conveniently forces me to define my data model. I will model the system as a collection of living cells, each with X and Y coordinates (zero based). The living cells define the boundaries of the system. Dead cells are implicitly the cells within the system boundary that are not living. A system defined&nbsp;as:</p>
+<div style="clear: both;"></div>
+
+
+<pre><code>new Cell(1,0), new Cell(0,1), new Cell(2,1), new Cell(7,16)
+</code></pre><p>will produce <a href="http://jsfiddle.net/P44aM/1/">the following output</a> (living cells are&nbsp;darker):</p>
+<div style="clear:both;height: 400px;">
+<div style="position:relative;">
+    <div class="cell " style="left: 20px; top: 20px;">&nbsp;</div>
+    <div class="cell on" style="left: 20px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 20px; top: 340px;">&nbsp;</div>
+    <div class="cell on" style="left: 40px; top: 20px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 40px; top: 340px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 20px;">&nbsp;</div>
+    <div class="cell on" style="left: 60px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 60px; top: 340px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 20px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 80px; top: 340px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 20px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 100px; top: 340px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 20px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 120px; top: 340px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 20px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 320px;">&nbsp;</div>
+    <div class="cell " style="left: 140px; top: 340px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 20px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 40px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 60px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 80px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 100px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 120px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 140px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 160px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 180px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 200px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 220px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 240px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 260px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 280px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 300px;">&nbsp;</div>
+    <div class="cell " style="left: 160px; top: 320px;">&nbsp;</div>
+    <div class="cell on" style="left: 160px; top: 340px;">&nbsp;</div>
+</div>
+</div>
+
+
+<p>To get to this I started with a test (using <a href="http://nuget.org/packages/Giv.n/">giv.n</a> and&nbsp;nunit).</p>
+<pre><code>[TestFixture]
+public class RenderingTests
+{
+    private List&lt;Cell&gt; _cells;
+    private string _result;
+
+    [Test]
+    public void RenderASmallSystem()
+    {
+        Giv.n(ASmallSystem);
+        Wh.n(ItIsRendered);
+        Th.n(() =&gt; ItShouldRenderDimensions(8, 17))
+            .And(() =&gt; LivingCellCountIs(_cells.Count));
+    }
+
+    private void ASmallSystem()
+    {
+        _cells = new List&lt;Cell&gt; { new Cell(1,0), new Cell(0,1), new Cell(2,1), new Cell(7,16) };
+    }
+
+    private void ItIsRendered()
+    {
+        _result = GameOfLife.Render(_cells);
+    }
+
+    private void ItShouldRenderDimensions(int x, int y)
+    {
+        Assert.AreEqual(x*y, CountOccurances(_result,&quot;&lt;div&quot;));
+    }
+
+    private void LivingCellCountIs(int count)
+    {
+        Assert.AreEqual(count, CountOccurances(_result,&quot;on&quot;));
+    }
+
+    private static int CountOccurances(string source, string sub)
+    {
+        return source.Select((c, i) =&gt; source.Substring(i)).Count(s =&gt; s.StartsWith(sub));
+    }
+}
+</code></pre><p>and the implementation so&nbsp;far:</p>
+<pre><code>public class GameOfLife
+{
+    public static string Render(List&lt;Cell&gt; cells)
+    {
+        var largestX = cells.Max(c =&gt; c.X);
+        var largestY = cells.Max(c =&gt; c.Y);
+        Func&lt;int,int,bool, string&gt; buildCell = (x,y,on) =&gt; 
+            string.Format(&quot;&lt;div class=\&quot;cell {2}\&quot; style=\&quot;left: {0}px; top: {1}px;\&quot;&gt;&amp;nbsp;&lt;/div&gt;&quot;, 20 * (x+1), 20 * (y+1), @on ? &quot;on&quot; : &quot;&quot;);
+
+        var results = from x in Enumerable.Range(0, largestX+1)
+                      from y in Enumerable.Range(0, largestY+1)
+                      select buildCell(x, y, IsOn(cells, x, y));
+        return string.Join(&quot;\n&quot;, results);
+    }
+
+    private static bool IsOn(IEnumerable&lt;Cell&gt; cells, int x, int y)
+    {
+        return cells.Any(c =&gt; c.X == x &amp;&amp; c.Y == y);
+    }
+}
+
+public struct Cell
+{
+    public int X;
+    public int Y;
+
+    public Cell(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+</code></pre><h2 id="source">Source</h2>
+<p>The source for this article is in a <a href="https://github.com/liammclennan/functional-game-of-life">public git repo</a>, under the tag <code>data-and-render</code>.</p>
+<h2 id="next">Next</h2>
+<p>The next post in this series will look at randomly seeding the system with living cells, so that the cellular evolution can be&nbsp;started. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

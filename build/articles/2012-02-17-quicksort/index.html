@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Quicksort in Haskell and CoffeeScript - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Quicksort in Haskell and CoffeeScript</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>The definition of Quicksort, from Wikipedia&nbsp;is:</p>
+<blockquote>
+<p>The steps&nbsp;are:</p>
+</blockquote>
+<blockquote>
+<ol>
+<li>Pick an element, called a pivot, from the&nbsp;list.</li>
+<li>Reorder the list so that all elements with values less than the pivot come before the pivot, while all elements with values greater than the pivot come after it (equal values can go either way). After this partitioning, the pivot is in its final position. This is called the partition&nbsp;operation.</li>
+<li>Recursively sort the sub-list of lesser elements and the sub-list of greater&nbsp;elements.</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>The base case of the recursion are lists of size zero or one, which never need to be&nbsp;sorted.</p>
+</blockquote>
+<p>Quicksort in Haskell, from learn you a haskell,&nbsp;is:</p>
+<pre><code class="lang-haskell">    quicksort :: (<span class="type">Ord</span> a) =&gt; [a] -&gt; [a]  
+    quicksort [] = []  
+    quicksort (x:xs) =   
+        <span class="keyword">let</span> smallerSorted = quicksort [a | a &lt;- xs, a &lt;= x]  
+            biggerSorted = quicksort [a | a &lt;- xs, a &gt; x]  
+        <span class="keyword">in</span>  smallerSorted ++ [x] ++ biggerSorted 
+</code></pre>
+<p>A basic quicksort in CoffeeScript&nbsp;is:</p>
+<pre><code class="lang-coffeescript"><span class="function"><span class="title">quicksort</span> = <span class="params">([head,tail...])</span> -&gt;</span>
+  <span class="keyword">return</span> [] <span class="keyword">if</span> <span class="keyword">typeof</span> head <span class="keyword">is</span> <span class="string">'undefined'</span>
+  smaller_sorted = quicksort (e <span class="keyword">for</span> e <span class="keyword">in</span> tail <span class="keyword">when</span> e &lt;= head)
+  larger_sorted = quicksort (e <span class="keyword">for</span> e <span class="keyword">in</span> tail <span class="keyword">when</span> e &gt; head)
+  smaller_sorted.concat([head]).concat(larger_sorted)  
+</code></pre>
+<p>The CoffeeScript version is reasonable, and shares some similarity with the haskell implementation. The part I don’t like is having to check <code>typeof head is &#39;undefined&#39;</code> for the base case. This is because the destructuring assignment of the function argument leaves me with no reference to the full array so the only way to tell if it is empty is to check if the head is undefined. There is probably a better way to do this. Please comment if you know what that&nbsp;is.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

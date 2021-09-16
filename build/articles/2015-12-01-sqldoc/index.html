@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>SqlDoc - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>SqlDoc</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="doc.png" alt="Great scott!" align="left" style="width: 300px;margin-right: 20px;margin-bottom: 20px;" /> One year ago I built an application data storage library, called <a href="https://github.com/liammclennan/SqlDoc">PostgresDoc</a>. The intent was, and is, to support document db semantics on top of relational databases. I have since renamed the project to <strong>SqlDoc</strong> to acknowledge that it now works with Postgresql and Sql&nbsp;Server.</p>
+<p>The strengths of SqlDoc compared to a dedicated document db&nbsp;are:</p>
+<ul>
+<li>works with your existing database&nbsp;server</li>
+<li>proper, multi-document&nbsp;transactions</li>
+<li>supports&nbsp;joins</li>
+<li>supports a hybrid document / relational&nbsp;model</li>
+<li>easy to project to flat views for reporting and&nbsp;<span class="caps">ETL</span></li>
+</ul>
+<p>The strengths of SqlDoc compared to a relational database&nbsp;are:</p>
+<ul>
+<li>simple programming&nbsp;model</li>
+<li>No object / relational&nbsp;mapping</li>
+</ul>
+<h1 id="new-api">New&nbsp;<span class="caps">API</span></h1>
+<p>I heard that people like the <code>IDocumentSession</code> <span class="caps">API</span> from RavenDB so I’ve <a href="https://github.com/liammclennan/SqlDoc/blob/master/TestsCs/DocumentSessionAPITests.cs">added it to SqlDoc</a>. This will make life easier for people who want to do data access via a component provided from an IoC&nbsp;container.</p>
+<h2 id="creating-a-session">Creating a&nbsp;session</h2>
+<pre><code>var _documentSession =
+  new DocumentSession&lt;Guid&gt;(SqlConnection.From(connectionString));
+</code></pre><h2 id="adding-a-document">Adding a&nbsp;document</h2>
+<pre><code>var _aDocument = new PersonCs
+{
+    _id = Guid.NewGuid(),
+    Name = &quot;Docsesh&quot;,
+    Age = 90,
+    FavouriteThings = new[] { &quot;Golf&quot;, &quot;Statue of liberty&quot; }
+};
+_documentSession.Store(_aDocument._id, _aDocument);
+</code></pre><h2 id="updating-a-document">Updating a&nbsp;document</h2>
+<pre><code>_aDocument.Age += 1;
+_documentSession.Update(_aDocument._id, _aDocument);
+</code></pre><h2 id="deleting-a-document">Deleting a&nbsp;document</h2>
+<pre><code>_documentSession.Delete(_aDocument._id, _aDocument);
+</code></pre><h2 id="persisting-the-unit-of-work">Persisting the unit of&nbsp;work</h2>
+<pre><code>_documentSession.SaveChanges();
+</code></pre><h2 id="load-by-id">Load by&nbsp;id</h2>
+<pre><code>var fresh = _documentSession.Load&lt;PersonCs&gt;(id);
+</code></pre><h2 id="load-by-query">Load by&nbsp;query</h2>
+<pre><code>var result = _documentSession.Query&lt;PersonCs&gt;(
+&quot;select data from PersonCs where Data.value(&#39;(/FsPickler/value/instance/idkBackingField)[1]&#39;, &#39;uniqueidentifier&#39;) = @id&quot;,
+new Dictionary&lt;string, object&gt; { { &quot;id&quot;, _aDocument._id } });
+</code></pre><h1 id="why-you-don-t-need-to-put-idocumentsession-in-an-ioc-container">Why you don’t need to put IDocumentSession in an IoC&nbsp;container</h1>
+<p>Rather than making your application code take a dependency on IDocumentSession consider instead having your application code returns its results, and then do your data access. That way there is a neat separation between pure application code responsible for logic and calculation and external integration code that does integration with external things like file systems and&nbsp;databases.</p>
+<p>Here is the traditional&nbsp;way:</p>
+<pre><code>public class MyApp
+{
+  public MyApp(IDocumentSession documentSession) {}
+
+  public void DoThing() {
+    documentSession.Store(new Thing());
+  }
+}
+</code></pre><p>To test that we need to mock&nbsp;documentSession.</p>
+<p>The alternative is to keep the persistence plumbing out of your&nbsp;application:</p>
+<pre><code>public class MyApp
+{
+  public static Operation DoThing() {
+    var thing = new Thing();
+    return Operation.Insert(thing.Id, thing);
+  }
+}
+
+// consumer
+UnitOfWork.Commit(connection, new Queue&lt;Operation&gt;(MyApp.DoThing()));
+</code></pre><p>This separates the calculation and the logical result of adding a <code>new Thing()</code> from the mechanism of doing so. To test <code>DoThing()</code> just call it and inspect the&nbsp;result. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

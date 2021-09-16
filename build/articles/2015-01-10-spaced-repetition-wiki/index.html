@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Spaced Repetition Wiki - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Spaced Repetition Wiki</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><h2 id="on-the-wiki">On the&nbsp;Wiki</h2>
+<p>A wiki is a collection of user-editable web pages. The wiki was ‘invented’ by Ward Cunningham, so it must be good. I like to use wikis to document things, or record mind maps for areas that I am learning. I have a wiki for vim, a wiki for haskell, a wiki for linux and so&nbsp;on. </p>
+<p>Both github and bitbucket offer free wikis, and bitbucket wikis can be&nbsp;private. </p>
+<h2 id="on-spaced-repetition">On Spaced&nbsp;Repetition</h2>
+<p>As we are repeatedly exposed to a datum the time before we forget it gets longer. The most efficient way then to commit something to memory is to be reminded of it immediately prior to the moment you would otherwise have forgotten it. You know this intuitively if you have ever studied for an exam and then realised three weeks later that you no longer retain any of the&nbsp;information. </p>
+<blockquote>
+<p>Spaced repetition is a learning technique that incorporates increasing intervals of time between subsequent review of previously learned material in order to exploit the psychological spacing effect –&nbsp;Wikipedia</p>
+</blockquote>
+<p>Most of the things I learn I am happy to forget. It sounds strange but I know my memory is limited and <a href="http://www.paulgraham.com/know.html">I believe that we tacitly retain helpful conditioning even when specific facts are forgotten</a>. To be nerdy about it you could say that short-term memory trains our machine learning system. The memories fade but the prediction function remains. I like spaced repetition for those important data that I want to retain medium to long&nbsp;term. </p>
+<h2 id="combining-the-wiki-and-spaced-repetition">Combining the Wiki and Spaced&nbsp;Repetition</h2>
+<p>My struggle with spaced repetition has always been around the maintenance of the question decks. This problem has not existed for me with wikis, so I decided it might work well to embed spaced repetition questions in my wikis. The microformat I chose for this job&nbsp;is:</p>
+<p>Q&gt;&gt;&gt; This is the question?&nbsp;&lt;&lt;&lt;</p>
+<p>A&gt;&gt;&gt; This is the answer.&nbsp;&lt;&lt;&lt;</p>
+<p>Any content at all (including <span class="caps">HTML</span>) is allowed between the delimiting tokens. Both this blog article and the <a href="https://raw.githubusercontent.com/liammclennan/SpacedRepetition/master/README.md">readme file for the project I created</a> are valid examples of the format. The <a href="https://github.com/liammclennan/SpacedRepetition">aforementioned project</a> is a terminal program, written in F#, that clones public git repositories, selects the set of markdown files, extracts the spaced repetition content that conforms to the specified microformat, and writes the data to a csv file that I can then import into <a href="https://raw.githubusercontent.com/liammclennan/SpacedRepetition/master/README.md">anki</a> (my spaced repetition client of&nbsp;choice). </p>
+<p>Much of the program came together very nicely and provided some great demonstration of the joy of F#. The part I am least happy with, and the part I think most likely to contain bugs, is the <a href="https://github.com/liammclennan/SpacedRepetition/blob/master/SpacedRepetition/Parser.fs">parser</a>. I’m still learning parsers and parser combinators and this is the first one I’ve done that required backtracking. Regardless, it seems to&nbsp;work. </p>
+<p><img src="glove.jpg" alt="hand in glove"/></p>
+<h2 id="what-s-next-">What’s&nbsp;Next?</h2>
+<p>I plan to start some postgrad coursework soon and give this system a real workout. I may spin up a web front-end that does spaced repetition from public git repositories. The problems with existing spaced repetition clients&nbsp;are:</p>
+<ul>
+<li>proprietary&nbsp;formats</li>
+<li>closed&nbsp;systems</li>
+<li>non-web&nbsp;based</li>
+</ul>
+<p>all of which I can easily fix with a simple web app. Currently the system is restricted to public git repositories as the data store but I could easily extend it to private git repositories or other data sources. I specifically chose git because it is an open standard. For this reason I abandoned the github and bitbucket&nbsp;APIs. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

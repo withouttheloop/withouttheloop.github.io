@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Hosting a custom application inside of a CMS is a terrible idea - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Hosting a custom application inside of a CMS is a terrible idea</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><blockquote>
+<p>Building applications inside of a content management system is now a failed experiment. A new style of api-first, headless content management systems inverts the relationship and provides a pleasant and productive development&nbsp;process. </p>
+</blockquote>
+<p><img src="dolls.jpg" alt="Russian dolls"/></p>
+<h1 id="the-benefits-of-app-in-cms">The Benefits of&nbsp;App-In-<span class="caps">CMS</span></h1>
+<p>The appeal of building an application inside of a <span class="caps">CMS</span> is that you get stuff for free. We greedy software developers cannot resist pre-built authentication, security, widgets and of course content management. For very simple, short-lived applications where control over the output or quality engineering are not important then app-in-cms may be&nbsp;OK. </p>
+<h1 id="hosting-a-custom-application-inside-of-a-cms-is-a-terrible-idea">Hosting a custom application inside of a <span class="caps">CMS</span> is a terrible&nbsp;idea</h1>
+<p>The old idea about how to merge user editable content into custom applications was to build applications inside of content management systems. Early productivity advantages (such as built-in user management and authentication) are soon overtaken by compromises required to stay within the <span class="caps">CMS</span> framework and challenges related to versioning and deployment. Architectural and functional compromises soon leak out and affect the user. It is common to get three months into a CMS-based application development project only to realise that it should have been a standalone application and that the CMS framework is now a liability. When designing and building software applications we should try to avoid such architectural dead&nbsp;ends.</p>
+<p><img src="deadend.jpg" alt="Dead end"/></p>
+<p>The biggest problem with app-in-cms is that the application developer surrenders control of the application. The <span class="caps">CMS</span> is a framework that you must work within and this leads to hacks, compromise and compounding technical&nbsp;debt. </p>
+<h1 id="confessions-of-an-app-in-cms-developer">Confessions of an app-in-cms&nbsp;developer</h1>
+<p>I know that app-in-cms is a bad idea, because I have done it, and seen it done. For me, this was DotNetNuke. I have seen the same experiment repeated with Sharepoint, Sitefinity, Kentico and Umbraco. The result is a predictable, rapid accumulation of unresolvable technical&nbsp;debt.  </p>
+<p>Years after my last DotNetNuke project I worked on a large ecommerce application. Because it was a business to consumer ecommerce application, marketing was a primary concern, and that means that the ability to manage content was essential. The problem was solved by reserving fixed banner ads throughout the site. When the marketing team wished to modify content they would create new banner ads of the prescribed dimensions and upload them to the site. When the user’s cache expired they would receive the new banner ad with its new content. This process was labour intensive, horribly inflexible and bad for users who were subjected to too much tiny, low resolution text in banner ad images. The landing page of the site, and some associated content pages, were served from a <span class="caps">CMS</span> system. When the user started an ecommerce process they transitioned into a custom application that had to be synchronized to the CMS front-end so that the transition was not obvious to the user. What a&nbsp;mess. </p>
+<p>More recently I was involved in another business-to-consumer project that required content managemed by the marketing department. After investigating possible integration with a content management system the team decided to instead build their own micro <span class="caps">CMS</span> features into the application so that application administrators could modify certain pieces of content. This is a better solution than replaceable banner ads but it is still inflexible and costly, having consumed some $10k of the project’s&nbsp;budget. </p>
+<p>Hopefully I have given sufficient examples to demonstrate that content management within custom applications is a common problem, and the traditional app-in-cms is not the&nbsp;answer.</p>
+<h1 id="the-headless-cms-solution">The headless <span class="caps">CMS</span>&nbsp;solution</h1>
+<p>A headless <span class="caps">CMS</span> looks after managing content and delivers it <strong>via an <span class="caps">API</span></strong>. The <span class="caps">CMS</span> is not your application, it is not responsible for rendering pages, it simply makes content available. It has no templates, themes or views. It has only content with metadata, a way to get that content, and a way to maintain that content. For example, here is a simple request made to a headless CMS for all content tagged <em>index-page</em>. Note that the response (lower right) is an array of <span class="caps">JSON</span> data containing the&nbsp;content:</p>
+<iframe src="http://wurl.io/template/1ef1756b-379c-4a27-8c7d-568c2f61c775" style="width: 100%;height:400px;" frameborder="0"></iframe>
+
+<p>Within a custom application you then have the responsibility of transforming the json content into an acceptable view. But now application administrators have the ability to maintain content without affecting the development&nbsp;team. </p>
+<blockquote>
+<p>For custom applications, a headless <span class="caps">CMS</span> is a much better solution than the traditional full&nbsp;CMS.</p>
+</blockquote>
+<p>This inverts the <span class="caps">APP</span> <-> <span class="caps">CMS</span> relationship, putting the application back in charge, with embedded CMS&nbsp;content. </p>
+<p><img src="dolls2.jpg" alt="russian dolls again"/></p>
+<h1 id="summary">Summary</h1>
+<p>An api-first, headless <span class="caps">CMS</span> is a good choice for adding managed content to web applications, and many web applications, especially those that are public facing, would benefit from managed content. The alternative, building an application inside of a CMS platform, leads to hacks, compromise and compounding technical&nbsp;debt.  </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

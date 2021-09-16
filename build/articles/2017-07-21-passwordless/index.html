@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Authentication for the modern web - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Authentication for the modern web</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="/articles/2017-07-21-passwordless/parc.jpg" alt="Xerox PARC"></p>
+<p>April 1971, here at Xerox <span class="caps">PARC</span>, the Austrian-born computer scientist Hanz Scmitfilgerz connects to the latest in mainframe computer&nbsp;technology. </p>
+<p>To establish his identity to the satisfaction of the computer he authenticates by providing a combination of: a username that identifies him, and a password that only he knows. His password is a unique, long, high-entropy string of characters known only to Dr Scmitfilgerz, and stored only in his&nbsp;memory. </p>
+<p><img src="/articles/2017-07-21-passwordless/mainframe.jpg" alt="mainframe"></p>
+<p>That pleasent spring morning of 1971 is the last time that password authentication worked well for&nbsp;anyone. </p>
+<h1 id="why-passwords-are-not-secure">Why passwords are not&nbsp;secure</h1>
+<p>Real users are not like Dr Scmitfilgerz. They can’t be in an age where the <em>average</em> person has dozens if not hundreds of online user accounts. It is beyond our capability to remember all those passwords so, people&nbsp;typically </p>
+<ul>
+<li>reuse the same password&nbsp;or </li>
+<li>store their passwords&nbsp;somewhere</li>
+</ul>
+<p>Reusing passwords is perhaps the most significant password security problem today. At regular intervals a large password database is compromised and released on the internet (recent examples include linkedin, adobe, sony). Criminals then take those public credentials and attempt, often successfully, to access other services such as email or online&nbsp;banking. </p>
+<p>Storing passwords can be <span class="caps">OK</span>, but it does introduce a massive vulnerability. If the mechanism used to store your passwords is compromised then all of your accounts are compromised. An incident like this is unlikely but&nbsp;catastrophic. </p>
+<h1 id="why-passwords-are-a-bad-user-experience">Why passwords are a bad user&nbsp;experience</h1>
+<p><span class="caps">IT</span> professionals often solve the password proliferation and storage problem with an online product like Lastpass or 1Password. For the typicall consumer internet user these products are confusing and too hard to use. I will never be able to train my parents to use a password&nbsp;manager. </p>
+<p>Assuming we do not reuse passwords (for the reason detailed above) then each time I want to access a new service I have the additional burden of coming up with a new password, and remebering it somehow. I have to fight my way through the services password complexity tests (your pasword must include lower case, uppercase, numeric characters and a gang&nbsp;sign). </p>
+<p>It is too hard. Non-technical people don’t do it. They reuse the same awful password (like ‘password’) or variations of the same&nbsp;password.</p>
+<h1 id="modern-authentication-authentication-2-0-">Modern authentication (Authentication&nbsp;2.0)</h1>
+<p>Recognizing the limitation of password-based authentication, some organisations like <a href="https://blog.medium.com/signing-in-to-medium-by-email-aacc21134fcd">medium</a> and <a href="https://slack.com/">Slack</a> are abandoning passwords in favour of email-based authentication. Users are authenticated by proving they have access to an email inbox. In practice, the workflow&nbsp;is:</p>
+<ol>
+<li>A user visits a site they wish to login&nbsp;to</li>
+<li>They enter their email&nbsp;address</li>
+<li>The site sends a special “magic link” to their email&nbsp;address</li>
+<li>The user accesses their email, clicks on the “magic link” and is&nbsp;authenticated</li>
+</ol>
+<p>This workflow is simple and fast. For most users it is vastly more secure than a password based system and easier to use. For website owners it <a href="https://komo.tech/increase-registrations">results in more signups</a> and less password related&nbsp;support. </p>
+<h1 id="introducing-komo">Introducing <a href="https://komo.tech">Komo</a></h1>
+<p>A number of providers offer a hosted email authentication service that website owners can use to add passwordless authentication to their site. I’ve built another (<a href="https://komo.tech">Komo</a>) that offers a slightly different&nbsp;service.</p>
+<ol>
+<li>It is focused purely on passwordless authentication, without all the expensive add-ons that usually comes with Identity and Access Management (<span class="caps">IAM</span>) SaaS&nbsp;providers. </li>
+<li>The core functionality of passwordless email authentication is, and always will be, completely free (with reasonable volume&nbsp;limits).</li>
+<li>Komo is designed to integrate properly with your web framework’s authentication support. It is not an awkward JavaScript&nbsp;bolt-on. </li>
+</ol>
+<p><a href="https://komo.tech"><img src="/articles/2017-07-21-passwordless/komo.png" alt="Komo passwordless authentication"></a></p>
+<p>Komo is available and ready to provide email authentication for your site. Just <a href="https://komo.tech/signup?returnUrl=/dashboard">sign up</a>. The Komo login process uses Komo for authentication (of&nbsp;course). </p>
+<p>You can also try a <a href="https://immense-sneeze.glitch.me/">a demo site</a> that uses Komo for login, and <a href="https://glitch.com/edit/#!/immense-sneeze">browse the source</a> to see how it is&nbsp;implemented.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Parsing Nokia Composer Ringtones With FParsec - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Parsing Nokia Composer Ringtones With FParsec</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="3310.jpg" alt="Nokia 3310"  style="width: 200px"/> </p>
+<p>The classic Nokia 3310, and similar Nokia phones featured a capability to define custom ringtones using a tool called&nbsp;‘Composer’.</p>
+<p>Parser uses a text based format to define the sequence of tones that makes up the ringtone. A tone is typically specified in the&nbsp;form:</p>
+<blockquote>8e2</blockquote>
+
+<p>Where the <code>8</code> indicates that the tone should last for eighth of a bar (half of a beat), the <code>e</code> is the musical note describing the pitch of the tone and the <code>2</code> indicates the octave that note comes from (valid options are 1, 2 and&nbsp;3). </p>
+<p><img src="composer.gif" alt="Composer" style="width:300px;"  /></p>
+<p>I want to be able to read the string that defines a composer tune and interpret it in a precise way that can be used for computations (like playing the tune). The full syntax, as a regular expression, is something&nbsp;like:</p>
+<pre><code>(\d+\.?#?[abcdefg][123])|(\d+\.?\-) 
+</code></pre><p>A tune is specified by a sequence of tokens, separated by spaces. Each token is either a tone or a rest. A rest is specified by a duration and an optional extension followed by a hyphen (e.g. <code>4.-</code>). A tone is specified by a duration and an optional extension followed by a note (which may be preceded by a # to indicate sharp), followed by an octave (e.g. <code>16.#f3</code>).</p>
+<p>The Nokia Composer syntax is simple enough that I could parse it with string functions or regular expressions, but I thought it might be fun to do it properly with a <a href="http://en.wikipedia.org/wiki/Parser_combinator">parser combinator</a> library. A parser is a function that accepts a string and returns some structure. A parser combinator is a higher-order function that combines several parsers into a single parser. F# has an excellent parser combinator library called <a href="http://www.quanttec.com/fparsec/">FParsec</a>. In FParsec a parser that reads a float looks&nbsp;like:</p>
+<pre><code>pfloat &quot;3.14&quot;
+// =&gt; Success(3.14,...)
+</code></pre><p>A combinator that parses two floats separated by a&nbsp;space</p>
+<pre><code>&quot;3.14 2.71828&quot; |&gt; pfloat .&gt;&gt; pstring &quot; &quot; &gt;&gt;. pfloat 
+</code></pre><p>The strategy with parser combinators is to build parsers for the smallest units of syntax, then combine them into larger and larger pieces until you have a parser for the entire&nbsp;thing. </p>
+<p>If you don’t have the good fortune to be using F# don’t worry, there is a <a href="https://github.com/sprache/Sprache">parser combinator library for C#</a>&nbsp;too. </p>
+<h2 id="parsing-the-nokia-composer-syntax">Parsing the Nokia Composer&nbsp;Syntax</h2>
+<h3 id="parsing-the-duration">Parsing the&nbsp;Duration</h3>
+<p>Before we can parse we need types to parse too. The types that will represent the duration of the tone or rest&nbsp;are:</p>
+<pre><code>type NoteLength = Half | Quarter | Eighth | Sixteenth | Thirtyseconth 
+type Length = { duration: NoteLength; extended: bool }
+</code></pre><p>A length type has a duration and an extended bool. Durations followed by a <code>.</code> are extended by half. The parser for the duration part&nbsp;is:</p>
+<pre><code>let pnotelength = 
+    (stringReturn &quot;2&quot; Half) &lt;|&gt; 
+    (stringReturn &quot;4&quot; Quarter) &lt;|&gt; 
+    (stringReturn &quot;8&quot; Eighth) &lt;|&gt; 
+    (stringReturn &quot;16&quot; Sixteenth) &lt;|&gt; 
+    (stringReturn &quot;32&quot; Thirtyseconth)
+</code></pre><p>This simply codifies that the duration can be 2,4,8,16 or 32. The extended parser&nbsp;is:</p>
+<pre><code>let extendedParser = (stringReturn &quot;.&quot; true) &lt;|&gt; (stringReturn &quot;&quot; false)
+</code></pre><p>These two parsers are combined into a single duration parser that produces a <code>Length</code>.</p>
+<pre><code>let plength = pipe2 
+                pnotelength            
+                extendedParser 
+                (fun t e -&gt; {duration = t; extended = e})
+</code></pre><h3 id="parsing-the-pitch">Parsing the&nbsp;Pitch</h3>
+<p>The syntax that describes the pitch&nbsp;is</p>
+<pre><code>(#?[acdfg])|([be])
+</code></pre><p>That is a,c,d,f and g may be preceded by a <code>#</code> to indicate a sharp (a semitone higher) while b and e may&nbsp;not. </p>
+<p>The parser for the optional <code>#</code> symbol&nbsp;is:</p>
+<pre><code>let psharp = (stringReturn &quot;#&quot; true) &lt;|&gt; (stringReturn &quot;&quot; false)
+</code></pre><p>i.e. parse a <code>#</code> as <code>true</code> or its absense as <code>false</code>.</p>
+<p>The <code>&lt;|&gt;</code> combinator combines two combinators by giving the result of the first one, unless it fails having consumed no input, in which case it gives the result of the second. The restriction that the second parser is only tried if the first does not consume any input is very important and described in detail in <a href="http://www.quanttec.com/fparsec/users-guide/parsing-alternatives.html">the FParsec documentation</a>.</p>
+<p>Next we have a parser for notes that may be sharps. The target type for this parser&nbsp;is:</p>
+<pre><code>type Note = A | ASharp | B | C | CSharp | D | DSharp | E | F | FSharp | G | GSharp
+</code></pre><p>and the&nbsp;parser:</p>
+<pre><code>let psharpnote = pipe2 
+                    psharp 
+                    (anyOf &quot;acdfg&quot;) 
+                    (fun isSharp note -&gt; match (isSharp, note) with
+                        | (false, &#39;a&#39;) -&gt; A
+                        | (true, &#39;a&#39;) -&gt; ASharp                    
+                        | (false, &#39;c&#39;) -&gt; C
+                        | (true, &#39;c&#39;) -&gt; CSharp
+                        | (false, &#39;d&#39;) -&gt; D
+                        | (true, &#39;d&#39;) -&gt; DSharp
+                        | (false, &#39;f&#39;) -&gt; F
+                        | (true, &#39;f&#39;) -&gt; FSharp
+                        | (false, &#39;g&#39;) -&gt; G
+                        | (true, &#39;g&#39;) -&gt; GSharp
+                        | (_,unknown) -&gt; 
+                            sprintf &quot;Unknown note %c&quot; unknown 
+                            |&gt; failwith)
+</code></pre><p><code>pipe2</code> sequences parsers, meaning that <code>psharpnote</code> is a parser that first parses an optional <code>#</code> (via <code>psharp</code>) and then parses one of the characters a,c,d,f or g. The results are then mapped to the <code>Note</code> type. The above parser cannot produce B or E results, since these are not sharpable notes. A further parser is&nbsp;required:</p>
+<pre><code>let pnotsharpablenote = anyOf &quot;be&quot; |&gt;&gt; (function 
+                        | &#39;b&#39; -&gt; B
+                        | &#39;e&#39; -&gt; E
+                        | unknown -&gt; 
+                            sprintf &quot;Unknown note %c&quot; unknown 
+                            |&gt; failwith)
+</code></pre><p>Note that both <code>psharpnote</code> and <code>pnotsharpablenote</code> include a pattern match that throws an exception. The compiler requires the pattern match to be exhaustive, however by inspection we can see that the ‘unknown’ case can never actually occur. This is a case where the type system is not sufficiently powerful to capture the fact that the value can only be a ‘b’ or ‘e’&nbsp;character.</p>
+<p>The last remaining hurdle for our <code>Note</code> parser is to deal with the&nbsp;alternatives:</p>
+<pre><code>let pnote = pnotsharpablenote &lt;|&gt; psharpnote
+</code></pre><p>Now we have one parser, <code>pnote</code> that can parse any possible&nbsp;note. </p>
+<p>Finally, we need to parse the octave to the following&nbsp;type:</p>
+<pre><code>type Octave = One | Two | Three
+</code></pre><p>This can be done with a simple character&nbsp;parser:</p>
+<pre><code>let poctave = anyOf &quot;123&quot; |&gt;&gt; (function
+                | &#39;1&#39; -&gt; One
+                | &#39;2&#39; -&gt; Two
+                | &#39;3&#39; -&gt; Three
+                | unknown -&gt; sprintf &quot;Unknown octave %c&quot; unknown |&gt; failwith)
+</code></pre><p>The <code>|&gt;&gt;</code> combinator sends the parsed value of its first argument to its second argument, allowing us to map the char 1,2 or 3 to values of type <code>Octave</code>.</p>
+<h3 id="putting-things-together">Putting Things&nbsp;Together</h3>
+<p>If <code>Sound</code> is defined as a rest or a&nbsp;Tone:</p>
+<pre><code>type ToneRecord = { note: Note; octave: Octave }
+type Sound = Rest | Tone of ToneRecord
+</code></pre><p>Then we can parse a <code>Tone</code> like&nbsp;so:</p>
+<pre><code>let ptone = pipe2 pnote poctave (fun n o -&gt; Tone {note = n; octave = o})
+</code></pre><p>and a&nbsp;rest:</p>
+<pre><code>let prest = stringReturn &quot;-&quot; Rest
+</code></pre><p>Finally, a <code>Token</code> is a duration + (tone ||&nbsp;rest):</p>
+<pre><code>type Token = { length: Length; sound: Sound }
+</code></pre><p>and is parsed&nbsp;thus:</p>
+<pre><code>let ptoken = pipe2 
+                plength 
+                (prest &lt;|&gt; ptone) 
+                (fun l t -&gt; {length = l; sound = t})
+</code></pre><p>That is everything required to parse a Nokia composer token, which defines a rest or a&nbsp;note. </p>
+<h3 id="parsing-tunes">Parsing&nbsp;Tunes</h3>
+<p>Parsing a tune is a simple matter of applying the <code>ptoken</code> parser repeatedly until the end of the string. Naturally, there is a combinator for that. <code>sepBy</code> takes two parsers: the first to parse items and a second to parse the separators between items. For the space separated Nokia Composer syntax we can&nbsp;use:</p>
+<pre><code>let pscore = sepBy ptoken (pstring &quot; &quot;)
+</code></pre><p>With this parser we can now parse ‘I Don’t Wanna Miss a Thing’ by&nbsp;Aerosmith:</p>
+<pre><code>pscore &quot;2- 16a1 16- 16a1 16- 8a1 16- 4a2 16g2 16- 2g2 16- 4- 8- 16g2 16- 16g2 16- 16g2 8g2 16- 4c2 16#a1 16- 4a2 8g2 4f2 4g2 8d2 8f2 16- 16f2 16- 16c2 8c2 16- 4a2 8g2 16f2 16- 8f2 16- 16c2 16- 4g2 4f2&quot;
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

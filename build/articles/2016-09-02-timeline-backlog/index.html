@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>The Timeline Backlog - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>The Timeline Backlog</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>An agile product <strong>backlog</strong> is a prioritized list of uncompleted work. It can include features, bugs and other tasks. Good backlog items are as small as possible why still being <em>independently valuable</em>. They also have an associated effort estimate that helps the product owner to decide if and when the work should be&nbsp;completed. </p>
+<p>Prioritizing the backlog means sorting the items from highest priority to lowest priority. <em>Priority</em> is generally a combination of value to effort ratio and risk. That is, we should work first on the items that have the best “bang for buck” and the highest risk. High risk items come first so that the risk can be dealt with. Leaving all the risky items until the end of a project would make failure&nbsp;likely.</p>
+<h1 id="what-is-good-about-the-backlog-">What is good about the&nbsp;Backlog?</h1>
+<p>The product backlog is a central artifact for an agile project around which work is organised. It provides a basis for conversations with the product owner and subject matter experts. It guides the work of the team and enables project delivery to be projected into the&nbsp;future.</p>
+<h1 id="what-is-missing-from-the-backlog-">What is missing from the&nbsp;Backlog?</h1>
+<p>The backlog doesn’t communicate anything about time, and doesn’t visualize relative effort. In short, the backlog is missing the kind of information that we might get from a timeline - so let’s add&nbsp;one.</p>
+<p>Consider the following fictitious backlog for a file backup&nbsp;application:</p>
+<p><style>
+table&gt;td,table&gt;th { border: 1px solid }
+</style></p>
+<table border="1">
+<thead>
+<tr>
+<th>Story</th>
+<th>Effort (days)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In order to not lose data as a computer user I want to be able to save backups of selected files</td><td>6</td>
+</tr>
+<tr>
+<td>In order to not lose data as a computer user I want to have a configured portion of a filesystem automatically backed up continuously</td><td>12</td>
+</tr>
+<tr>
+<td>In order to recover from a data failure as a computer user I want to be able to retrieve files that were backed up</td><td>10</td>
+</tr>
+<tr>
+<td>In order to save money as a computer user I want old copies of backed up files to be purged</td><td>5</td>
+</tr>
+</tbody>
+</table> 
+
+<p><br/>Further suppose that we have a cost of $2000 / day and therefore a total cost estimate of $66,000. We’d like to see how that time and cost compares to our backlog. How much can I get for half that? Roughly when might a particular story be delivered? To answer these questions we can superimpose the backlog onto a&nbsp;timeline. </p>
+<h1 id="visualizing-a-backlog-over-time">Visualizing a backlog over&nbsp;time</h1>
+<p>Each story is shown as a row of a table, with the height scaled proportional to the effort for that story. If one story requires twice as much effort as another then its row is twice as high. A column to the right of the table shows how the budget is consumed over time, with label markers at 25%, 50% and 75% and 100%. This is enough detail to answer the timing questions listed above, but not so much detail that the product owner might infer that estimates have a higher precision than they really&nbsp;do.  </p>
+<p>The resulting visualization is as&nbsp;follows:</p>
+<iframe width="100%" height="760" src="//jsfiddle.net/69z2wepo/54979/embedded/result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe> 
+
+<p>Interested parties can look at the timeline backlog and understand approximately when features will appear over time. Changes to the backlog are immediately understood as changes to the&nbsp;schedule. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

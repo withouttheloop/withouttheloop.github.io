@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>PostgresDoc now works with C# - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>PostgresDoc now works with C#</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="/articles/2014-09-30-postgresql-nosql/">PostgresDoc</a> is a simple F# library for working with document data in Postgresql. Recently, I have been experimenting with ways to use it from&nbsp;C#.</p>
+<h2 id="using-an-f-library-from-c-">Using an F# Library from&nbsp;C#</h2>
+<p>It is certainly possible to use an F# library from C#, but the syntax can be difficult. To ease the pain I experimented with ways to make the <span class="caps">API</span> more C# friendly, and ultimately <a href="https://twitter.com/liammclennan/status/516546495156203520">gave up</a>.</p>
+<p><img src="twitter.png" alt="giving up on a shared C#/F# API" /></p>
+<h2 id="wrapping-an-f-library-for-c-consumers">Wrapping an F# Library for C#&nbsp;consumers</h2>
+<p>The approach that ultimately worked for me was to create a new C# project that wraps the F# version of PostgresDoc and provides an <span class="caps">API</span> that is optimised for C#. The unit of work is represented by a Queue. New operations are added via the <code>Enqueue</code> method, and created via static factory methods on the Operation class, like&nbsp;so:</p>
+<pre><code>unitOfWork.Enqueue(Operation.Insert(ernesto._id, ernesto));
+</code></pre><h2 id="the-postgresdoccs-c-api">The PostgresDocCs C#&nbsp;<span class="caps">API</span></h2>
+<p>Here is a simple example of working with a document from&nbsp;C#:</p>
+<pre><code>public class Person 
+{
+    public Guid _id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public string[] FavouriteThings { get; set; }
+}
+
+var ernesto = new Person
+        {
+            _id = Guid.NewGuid(),
+            Name = &quot;Ernesto&quot;,
+            Age = 31,
+            FavouriteThings = new[] { &quot;Pistachio Ice Cream&quot;, &quot;Postgresql&quot;, &quot;F#&quot; }
+        };
+var connString = &quot;Server=127.0.0.1;Port=5432;User Id=******;Password=*****;Database=testo;&quot;;
+
+var unitOfWork = new Queue&lt;Operation&lt;Guid&gt;&gt;();
+
+// insert a document
+unitOfWork.Enqueue(Operation.Insert(ernesto._id, ernesto));
+
+// modify a document
+ernesto.Age = 32;
+unitOfWork.Enqueue(Do.Update(ernesto._id, ernesto));
+
+// persist the changes in a transaction
+UnitOfWork.Commit(connString, unitOfWork)
+</code></pre><h3 id="querying">Querying</h3>
+<pre><code>var ernesto = Query&lt;Person&gt;.For(
+            connString, 
+            &quot;select data from Person where id = :id&quot;, 
+            new Dictionary&lt;string, object&gt; { {&quot;id&quot;, ernesto._id} });
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

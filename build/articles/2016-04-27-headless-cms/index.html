@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Blackstar, the API-first, headless CMS built for developers - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Blackstar, the API-first, headless CMS built for developers</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><link rel="stylesheet" href="prism.css">
+
+<blockquote>
+<p>Managed content in custom applications is useful, but building applications inside of a <span class="caps">CMS</span> is unproductive and miserable. <strong>Blackstar <span class="caps">CMS</span> is an API-first, headless CMS, built for application&nbsp;developers.</strong></p>
+</blockquote>
+<p><img src="mac2.png" alt="Blackstar CMS" /></p>
+<p>I recently wrote that <a href="/articles/2016-04-26-blackstar-headless-cms/">Hosting a custom application inside of a <span class="caps">CMS</span> is a terrible idea</a>. Now, I present a&nbsp;solution. </p>
+<p><a href="http://blackstarcms.net/">Blackstar <span class="caps">CMS</span></a> is an <span class="caps">API</span>-first, headless CMS, built for application&nbsp;developers.</p>
+<p>It allows you to put content in your custom web application, and provide a delightful content management experience for application&nbsp;administrators.</p>
+<p>Blackstar <span class="caps">CMS</span> is currently in alpha preview. To access the alpha, signup for the Blackstar CMS newsletter&nbsp;below:</p>
+<hr>
+<!-- Begin MailChimp Signup Form -->
+<p><link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css"></p>
+<p><style type="text/css"></p>
+<pre><code>#mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;}
+/* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+   We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</code></pre><p></style></p>
+<div id="mc_embed_signup">
+<form action="//blackstarcms.us13.list-manage.com/subscribe/post?u=4c9086940c1cc2e74eb2526b9&amp;id=080fe1a12f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+    <label for="mce-EMAIL">Newsletter</label>
+    <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_4c9086940c1cc2e74eb2526b9_080fe1a12f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+    </div>
+</form>
+</div>
+
+<hr>
+<h1 id="a-tour-of-blackstar-cms">A tour of Blackstar&nbsp;<span class="caps">CMS</span></h1>
+<p>An application using Blackstar <span class="caps">CMS</span> to embed managed content might look something like&nbsp;this:</p>
+<p><img src="blackstarpedia.gif" alt="Blackstarpedia"/></p>
+<p>If I, as an application administrator, want to change the main heading, I click its edit link, and am taken to the blackstar edit&nbsp;page:</p>
+<p><img src="edit.png" alt="Edit"/> </p>
+<p>I can make a change, and see it reflected&nbsp;immediately:</p>
+<p><img src="blackstarpedia2.png" alt="Blackstarpedia updated"/></p>
+<p>Some core design goals for blackstar&nbsp;are:</p>
+<ul>
+<li>it should be simple for developers to integrate into their application and simple for administrators to use to manage&nbsp;content</li>
+<li>it should be deployed on premise (see Why a SaaS <span class="caps">CMS</span> is not for&nbsp;everyone)</li>
+<li>it should be simple to deploy and&nbsp;administer</li>
+</ul>
+<h1 id="the-developer-experience">The Developer&nbsp;Experience</h1>
+<p>There are different ways to integrate with Blackstar <span class="caps">CMS</span>. For a SPA type application this can be done by including elements decorated with the <code class=" language-markup">data-blackstar-name</code> attribute. This tells Blackstar the name of the content chunk that should be inserted into that element. Here is an example from the BlackstarPedia&nbsp;demo.</p></p>
+<pre class=" language-markup"><code class=" language-markup">&lt;h2 data-blackstar-name="smaller-heading"/&gt;
+&lt;div data-blackstar-name="second-content"/&gt;
+</code></pre>
+
+<p><code class=" language-markup">smaller-heading</code> and <code class=" language-markup">second-content</code> are the names of Blackstar content&nbsp;chunks. </p>
+
+<p>Next, add the Blackstar client script, create a client, and specify what content should be bound to this page (all chunks with the tag <code class=" language-markup">blackstarpedia</code>). </p>
+
+<pre><code class=" language-javascript">&lt;script src="blackstar-cms-client.js"&gt;&lt;/script&gt;
+
+var blackstar = new Blackstar.Client('http://localhost:2999/', { showEditControls: true });
+blackstar.get({ tags: ['blackstarpedia'] }).then(function (chunks) {
+  blackstar.bind(chunks);     // bind by matching data-blackstar-name values to chunk names 
+});
+</code></pre>
+
+<p>That’s enough to populate the page with content and allow application administrators access to create and edit&nbsp;content. </p>
+<p>Blackstar <span class="caps">CMS</span> content can also be accessed via HTTP or a <a href="https://github.com/Blackstar-CMS/javascript-client/blob/master/api.md">JavaScript client</a> (browser or&nbsp;node.js). </p>
+<h1 id="why-a-saas-cms-is-not-for-everyone">Why a SaaS <span class="caps">CMS</span> is not for&nbsp;everyone</h1>
+<p>When I searched for a developer-oriented <span class="caps">CMS</span> designed for adding manageable content to custom applications I found a crowded market of hosted solutions (SaaS) and very little support for self-hosting. There are three reasons why I think that a hosted CMS is a bad idea for most&nbsp;situations.</p>
+<ol>
+<li>It is an operational&nbsp;dependency</li>
+</ol>
+<hr>
+<p>If your hosted <span class="caps">CMS</span> goes down, then your application becomes unavailable, or at least has no&nbsp;content.   </p>
+<ol start="2">
+<li>You depend upon continued operation of the&nbsp;service</li>
+</ol>
+<hr>
+<p>Hundreds of thousands of applications depended on a backend-as-a-service called <em>Parse</em>. In January 2016 <a href="http://blog.parse.com/announcements/moving-on/">Facebook shutdown Parse</a>, leaving all those customers stranded. It probably made sense for Facebook, but it left their customers with no options. Other SaaS products like <a href="https://unicornfree.com/2013/why-we-shut-down-charm-on-the-eve-of-public-launch-at-48kyear-and-growing">Charm shutdown before they even launch</a>.</p>
+<p>When you depend upon a third-party service for the runtime operation of your application you lose control of your own&nbsp;destiny. </p>
+<ol start="3">
+<li>Latency</li>
+</ol>
+<hr>
+<p>Web applications always have <em>some</em> latency. It’s the time it takes for a request to travel from the client to your server, and then back&nbsp;again. </p>
+<p>Using a SaaS <span class="caps">CMS</span> adds the latency of another network request. Now a request has to travel from the client, to your server, to your SaaS CMS server, back to your server, then back to the client. And that makes your app feel <strong>S  L  O  W</strong>.  </p>
+<p>Blackstar <span class="caps">CMS</span> is currently in alpha preview. To access the alpha, signup for the Blackstar CMS newsletter&nbsp;below:</p>
+<hr>
+<!-- Begin MailChimp Signup Form -->
+<p><link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css"></p>
+<p><style type="text/css"></p>
+<pre><code>#mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;}
+/* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+   We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</code></pre><p></style></p>
+<div id="mc_embed_signup">
+<form action="//blackstarcms.us13.list-manage.com/subscribe/post?u=4c9086940c1cc2e74eb2526b9&amp;id=080fe1a12f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+    <label for="mce-EMAIL">Newsletter</label>
+    <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_4c9086940c1cc2e74eb2526b9_080fe1a12f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+    </div>
+</form>
+</div>
+
+<hr>
+<script src="prism.js"></script></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

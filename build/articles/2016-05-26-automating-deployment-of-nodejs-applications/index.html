@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Automating the Deployment of Node.js Applications - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Automating the Deployment of Node.js Applications</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><blockquote>
+<p>Have a build process to produce a deployable (non-development) package. Host on Linux with pm2 to manage processes and restarts. Move files with rsync. Perform installation activities with ssh. Reverse proxy through nginx for improved performance and <span class="caps">SSL</span>&nbsp;termination.</p>
+</blockquote>
+<p>For information about <em>how</em> to build a node.js web application see <a href="http://withouttheloop.com/articles/2016-03-24-node-web-ts/">Building a Web Application with Node and Typescript</a>.</p>
+<h1 id="build-a-deployable-package">Build a Deployable&nbsp;Package</h1>
+<p>Step 1 of a deployment process is to build a deployment specific package of your application. The needs of an application in production are very different to the needs during development. For example, a production application does not need all your development npm dependencies, or source maps, or unminified source&nbsp;files. </p>
+<p>I use <a href="http://gulpjs.com/">gulp</a> for all my node.js scripting requirements. When combined with <a href="https://github.com/shelljs/shelljs">shelljs</a> and <a href="https://github.com/sun-zheng-an/gulp-shell">gulp-shell</a> for executing bash commands from gulp I find it to be an effective scripting platform and a reasonably reliable cross-platform solution (with some&nbsp;exceptions). </p>
+<p><a href="http://withouttheloop.com/articles/2016-04-27-headless-cms/">My application</a> consists of a node.js server application and a React browser application. The client-side JavaScript is written in many files. For production I would like to concatenate them together to minimize the number of <span class="caps">HTTP</span> requests required and improve performance. To do this I use browserify, and a gulp task like&nbsp;this:</p>
+<pre><code class="lang-javascript">gulp.task(<span class="string">'concatenate-client-javascript'</span>, shell.task([
+    <span class="string">'browserify src/app.js -o public/bundle.js'</span>
+]));
+</code></pre>
+<p>Browserify starts from the root of the application (<code>app.js</code>) and recursively follows dependencies to build a graph of all the required code. It then concatenates it all into a single file (<code>bundle.js</code>). </p>
+<p>To create my deployment package I copy the files that are required for deployment to a separate directory - mine is called <code>package</code>. I do this with simple shell commands executed via shelljs or&nbsp;gulp-shell. </p>
+<p>At this point I have a directory <code>package</code> containing my application as I would like it deployed to my&nbsp;server. </p>
+<h1 id="hosting-on-linux-with-pm2">Hosting on Linux with&nbsp;pm2</h1>
+<p>Deploying node.js applications to Linux is a good idea&nbsp;because:</p>
+<ul>
+<li>node.js works better on Linux than on&nbsp;Windows</li>
+<li>Linux is often&nbsp;cheaper</li>
+</ul>
+<p>Unfortunately, unlike Windows, Linux does not have a consistent mechanism for implementing servers. <a href="https://github.com/Unitech/pm2">pm2</a> is a process manager that can help with this. To install&nbsp;pm2: </p>
+<pre><code>$ npm install pm2@latest -g
+</code></pre><p>Instead of starting our application directly like&nbsp;this:</p>
+<pre><code>$ node app.js
+</code></pre><p>We use pm2 to host the&nbsp;process:</p>
+<pre><code>$ pm2 start app.js
+</code></pre><p><img src="start.png" alt="pm2 start" /></p>
+<p>pm2 immediately provides a number of&nbsp;benefits:</p>
+<ul>
+<li>it restarts the process if it&nbsp;crashes</li>
+<li>it handles&nbsp;logging </li>
+<li>it is able to manage many processes and control things like starting, stopping, memory use and&nbsp;uptime  </li>
+</ul>
+<p>Detailed information about a process is retrieved with the <code>show</code> command:</p>
+<pre><code class="lang-javascript">$ pm2 show app
+</code></pre>
+<p><img src="show.png" alt="pm2 show"/></p>
+<p>pm2’s real party trick is that it can be configured to start with the operating system. To do this, first save the current process list then use the <code>startup</code> command:</p>
+<pre><code>$ pm2 save
+$ pm2 startup
+</code></pre><p>The output will be a shell script to be executed as root that will cause pm2 to start when the <span class="caps">OS</span> boots and start its processes. Unfortunately, this does not work for&nbsp;Windows. </p>
+<p>Now we have a way to run our application, we just need to move the files to our&nbsp;server. </p>
+<h1 id="move-files-with-rsync">Move files with&nbsp;rsync</h1>
+<p><a href="https://en.wikipedia.org/wiki/Rsync">rsync</a> is a smart file synchronization tool that can be used to move your application from your development computer to your deployment server. By using delta encoding and compression rsync optimizes file transfer size and&nbsp;speed. </p>
+<p>Again, this is easily scripted with&nbsp;gulp.</p>
+<pre><code class="lang-javascript">gulp.task(<span class="string">'deployapp'</span>,[<span class="string">'package'</span>], shell.task([
+  <span class="string">"rsync -azvP package username@yourdomain:location/to/deploy/to"</span>,
+]));
+</code></pre>
+<p>This gulp task will copy our application directory (<code>package</code>) to <code>~/location/to/deploy/to</code> relative to the user’s home directory. You will obviously need to authenticate with the server to do this, which can be done with certificates or a&nbsp;password. </p>
+<h1 id="perform-installation-activities-with-ssh">Perform Installation Activities with&nbsp;<span class="caps">SSH</span></h1>
+<p>With <a href="https://en.wikipedia.org/wiki/Secure_Shell"><span class="caps">SSH</span></a> we can run bash commands on a remote computer. For my application the post install steps&nbsp;are:</p>
+<ol>
+<li>Delete the&nbsp;database</li>
+<li>Restart the application process with&nbsp;pm2</li>
+</ol>
+<p>My gulp task is something&nbsp;like:</p>
+<pre><code class="lang-javascript">gulp.task(<span class="string">'postinstallsteps'</span>,[<span class="string">'deployapp'</span>], shell.task([
+  <span class="string">'ssh username@yourdomain "rm -f mydatabasefile.db &amp;&amp; pm2 restart myapplicationname"'</span>
+]));
+</code></pre>
+<p>For more complicated scripts you can use <span class="caps">SSH</span> to execute a script&nbsp;file:</p>
+<pre><code>$ ssh username@yourdomain &#39;bash -s&#39; &lt; myinstallscript.sh
+</code></pre><h1 id="reverse-proxy-through-nginx-for-improved-performance-and-ssl-termination">Reverse Proxy Through nginx for Improved Performance and <span class="caps">SSL</span>&nbsp;Termination</h1>
+<p><img src="nginx.png" alt="nginx"/></p>
+<p><a href="http://nginx.org/en/">nginx</a> is a wonderful web server and proxy that handles most of the world’s web traffic. When hosting a node application we can chose to let clients connect directly or via a reverse proxy, such as nginx. nginx is much better than node.js at certain tasks, such as proxying, serving file system content and terminating&nbsp;<span class="caps">SSL</span>.</p>
+<p>I use the default ubuntu setup of nginx, which uses a file-per-site in <code>/etc/nginx/sites-enabled</code> to configure nginx. My nginx configuration file is included in my deployment package as a text file, similar&nbsp;to:</p>
+<pre><code>upstream app_demo_blackstar {
+    server 127.0.0.1:2999;
+}
+
+# the nginx server instance
+server {
+    listen 80;
+    server_name demo.blackstarcms.net;
+    access_log /var/log/nginx/demo-blackstarcms.log;
+
+    # pass the request to the node.js server with the correct headers and much more can be added, see nginx config options
+    location / {
+      #proxy_set_header X-Real-IP $remote_addr;
+      #proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      #proxy_set_header Host $http_host;
+      #proxy_set_header X-NginX-Proxy true;
+
+      proxy_pass http://app_demo_blackstar/;
+      proxy_redirect off;
+    }
+
+    location ~* ^.+\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|doc|xls|exe|pdf|ppt|txt|tar|mid|midi|wav|bmp|rtf|js)$ {
+      root /path/to/static/content;
+    }
+ }
+</code></pre><p> The <code>server</code> element defines a website at <a href="http://demo.blackstarcms.net">http://demo.blackstarcms.net</a> on port&nbsp;80. </p>
+<p> The <code>proxy_pass</code> setting configures nginx as a reverse proxy for the upstream application <code>app_demo_blackstar</code>, which is my pm2 hosted node.js&nbsp;application. </p>
+<p> The <code>location</code> setting configures nginx to directly handle any requests for the listed file types. These requests will be handled by nginx and never forwarded to node.js. This improves performance and takes load off the node.js&nbsp;process. </p>
+<p> A problem remains - my nginx configuration file is in my application deployment package, but needs to be in <code>/etc/nginx/sites-enabled</code> to be picked up by nginx. This is easily solved by creating a symbolic link in <code>/etc/nginx/sites-enabled</code>:</p>
+<pre><code> $ cd /etc/nginx/sites-enabled
+ $ ln -s /path/to/app/package/nginx.config blackstarnginxconfig
+</code></pre><p> Nginx will only reload configuration when it is restarted, like so (on&nbsp;ubuntu):</p>
+<pre><code> $ sudo service nginx restart
+</code></pre><p> To pick up nginx configuration changes automatically we could easily add this nginx restart step to our post install ssh&nbsp;commands. </p>
+<h1 id="-summary"> Summary</h1>
+<p> With this setup in place I can deploy my application with a single gulp command. If my application crashes the output is logged and the application is restarted. If the server crashes my application is restarted when the server&nbsp;restarts. </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

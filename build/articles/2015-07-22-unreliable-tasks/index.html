@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Dealing With Unreliable TPL Tasks - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Dealing With Unreliable TPL Tasks</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Suppose you have a collection of .net <span class="caps">TPL</span> tasks and the knowledge that some of them may fail (throw an exception) and some may take an unacceptably long period of time to resolve. In the case of the errored tasks you wish to collect information to assist diagnosis. In the case of the long running tasks you wish to ignore them and allow the program to carry on so that throughput is&nbsp;maintained.</p>
+<p>This is not a simple problem when using the .net <span class="caps">TPL</span> (Task<T>, async, await, etc), which seems to be designed with an all or nothing mentality. Consider the following motely crew of&nbsp;tasks:</p>
+<pre><code>Task&lt;int?&gt;[] calcTasks = new [] {
+    Task.Run(() =&gt; {
+        Thread.Sleep(200);
+        var div = 0;
+        return new Nullable&lt;int&gt;(5/div);
+    }),
+    Task.Run(() =&gt; {
+        Thread.Sleep(100);
+        return new Nullable&lt;int&gt;(42);
+    }),
+    Task.Run(() =&gt; {
+        Thread.Sleep(1500);
+        return new Nullable&lt;int&gt;(99);
+    })
+};
+</code></pre><p>All three are asynchronous operations including a time delay. The first task attempts to divide by zero and will therefore throw a <code>DivideByZero</code> exception. The last task sleeps for 1.5s, which exceeds the acceptable timeout for my use case. Only the second task will succeed, ultimately producing the value <code>42</code>.</p>
+<p>What is needed now is a function to process a collection of tasks, in the context of a particular timeout duration, and return a collection of results. Each result should describe the fate of one task. The class I use to represent the result of a Task that may error or timeout is <code>AsyncTimedResult&lt;TResult&gt;</code> described&nbsp;below:</p>
+<pre><code>public enum AsyncResultStates
+{
+    Unknown, TimedOut, Resolved, Faulted
+}
+
+public class AsyncTimedResult&lt;TResult&gt;
+{
+    public TResult Result { get; private set; }
+    public Exception Error { get; private set; }
+    public AsyncResultStates State { get; private set; }
+    public string Message { get; private set; }
+
+    protected AsyncTimedResult()
+    {
+        Message = &quot;&quot;;
+        State = AsyncResultStates.Unknown;
+    }
+
+    ...
+</code></pre><p>To process a collection of unreliable tasks I use a function called <code>ExtractResults</code>, like&nbsp;so:</p>
+<pre><code>AsyncTimedResult&lt;int?&gt;[] results = await
+    UnreliableTasks.ExtractResults(calcTasks, TimeSpan.FromSeconds(1));
+</code></pre><p>I can then categorize the results by their&nbsp;state:</p>
+<pre><code>var succeeded = results.Where(UnreliableTasks.IsResolved);
+var faulted = results.Where(UnreliableTasks.IsFaulted);
+var timedout = results.Where(UnreliableTasks.IsTimedOut);
+</code></pre><h2 id="how-does-it-work-">How Does it&nbsp;Work?</h2>
+<p>The <span class="caps">TPL</span> doesn’t include any support for adding timeouts to tasks. We simulate timeouts with a bit of a hack. For each task that we wish to evaluate against a timeout, we create a new task that will resolve at the timeout limit, then we race the two tasks using <code>Task.WhenAny()</code> which results in the first task to resolve. If the timeout task resolves first then we know that our task timed&nbsp;out.</p>
+<pre><code>var taskICareAbout = Task.Run(() =&gt; {
+    Thread.Sleep(200);
+    var div = 0;
+    return new Nullable&lt;int&gt;(5/div);
+});
+var timerTask = Task.Delay(TimeSpan.FromMilliseconds(100))
+  .ContinueWith(t =&gt; default(int?));
+var first = await Task.WhenAny&lt;int?&gt;(taskICareAbout, timerTask);
+if (first == taskICareAbout) {
+  // my task completed first
+} else {
+  // timer task completed first
+}
+</code></pre><p><code>timerTask</code> has a continuation just to convert it to the same type as our other task. For <code>ExtractResults</code> I also need to process the results and categorize them by state. The full implementation&nbsp;is:</p>
+<pre><code>public static async Task&lt;AsyncTimedResult&lt;T&gt;[]&gt; ExtractResults&lt;T&gt;(IEnumerable&lt;Task&lt;T&gt;&gt; tasks, TimeSpan timeout)
+{
+    var tasksWithTimeouts = tasks.Select(t =&gt;
+        Task.WhenAny&lt;T&gt;(Task.Delay(timeout).ContinueWith(t2 =&gt; default(T)), t));
+    var everything = Task.WhenAll(tasksWithTimeouts)
+        .ContinueWith(t =&gt; t.Result.Select(ti =&gt;
+        {
+            if (ti.IsFaulted || ti.Exception != null)
+            {
+                return AsyncTimedResult&lt;T&gt;.Reject(ti.Exception);
+            }
+            if (ti.Result == null || ti.Result.Equals(default(T)))
+            {
+                return AsyncTimedResult&lt;T&gt;.TimeOut();
+            }
+
+            return AsyncTimedResult&lt;T&gt;.Resolve(ti.Result);
+        }));
+    var results = await everything;
+    return results.ToArray();
+}
+</code></pre><h2 id="all-together">All&nbsp;Together</h2>
+<p>Here is a complete console app demonstrating the&nbsp;method:</p>
+<pre><code>using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TasksC
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Do().Wait();
+        }
+
+        private static async Task Do()
+        {
+            Task&lt;int?&gt;[] calcTasks = new[] {
+                Task.Run(() =&gt; {
+                    Thread.Sleep(200);
+                    var div = 0;
+                    return new Nullable&lt;int&gt;(5/div);
+                }),
+                Task.Run(() =&gt; {
+                    Thread.Sleep(100);
+                    return new Nullable&lt;int&gt;(42);
+                }),
+                Task.Run(() =&gt; {
+                    Thread.Sleep(1500);
+                    return new Nullable&lt;int&gt;(99);
+                })
+            };
+
+            var results = await UnreliableTasks.ExtractResults(calcTasks, TimeSpan.FromSeconds(1));
+            var succeeded = results.Where(UnreliableTasks.IsResolved);
+            var faulted = results.Where(UnreliableTasks.IsFaulted);
+            var timedout = results.Where(UnreliableTasks.IsTimedOut);
+
+            Console.WriteLine(string.Join(&quot;,&quot;, succeeded.Select(n =&gt; n.Result)));
+            Console.WriteLine(&quot;\nErrors:\n&quot;);
+            Console.WriteLine(string.Join(&quot;,&quot;, faulted
+                .Select(n =&gt; n.Error.InnerException.Message).ToArray()));
+            Console.WriteLine(&quot;\nTimeouts:\n&quot;);
+            Console.WriteLine(timedout.Count());
+            Console.ReadLine();
+        }
+    }
+
+    public class UnreliableTasks
+    {
+        public static async Task&lt;AsyncTimedResult&lt;T&gt;[]&gt; ExtractResults&lt;T&gt;(IEnumerable&lt;Task&lt;T&gt;&gt; tasks, TimeSpan timeout)
+        {
+            var tasksWithTimeouts = tasks.Select(t =&gt;
+                Task.WhenAny&lt;T&gt;(Task.Delay(timeout).ContinueWith(t2 =&gt; default(T)), t));
+            var everything = Task.WhenAll(tasksWithTimeouts)
+                .ContinueWith(t =&gt; t.Result.Select(ti =&gt;
+                {
+                    if (ti.IsFaulted || ti.Exception != null)
+                    {
+                        return AsyncTimedResult&lt;T&gt;.Reject(ti.Exception);
+                    }
+                    if (ti.Result == null || ti.Result.Equals(default(T)))
+                    {
+                        return AsyncTimedResult&lt;T&gt;.TimeOut();
+                    }
+
+                    return AsyncTimedResult&lt;T&gt;.Resolve(ti.Result);
+                }));
+            var results = await everything;
+            return results.ToArray();
+        }
+
+        public enum AsyncResultStates
+        {
+            Unknown, TimedOut, Resolved, Faulted
+        }
+
+        public static bool IsResolved&lt;T&gt;(AsyncTimedResult&lt;T&gt; result)
+        {
+            return result.State == AsyncResultStates.Resolved;
+        }
+
+        public static bool IsFaulted&lt;T&gt;(AsyncTimedResult&lt;T&gt; result)
+        {
+            return result.State == AsyncResultStates.Faulted;
+        }
+
+        public static bool IsTimedOut&lt;T&gt;(AsyncTimedResult&lt;T&gt; result)
+        {
+            return result.State == AsyncResultStates.TimedOut;
+        }
+
+        public class AsyncTimedResult&lt;TResult&gt;
+        {
+            public TResult Result { get; private set; }
+            public Exception Error { get; private set; }
+            public AsyncResultStates State { get; private set; }
+            public string Message { get; private set; }
+
+            protected AsyncTimedResult()
+            {
+                Message = &quot;&quot;;
+                State = AsyncResultStates.Unknown;
+            }
+
+            public static AsyncTimedResult&lt;TResult&gt; Resolve(TResult result)
+            {
+                return new AsyncTimedResult&lt;TResult&gt;() { Result = result, State = AsyncResultStates.Resolved };
+            }
+
+            public static AsyncTimedResult&lt;TResult&gt; Reject(Exception ex)
+            {
+                return new AsyncTimedResult&lt;TResult&gt;() { Error = ex, State = AsyncResultStates.Faulted };
+            }
+
+            public static AsyncTimedResult&lt;TResult&gt; TimeOut()
+            {
+                return new AsyncTimedResult&lt;TResult&gt;() { State = AsyncResultStates.TimedOut };
+            }
+        }
+    }
+}
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

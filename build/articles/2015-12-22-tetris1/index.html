@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Implementing Tetris with React and Redux - I - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Implementing Tetris with React and Redux - I</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="tetris.jpg" alt="tetris" /></p>
+<p>I cannot think of a game more classic than tetris. When I was a kid it was the staple diet of gameboy wielding preteens. Therefore, I decided to reimplement tetris using javascript, <a href="https://facebook.github.io/react/">React</a> and <a href="http://redux.js.org/">Redux</a>.</p>
+<h1 id="the-cast">The&nbsp;Cast</h1>
+<h3 id="javascript-es2015-">JavaScript&nbsp;(<span class="caps">ES2015</span>)</h3>
+<p>At first I started with TypeScript, but I gave up getting it to work with all the other tooling (type definitions, webpack, React etc) and switched to <span class="caps">ES2015</span>. ES2015 is not widely supported so I must compile it to ES5. Since I’m using React (with JSX) I’m obliged to have a compile step&nbsp;anyway.</p>
+<h3 id="react">React</h3>
+<p>React is a <span class="caps">UI</span> library that knows how to keep a web UI in sync with a model object, and how to dispatch&nbsp;events.</p>
+<h3 id="redux">Redux</h3>
+<p>Redux is a simple library that puts some structure around <span class="caps">UI</span> state and manages the mutation of that&nbsp;state.</p>
+<h3 id="babel">Babel</h3>
+<p><a href="https://babeljs.io/">Babel</a> is the defacto standard tool for <span class="caps">ES2015</span> -&gt; ES5&nbsp;compilations.</p>
+<h3 id="browserify">Browserify</h3>
+<p>One of the <span class="caps">ES2015</span> features is modules, but to take advantage of ES2015 modules, to include other modules from NPM and to improve the network efficiency of the application <a href="http://browserify.org/">Broswerify</a> converts the modules into something that works in the browser and smooshes everything into a single&nbsp;file.</p>
+<h3 id="mocha">Mocha</h3>
+<p><a href="https://mochajs.org/">Mocha</a> is a node-based JavaScript testing tool. It provides a library for logically organising tests and a runner for running the tests and reporting the&nbsp;results.</p>
+<h3 id="gulp">Gulp</h3>
+<p>I use <a href="http://gulpjs.com/">gulp</a> for my build script. It coordinates all the other tools and provides file system&nbsp;watching.</p>
+<h3 id="what-i-hate-about-all-this">What I Hate About All&nbsp;This</h3>
+<p>The number of fiddly little tools required to work with JavaScript at the moment annoys me. Each in isolation I understand their purpose but considering the ecosystem as a whole it is obviously an appalling waste of time having to deal with all this bits. I’m sure it will settle down with time. Can’t&nbsp;wait.</p>
+<p>The most pernicious issue is not the quantity of tools required, but the tight coupling between them. Browserify requires a plugin (babelify) to connect it to babel. Mocha requires a plugin (babel-register) to connect it to babel. If I wasn’t so lazy as to have gulp execute shell scripts then I would require gulp plugins specific to mocha, browserify and possible&nbsp;babel.</p>
+<h1 id="step-1-basic-tooling">Step 1 - Basic&nbsp;tooling</h1>
+<p>You may, if you wish, follow along with my <a href="https://github.com/liammclennan/tetris">git commits</a>. This step is commit <a href="https://github.com/liammclennan/tetris/commit/dffea31bfee670f4644eaf8d0586a81f576fd548">dffea31bfee670f4644eaf8d0586a81f576fd548</a>.</p>
+<p>To get to this&nbsp;state:</p>
+<pre><code>$ git clone https://github.com/liammclennan/tetris.git
+$ git checkout dffea31bfee670f4644eaf8d0586a81f576fd548
+</code></pre><p>My application starts with a simple, empty, web&nbsp;page:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;style.css&quot;&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id=&quot;container&quot;&gt;
+    &lt;!-- This element&#39;s contents will be replaced with your component. --&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;bundle.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>Note that the webpage includes just two files: style.css and bundle.js. The entire application, including all of my javascript and all required libraries, is bundled into bundle.js by browserify. I know you are wondering how, so let’s inspect&nbsp;package.json:</p>
+<pre><code>{
+  &quot;name&quot;: &quot;tetris&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;&quot;,
+  &quot;main&quot;: &quot;index.js&quot;,
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;browserify -t [ babelify --presets [ react ] ] app.js -o bundle.js&quot;,
+    &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;
+  },
+  &quot;author&quot;: &quot;&quot;,
+  &quot;license&quot;: &quot;ISC&quot;,
+  &quot;dependencies&quot;: {
+    &quot;babel-preset-react&quot;: &quot;^6.3.13&quot;,
+    &quot;babelify&quot;: &quot;^7.2.0&quot;,
+    &quot;react&quot;: &quot;^0.14.3&quot;,
+    &quot;react-dom&quot;: &quot;^0.14.3&quot;
+  },
+  &quot;devDependencies&quot;: {
+    &quot;babel-preset-es2015&quot;: &quot;^6.3.13&quot;,
+    &quot;babelify&quot;: &quot;^7.2.0&quot;
+  }
+}
+</code></pre><p>Package.json is the metadata file for my <span class="caps">NPM</span> package. It includes a list of dependencies and the optional ability to execute some scripts. I have defined a <code>build</code> script&nbsp;as:</p>
+<pre><code>browserify -t [ babelify --presets [ react ] ] app.js -o bundle.js
+</code></pre><p>This <a href="https://github.com/substack/node-browserify#usage">tells browserify</a> to <em>transform</em> the input via babelify, and when delegating to babel to use the <em>react</em> preset. <code>app.js</code> is the root of my application. Browserify will start their and spider through all the included modules. <code>-o bundle.js</code> sets the output file. To execute this build&nbsp;script:</p>
+<pre><code>npm run build
+</code></pre><h1 id="step-2-a-little-bit-of-tetris">Step 2 - A Little Bit of&nbsp;Tetris</h1>
+<p>The game tetris involves the placement of <a href="https://en.wikipedia.org/wiki/Tetromino">tetrominos</a>.</p>
+<blockquote>
+<p>A tetromino is a geometric shape composed of four squares, connected&nbsp;orthogonally.</p>
+</blockquote>
+<p>How many tetrominos can you think of? Well there are 5 (I, O, Z, T,&nbsp;L).</p>
+<p><img src="tetrominos.png" alt="Tetrominos" style="width:200px"/></p>
+<p>React uses components to organise <span class="caps">UI</span> elements. The fundamental requirement for a component is that it must have a <code>render</code> method that defines how a model object is converted into <span class="caps">UI</span>. To assemble Tetrominos we can start by defining a component for a single square (in&nbsp;app.js):</p>
+<pre><code>var Square = React.createClass({
+    render: function() {
+            var s = {
+            left: (this.props.col-1) * 25 + &#39;px&#39;,
+          top: (this.props.row-1) * 25 + &#39;px&#39;
+        };
+        return &lt;div className=&quot;square&quot; style={s}&gt;&lt;/div&gt;;
+    }
+});
+</code></pre><p>This component converts a simple model of the form <code>{col,row}</code> into a div with the class <code>square</code> positioned absolutely according to the <code>row</code> and <code>col</code> values. With this low-level component we can assemble higher level components for the different&nbsp;tetrominos:</p>
+<pre><code>var OShape = React.createClass({
+    render: function () {
+      return &lt;div&gt;
+        &lt;Square row={this.props.row} col={this.props.col} /&gt;
+        &lt;Square row={this.props.row} col={this.props.col+1} /&gt;
+      &lt;Square row={this.props.row+1} col={this.props.col} /&gt;
+          &lt;Square row={this.props.row+1} col={this.props.col+1} /&gt;
+    &lt;/div&gt;;
+  }
+});
+
+var LShape = React.createClass({
+    render: function () {
+      return &lt;div&gt;
+        &lt;Square row={this.props.row} col={this.props.col} /&gt;
+          &lt;Square row={this.props.row+1} col={this.props.col} /&gt;
+      &lt;Square row={this.props.row+2} col={this.props.col} /&gt;
+          &lt;Square row={this.props.row+3} col={this.props.col} /&gt;
+    &lt;/div&gt;;
+  }
+});
+
+var SShape = React.createClass({
+    render: function () {
+      return &lt;div&gt;
+        &lt;Square row={this.props.row} col={this.props.col+1} /&gt;
+          &lt;Square row={this.props.row} col={this.props.col+2} /&gt;
+      &lt;Square row={this.props.row+1} col={this.props.col} /&gt;
+          &lt;Square row={this.props.row+1} col={this.props.col+1} /&gt;
+    &lt;/div&gt;;
+  }
+});
+</code></pre><p>We can then use React to render some tetrominos into the <span class="caps">HTML</span> page we defined&nbsp;earlier:</p>
+<pre><code>ReactDOM.render(
+&lt;div&gt;
+    &lt;OShape row={1} col={1} /&gt;
+  &lt;LShape row={1} col={4} /&gt;
+  &lt;SShape row={1} col={6} /&gt;
+&lt;/div&gt;,
+    document.getElementById(&#39;container&#39;)
+);
+</code></pre><p>And with that we have the start of the rendering portion of our tetris game! We have done some <span class="caps">ES2015</span> development with modern tooling, and a little bit of React. Redux will enter the picture in a future&nbsp;post.</p>
+<p>If you are following along you can build this&nbsp;using:</p>
+<pre><code>npm install
+npm run build
+</code></pre><p>Then open <code>index.html</code> in your&nbsp;browser.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

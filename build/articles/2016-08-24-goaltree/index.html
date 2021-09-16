@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>The Goal Tree - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>The Goal Tree</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>A good software development team is faster than a not-so-good one. Maybe twice as fast, but there is a definite limit. The <strong>real</strong> productivity difference that experienced developers learn is to minimize waste. <em>It’s all about what you don’t build</em>. </p>
+<p>Assuming that the customer knows what they want and simply doing what you are told is the surest way to&nbsp;fail. </p>
+<blockquote>
+<p>Truly productive software development teams optimize their customer’s path to their&nbsp;goal.</p>
+</blockquote>
+<p>To do that you have to understand what the goal is, and how to get&nbsp;there. </p>
+<style>
+img {
+    width: auto !important;
+}
+</style>
+
+<h1 id="the-goal-tree">The Goal&nbsp;Tree</h1>
+<p>The goal tree is a simple exercise that can help take a customer from a specific stated requirement, to a more general and valuable goal, then back to the correct specific requirement. This is done&nbsp;to:</p>
+<ol>
+<li>Establish that the stated requirement, and the real underlying goal (business goal) are in fact&nbsp;linked.</li>
+<li>To validate that the stated requirement is the correct one to pursue, or identify a better&nbsp;requirement.</li>
+</ol>
+<h2 id="proceedure">Proceedure</h2>
+<p>Start with the stated&nbsp;requirement: </p>
+<blockquote>
+<p>“we would like you to enhance our mobile application to send our customer’s customer’s push notifications when certain events&nbsp;happen”</p>
+</blockquote>
+<p>Recursively ask, “yeah, but&nbsp;why?”</p>
+<p><img src="http://static.wixstatic.com/media/77e3fd_42de7891402b46b5af4242cbf9a90eb8.jpg" alt="yeah but why"> </p>
+<p>and draw the hierarchy of&nbsp;goals.</p>
+<blockquote>
+<p>“Our competitors have the feature and we want&nbsp;parity”</p>
+</blockquote>
+<p><img src="/articles/2016-08-24-goaltree/parity.png" alt="parity"></p>
+<p>“Yeah, but&nbsp;why?”</p>
+<blockquote>
+<p>“From a traditional monopoly we are facing many emerging competitors and they are stealing market share. We want to stop&nbsp;that.”</p>
+</blockquote>
+<p><img src="/articles/2016-08-24-goaltree/stop.png" alt="stop emerging competitors"></p>
+<p>“Yeah, but&nbsp;why?”</p>
+<blockquote>
+<p>“Our business is software sales into a fixed market. Market share == profit, therefore we must maintain and grow market&nbsp;share”</p>
+</blockquote>
+<p><img src="/articles/2016-08-24-goaltree/growprofit.png" alt="Grow profit"></p>
+<p>“Yeah, but&nbsp;why?”</p>
+<blockquote>
+<p>“Our <span class="caps">MD</span> would like a bigger&nbsp;boat”</p>
+</blockquote>
+<p><img src="/articles/2016-08-24-goaltree/biggerboat.png" alt="bigger boat for MD"></p>
+<p>At some point it always comes back to a boat for someone. Stop there. Search down the list of goals until you find the most useful strategic goal. It is not the <em>bigger boat for <span class="caps">MD</span></em> goal because that one is too likely to lead to a life of crime. In this example the most useful goal&nbsp;is:</p>
+<blockquote>
+<p>“From a traditional monopoly we are facing many emerging competitors and they are stealing market share. We want to stop&nbsp;that.”</p>
+</blockquote>
+<p>Delete all the&nbsp;others. </p>
+<p>Perform an impact mapping to derive requirements from the identified goal. Compare it to the original starting&nbsp;position. </p>
+<h2 id="the-impact-mapping">The Impact&nbsp;mapping</h2>
+<p>Impact mapping is a technique designed to help us <a href="https://www.impactmapping.org/delivering.html">deliver business goals, not just software features</a>. According to the&nbsp;website:</p>
+<blockquote>
+<p>“impact maps allow us to maintain a dynamic roadmap that changes with our learning, keeping the goal in mind and making features and scope secondary to it. We visualise assumptions, which allows us to change direction once these assumptions are proven or&nbsp;discarded”</p>
+</blockquote>
+<h3 id="goals">Goals</h3>
+<p>Start with the selected goal. I have reframed it&nbsp;slightly.</p>
+<p><img src="/articles/2016-08-24-goaltree/defend.png" alt="defend and increase market position"></p>
+<p>Of course we should make our goals <a href="https://en.wikipedia.org/wiki/SMART_criteria"><span class="caps">SMART</span></a>. </p>
+<p><img src="/articles/2016-08-24-goaltree/cleargoal.png" alt="clear goal"></p>
+<h3 id="actors">Actors</h3>
+<p>Next, we identify the actors who can influence (positively or negatively) the&nbsp;outcome.</p>
+<p><img src="/articles/2016-08-24-goaltree/actors.png" alt="actors"></p>
+<h3 id="impacts">Impacts</h3>
+<p>For each actor list the <strong>impacts</strong> that we are trying to create. How can that actor help us achieve our goal? How do we want their behaviour to&nbsp;change?</p>
+<p><img src="/articles/2016-08-24-goaltree/impacts.png" alt="impacts"></p>
+<h3 id="deliverables">Deliverables</h3>
+<p>Now we are finally approaching the level of software, where we&nbsp;started.</p>
+<p>Deliverables are the things we can do to support each impact. They often involve a hefty assumption that should be tracked and revisited. Does this deliverable really support its&nbsp;impact?</p>
+<p><img src="/articles/2016-08-24-goaltree/full.png" alt="Impact map"></p>
+<p>The implication is that if we deliver the features listed at the bottom, then we will get the impacts identified for the actors, which leads to achieving the&nbsp;goal. </p>
+<p>Note that the original requirement does not appear in the impact map, suggesting that there may not be a clear chain of reasoning back to the actual goal. The three deliverables identified in the impact map may represent more valuable work&nbsp;items. </p>
+<p>The goal tree is one technique that can help high performance development teams to reduce waste and creates more value in less&nbsp;time.    </p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

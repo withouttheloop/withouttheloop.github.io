@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Mars Rover Problem - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Mars Rover Problem</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><img src="curiosity.jpg" style="width:710px;" alt="curiosity rover"/></p>
+
+<p>Mars Rovers is a simple programming problem with just enough complexity to be interesting and to provide sufficient challenge to experiment with some different strategies. The problem, as stolen from <a href="https://code.google.com/p/marsrovertechchallenge/">here</a>,&nbsp;is:</p>
+<pre><code>A squad of robotic rovers are to be landed by NASA on a plateau on Mars.
+
+This plateau, which is curiously rectangular, must be navigated by the rovers so that their on board cameras can get a complete view of the surrounding terrain to send back to Earth.
+
+A rover&#39;s position is represented by a combination of an x and y co-ordinates and a letter representing one of the four cardinal compass points. The plateau is divided up into a grid to simplify navigation. An example position might be 0, 0, N, which means the rover is in the bottom left corner and facing North.
+
+In order to control a rover, NASA sends a simple string of letters. The possible letters are &#39;L&#39;, &#39;R&#39; and &#39;M&#39;. &#39;L&#39; and &#39;R&#39; makes the rover spin 90 degrees left or right respectively, without moving from its current spot.
+
+&#39;M&#39; means move forward one grid point, and maintain the same heading.
+
+Assume that the square directly North from (x, y) is (x, y+1).
+
+Input:
+
+The first line of input is the upper-right coordinates of the plateau, the lower-left coordinates are assumed to be 0,0.
+
+The rest of the input is information pertaining to the rovers that have been deployed. Each rover has two lines of input. The first line gives the rover&#39;s position, and the second line is a series of instructions telling the rover how to explore the plateau.
+
+The position is made up of two integers and a letter separated by spaces, corresponding to the x and y co-ordinates and the rover&#39;s orientation.
+
+Each rover will be finished sequentially, which means that the second rover won&#39;t start to move until the first one has finished moving.
+
+Output:
+
+The output for each rover should be its final co-ordinates and heading.
+
+Test Input:
+
+5 5
+1 2 N
+LMLMLMLMM
+3 3 E
+MMRMMRMRRM
+
+Expected Output:
+
+1 3 N
+5 1 E
+</code></pre><p>The problem requires two things: a parser from the input to some useful data structure, and something to process that data structure. Immediately we are confronted by a fundamental difference between <span class="caps">OO</span> (at least as I see it done) and functional&nbsp;style.</p>
+<h2 id="the-oo-programmer">The <span class="caps">OO</span>&nbsp;Programmer</h2>
+<p>The <span class="caps">OO</span> programmer sees a <code>MarsRoverController</code> or similar abstraction for coordinating this problem. The <code>MarsRover</code> becomes a class having a <code>position</code> and a <code>direction</code>. The coordinating object depends on both the parser and the <code>MarsRover</code>. It firstly asks the parser to parse the input, then asks the <code>MarsRover</code> to process the movements. An even uglier implementation would have the <code>MarsRover</code> doing the coordination&nbsp;responsibility.</p>
+<h2 id="the-functional-programmer">The Functional&nbsp;Programmer</h2>
+<p>To the functional programmer these are all just functions. A function to do the parsing and a function to process the data structure. In my implementation the functions are <code>parseInitialization</code> and <code>play</code>. My <span class="caps">REPL</span> usage looks like&nbsp;this:</p>
+<pre><code>&gt; parseInitialization testInput |&gt; play;;
+val it : Rover list = [{x = 1;
+                        y = 3;
+                        direction = N;}; {x = 5;
+                                          y = 1;
+                                          direction = E;}]
+</code></pre><h2 id="implementing-the-action-state-change">Implementing the Action State&nbsp;Change</h2>
+<p>Somewhere we have to process actions. The possible actions are turn left, turn right, or move forward. Processing one of this actions changes the state of the&nbsp;rover.</p>
+<p>Let us first focus on the turning actions. There are different ways to implement this. My first attempt was a simple enumeration of the&nbsp;possibilities:</p>
+<pre><code>let turn direction action =
+    if action = M then failwith &quot;M is not a turn action&quot;
+    match (direction,action) with
+        | (N,L) -&gt; W
+        | (N,R) -&gt; E
+        | (E,L) -&gt; N
+        | (E,R) -&gt; S
+        | (S,L) -&gt; E
+        | (S,R) -&gt; W
+        | (W,L) -&gt; S
+        | (W,R) -&gt; N
+</code></pre><p>I like the simplicity of this approach. The required guard to check for a move action was a strong indication that I had modelled the types incorrectly. If it feels wrong, it probably&nbsp;is.</p>
+<p>As an experiment I then tried an implementation that understood the directions as angle measurements. This has the advantage that it could be extended to more realistic systems, but it is more&nbsp;complicated:</p>
+<pre><code>let turnAlt direction action =
+    let directionAngles = [(N,0);(E,90);(S,180);(W,270)]
+    let angle = (List.find (fun (d,a) -&gt; d = direction) directionAngles) |&gt; snd
+    let angleToDirection angle =
+        List.find (fun (d,a) -&gt; a = angle) directionAngles |&gt; fst
+    let turnedAngle =
+        match action with
+        | L -&gt; angle - 90
+        | R -&gt; angle + 90
+        | M -&gt; failwith &quot;M is not a turn action&quot;
+    angleToDirection   (if turnedAngle &lt; 0 then
+                            turnedAngle + 360
+                        elif turnedAngle = 360 then
+                            0
+                        else
+                            turnedAngle)
+</code></pre><h2 id="parsing">Parsing</h2>
+<p>To keep things simple I started with simple string splitting to parse the input. For the record, it looks&nbsp;like:</p>
+<pre><code>let parseDirection = function
+    | &quot;N&quot; -&gt; N
+    | &quot;E&quot; -&gt; E
+    | &quot;S&quot; -&gt; S
+    | &quot;W&quot; -&gt; W
+    | d -&gt; failwith (&quot;Unknown direction &quot; + d)
+
+let parseRover (line:string) =
+    let lineParts = line.Split(&#39; &#39;)
+    {x = lineParts.[0] |&gt; int; y = lineParts.[1] |&gt; int; direction = parseDirection lineParts.[2]}
+
+let parseActions (line:string) =
+    [
+        for c in line do
+            yield match c with
+                    | &#39;L&#39; -&gt; L
+                    | &#39;R&#39; -&gt; R
+                    | &#39;M&#39; -&gt; M
+                    | other -&gt; failwith (&quot;Unknown action &quot; + (string other))
+    ]
+
+let parseInstructions lines : Instruction list =
+    [
+        for i in [0..(Array.length lines)/2 - 1] do
+            let roverLine = lines.[2*i]
+            let actionLine = lines.[2*i+1]
+            yield {rover= parseRover roverLine; actions = parseActions actionLine}
+    ]
+
+let parseInitialization (input:string) =
+    let lines = input.Split(&#39;\n&#39;)
+    let topRightLine = lines.[0]
+    {
+        upperRightX = lines.[0].Split(&#39; &#39;).[0] |&gt; int; upperRightY = lines.[0].Split(&#39; &#39;).[1] |&gt; int;
+        instructions = parseInstructions lines.[1..]
+    }
+</code></pre><h2 id="parsing-with-fparsec">Parsing with&nbsp;Fparsec</h2>
+<p>Then, for fun, I deleted my implementation and replaced it with <a href="http://www.quanttec.com/fparsec/">fparsec</a> parser&nbsp;combinators.</p>
+<p>Firstly, we need to parse the first line, giving the top right coordinates, to a&nbsp;point:</p>
+<pre><code>type Point = {x:int; y:int}
+let ptopright = sepBy pint32 (pchar &#39; &#39;) |&gt;&gt; (fun [x;y] -&gt; {x=x;y=y})
+</code></pre><p>usage:</p>
+<pre><code>&gt; run ptopright &quot;5 6&quot;
+val it : ParserResult&lt;Point,unit&gt; = Success: {x = 5;
+ y = 6;}
+</code></pre><p>Next, we need to parse a direction. This is an example of parsing&nbsp;alternatives:</p>
+<pre><code>type Direction = N | E | S | W
+let pdirection = (charReturn &#39;N&#39; N) &lt;|&gt; (charReturn &#39;E&#39; E) &lt;|&gt; (charReturn &#39;S&#39; S) &lt;|&gt; (charReturn &#39;W&#39; W)
+</code></pre><p>Now we can parse the second line of input, the rover’s state. Here we run 5 parsers (x, space, y, space, direction) and pipe the results into a function that produces the type we want (<code>Rover</code>):</p>
+<pre><code>type Rover = {location:Point; direction:Direction}
+// 1 2 N
+let proverstate =
+    pipe3
+        (pint32 .&gt;&gt; (pchar &#39; &#39;))
+        (pint32 .&gt;&gt; (pchar &#39; &#39;))
+        pdirection
+        (fun x y direction -&gt; {location = {x=x;y=y}; direction = direction})
+</code></pre><p>Next - a way to parse actions - turn left, turn right or move&nbsp;forward:</p>
+<pre><code>type Turn = L | R
+type Action =
+    | Turn of  Turn
+    | M
+let pturn = (charReturn &#39;L&#39; (Turn L)) &lt;|&gt; (charReturn &#39;R&#39; (Turn R))
+let paction = pturn &lt;|&gt; (charReturn &#39;M&#39; M)
+</code></pre><p>Actions never occur by themself. We want to parse a sequence of them,&nbsp;so:</p>
+<pre><code>// LMMLMRM
+let pactions = many (pturn &lt;|&gt; (charReturn &#39;M&#39; M))
+</code></pre><p>We want to parse pairs of rover + actions&nbsp;so:</p>
+<pre><code>type Instruction = {rover:Rover; actions:Action list}
+
+// 1 2 N
+// LMLMLMLMM
+let pinstruction =
+  pipe2
+    (proverstate .&gt;&gt; newline)
+    pactions
+    (fun state actions -&gt; {rover=state; actions=actions})
+</code></pre><p>Finally, we connect all of our parsers&nbsp;together:</p>
+<pre><code>let pinit =
+    pipe2
+        (ptopright .&gt;&gt; newline)
+        (many pinstruction)
+        (fun topright instructions -&gt;
+            {upperRight = topright; instructions = instructions})
+</code></pre><h2 id="the-completed-mars-rover-solution">The Completed Mars Rover&nbsp;Solution</h2>
+<pre><code>#r @&quot;FParsec.1.0.1\lib\net40-client\FParsecCS.dll&quot;
+#r @&quot;FParsec.1.0.1\lib\net40-client\FParsec.dll&quot;
+
+open FParsec
+
+type Direction = N | E | S | W
+type Point = {x:int; y:int}
+type Rover = {location:Point; direction:Direction}
+type Turn = L | R
+type Action =
+    | Turn of  Turn
+    | M
+type Instruction = {rover:Rover; actions:Action list}
+type Initialization = { upperRight: Point; instructions: Instruction list}
+
+let pdirection = (charReturn &#39;N&#39; N) &lt;|&gt; (charReturn &#39;E&#39; E) &lt;|&gt; (charReturn &#39;S&#39; S) &lt;|&gt; (charReturn &#39;W&#39; W)
+let ptopright = sepBy pint32 (pchar &#39; &#39;) |&gt;&gt; (fun [x;y] -&gt; {x=x;y=y})
+
+// 1 2 N
+let proverstate =
+    pipe3
+        (pint32 .&gt;&gt; (pchar &#39; &#39;))
+        (pint32 .&gt;&gt; (pchar &#39; &#39;))
+        pdirection
+        (fun x y direction -&gt; {location = {x=x;y=y}; direction = direction})
+
+let pturn = (charReturn &#39;L&#39; (Turn L)) &lt;|&gt; (charReturn &#39;R&#39; (Turn R))
+let pactions = (many (pturn &lt;|&gt; (charReturn &#39;M&#39; M))) .&gt;&gt; (skipChar &#39;\n&#39; &lt;|&gt; preturn ())
+
+// 1 2 N
+// LMLMLMLMM
+let pinstruction =
+    pipe2
+        (proverstate .&gt;&gt; newline)
+        pactions
+        (fun state actions -&gt; {rover=state; actions=actions})
+
+let pinit =
+    pipe2
+        (ptopright .&gt;&gt; newline)
+        (many pinstruction)
+        (fun topright instructions -&gt;
+            {upperRight = topright; instructions = instructions})
+
+let testInput = &quot;5 5
+1 2 N
+LMLMLMLMM
+3 3 E
+MMRMMRMRRM&quot;
+
+let extectedOutput = &quot;1 3 N
+5 1 E&quot;
+
+let play (init:Initialization) =
+    let playInstruction (instruction:Instruction) =
+        let turn direction action =
+            match (direction,action) with
+                | (N,L) -&gt; W
+                | (N,R) -&gt; E
+                | (E,L) -&gt; N
+                | (E,R) -&gt; S
+                | (S,L) -&gt; E
+                | (S,R) -&gt; W
+                | (W,L) -&gt; S
+                | (W,R) -&gt; N
+
+        let applyAction (rover:Rover) = function
+                | Turn t -&gt; {rover with direction = turn rover.direction t}
+                | M -&gt;
+                    let moved =
+                        { rover with location = match rover.direction with
+                                                | N -&gt; {rover.location with y = rover.location.y+1}
+                                                | E -&gt; {rover.location with x = rover.location.x+1}
+                                                | S -&gt; {rover.location with y = rover.location.y-1}
+                                                | W -&gt; {rover.location with x = rover.location.x-1}
+                        }
+                    if moved.location.x &lt; 0
+                        || moved.location.y &lt; 0
+                        || moved.location.x &gt; init.upperRight.x
+                        || moved.location.y &gt; init.upperRight.y then
+                        rover
+                    else
+                        moved
+        List.fold applyAction instruction.rover instruction.actions
+    List.map playInstruction init.instructions
+
+match run pinit testInput with
+    | Success(result, _, _)   -&gt; play result
+    | Failure(errorMsg, _, _) -&gt; printfn &quot;Failed to parse: %s&quot; errorMsg; []
+</code></pre></section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

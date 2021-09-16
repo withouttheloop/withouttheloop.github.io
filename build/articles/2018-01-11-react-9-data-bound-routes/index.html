@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Learning React 9 - Data Bound Routes - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Learning React 9 - Data Bound Routes</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p><a href="/articles/2018-01-10-react-8-ajax-continued/">Learning React 8 - <span class="caps">AJAX</span> Continued</a> has our application capable for searching a movie <span class="caps">API</span> and displaying the list of results. Now we would like to be able to view the details for a selected&nbsp;movie. </p>
+<p>A good web application should have a <span class="caps">URL</span> for every addressable state, so selecting a movie should change the URL. We will use, <code>/movie/:imdbID</code>. First add an action to the <code>routesMap</code>:</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> routesMap = { 
+    <span class="caps">HOME</span>: <span class="string">'/'</span>,
+    <span class="caps">MOVIE</span>: <span class="string">'/movie/:imdbID'</span>
+};
+</code></pre>
+<p>Then create a new movie&nbsp;component:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Movie</span><span class="params">(props)</span> {</span>
+    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span>
+            { props.movie 
+                ? <span class="tag">&lt;<span class="title">p</span>&gt;</span>
+                        <span class="tag">&lt;<span class="title">h1</span>&gt;</span>{props.movie.Title}<span class="tag">&lt;/<span class="title">h1</span>&gt;</span>
+                        <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">{props.movie.Poster}</span> <span class="attribute">alt</span>=<span class="value">{`${props.movie.Title}</span> <span class="attribute">poster</span>`} /&gt;</span>
+                    <span class="tag">&lt;/<span class="title">p</span>&gt;</span>
+                : <span class="tag">&lt;<span class="title">p</span>&gt;</span>Loading...<span class="tag">&lt;/<span class="title">p</span>&gt;</span>
+            }
+            <span class="tag">&lt;/<span class="title">div</span>&gt;</span>;</span>
+}
+
+<span class="keyword">const</span> ConnectedMovie = connect(
+    <span class="function"><span class="keyword">function</span> <span class="title">mapStateToProps</span><span class="params">(state)</span> {</span>
+        <span class="keyword">return</span> state.movie;
+    }, 
+    <span class="function"><span class="keyword">function</span> <span class="title">mapDispatchToProps</span><span class="params">(dispatch)</span> {</span>
+        <span class="keyword">return</span> {};
+    }
+)(Movie);
+</code></pre>
+<p>and update the <code>App</code> component to display the <code>ConnectedMovie</code> component when the <code>MOVIE</code> action is&nbsp;dispatched. </p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> componentMap = {
+    <span class="caps">HOME</span>: ConnectedSearch,
+    MOVIE: ConnectedMovie
+};
+</code></pre>
+<h1 id="redux-first-router-route-thunks"><em>redux-first-router</em> Route&nbsp;Thunks</h1>
+<p>Now we encounter a problem. When the router sees the route <code>/movie/:imdbID</code> it will cause the application to show the <code>ConnectedMovie</code> component, which expects to display a movie using data from the redux store, but the data is not there. Somehow we need to take the <code>imdbID</code> from the route and populate the redux store. <em>redux-first-router</em> allows for this using an alternative way of specifying the action-to-route mapping, with an included <code>thunk</code> value. This is a function that runs when the route is matched and that has access to the current store. Within the <code>thunk</code> we can read the <code>imdbID</code> from the store (<em>redux-first-router</em> put it on the <code>location</code> key for us), perform a request, and publish the <code>MOVIE_FETCHED</code> action with the data when we are&nbsp;done. </p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> routesMap = { 
+    <span class="caps">HOME</span>: <span class="string">'/'</span>,
+    <span class="caps">MOVIE</span>: {
+        path: <span class="string">'/movie/:imdbID'</span>,
+        thunk: async (dispatch, getState) =&gt; {
+            dispatch({ type: <span class="string">"MOVIE_CLEAR"</span>});
+            <span class="keyword">const</span> imdbID = getState().location.payload.imdbID;
+            <span class="keyword">const</span> movie = await fetch(`http:<span class="comment">//www.omdbapi.com/?apikey=8e4dcdac&amp;i=${imdbID}`)</span>
+            .then((response) =&gt; response.json());
+            dispatch({ type: <span class="string">"MOVIE_FETCHED"</span>, movie });
+        }
+    }
+};
+</code></pre>
+<p>The <code>MOVIE_CLEAR</code> action is dispatched before the request to clear the previous movie data from the store. The <code>movieReducer</code> then copies the data from the action into the&nbsp;store.</p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> defaultState = {movie: <span class="literal">null</span>};
+
+export <span class="keyword">const</span> movieReducer = {
+    movie: <span class="function"><span class="keyword">function</span> <span class="params">(state = defaultState, action)</span> {</span>
+        <span class="keyword">switch</span> (action.type) {
+            <span class="keyword">case</span> <span class="string">"MOVIE_CLEAR"</span>: 
+                <span class="keyword">return</span> <span class="built_in">Object</span>.assign({}, state, defaultState);
+            <span class="keyword">case</span> <span class="string">"MOVIE_FETCHED"</span>:
+                <span class="keyword">return</span> <span class="built_in">Object</span>.assign({}, state, {movie: action.movie});
+            <span class="keyword">default</span>: <span class="keyword">return</span> state;
+        }
+    }
+};
+</code></pre>
+<p>This is what I mean by a ‘data bound route’. Whenever the route <code>/movie/:imdbID</code> is seen we fetch the data for that route and put it in the&nbsp;store. </p>
+<p>If an <span class="caps">AJAX</span> request is required because of a user action then dispatch an action, with a promise <code>payload</code>, in the <code>mapDispatchToProps</code> function. <em>redux-promise-middleware</em> will resolve the promise and publish the <code>_FULFILLED</code> version of the action, which can be processed in a&nbsp;reducer. </p>
+<p>If a route requires an <span class="caps">AJAX</span> request we need a different strategy, because routes map to actions, which are processed in reducers, which don’t have the ability to dispatch new actions. <em>redux-first-router</em> provides the <code>thunk</code> option so that we have a place to do asynchronous operations in response to <span class="caps">URL</span> changes, and publish actions when we have a&nbsp;result.</p>
+<h1 id="converting-event-actions-to-route-actions">Converting Event Actions to Route&nbsp;Actions</h1>
+<p>Above I&nbsp;said,</p>
+<blockquote>
+<p>A good web application should have a <span class="caps">URL</span> for every addressable&nbsp;state</p>
+</blockquote>
+<p>yet, when we perform a search, the application state changes but the <span class="caps">URL</span> does not. When you think about it, most actions represent a state change that can, and should, be reflected in a URL change. When I search for ‘Terminator’ I want the url to change to <code>/search/Terminator</code>. Thus a search for terminator becomes an addressable state that I can link directly&nbsp;to.</p>
+<p><em>redux-first-router</em> synchonizes in both directions. If the <span class="caps">URL</span> changes it publishes the corresponding route action. If a route action is dispatched it changes the URL. To make search results addressable we will handle the search form submission, dispatch a route action, then do the search using the route handling thunk. First, modify the action that is dispatched when a user&nbsp;searches:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">mapDispatchToProps</span><span class="params">(dispatch)</span> {</span>
+    <span class="keyword">return</span> {
+        onSearch: (title)=&gt; {
+            dispatch({
+                type: <span class="string">'<span class="caps">SEARCH</span>'</span>,
+                payload: {title}
+                });
+        } 
+    };
+}
+</code></pre>
+<p>This <code>SEARCH</code> action will be a route action. Next, add the <code>SEARCH</code> action to the route configuration, mapped to <code>/search/:title</code>. When the route is matched, read the <code>title</code> from the Redux store, query the <span class="caps">API</span>, and then dispatch the <code>SEARCH_FULFILLED</code> action that the <code>searchReducer</code> is already&nbsp;expecting. </p>
+<pre><code class="lang-javascript"><span class="keyword">const</span> routesMap = { 
+    <span class="comment">// ...</span>
+    <span class="caps">SEARCH</span>: {
+        path: <span class="string">'/search/:title'</span>,
+        thunk: async (dispatch, getState) =&gt; {
+            <span class="keyword">const</span> title = getState().location.payload.title;
+            <span class="keyword">const</span> results = await fetch(`http:<span class="comment">//www.omdbapi.com/?apikey=8e4dcdac&amp;s=${encodeURIComponent(title)}`)</span>
+                .then((response) =&gt; response.json())
+            dispatch({ type: <span class="string">"SEARCH_FULFILLED"</span>, payload: results });
+        }
+};
+</code></pre>
+<p>The routing for the application is&nbsp;now:</p>
+<table>
+<thead>
+<tr>
+<th>Route action</th>
+<th><span class="caps">URL</span></th>
+<th>Thunk</th>
+<th>Component</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HOME</code></td>
+<td><code>/</code></td>
+<td></td>
+<td>ConnectedSearch</td>
+</tr>
+<tr>
+<td><code>MOVIE</code></td>
+<td><code>/movie/:imdbID</code></td>
+<td>Publishes <code>MOVIE_CLEAR</code> actions. Fetches movie data by <code>imdbID</code>. Publishes <code>MOVIE_FETCHED</code> action.</td>
+<td>ConnectedMovie</td>
+</tr>
+<tr>
+<td><code>SEARCH</code></td>
+<td><code>/search/:title</code></td>
+<td>Fetches results by <code>title</code>. Publishes <code>SEARCH_FULFILLED</code>.</td>
+<td>ConnectedSearch</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p>As the <code>onSearch</code> handler no longer publishes an action with a promise we are no longer using <em>redux-promise-middleware</em>. Many actions can be route changes and do their asynchronous operations with <em>redux-first-router</em> thunks. Actions that do not make sense as route changes, but that still require an asynchronous operation, should still use <em>redux-promise-middleware</em>.</p>
+<h1 id="summary">Summary</h1>
+<p>Where sensible, states should be addressable via a route. Where a route requires an asynchronous operations, such as making an <span class="caps">AJAX</span> request, use the <code>thunk</code> property of the route configuration object to do the asynchronous operation and dispatch an action when it is&nbsp;complete.</p>
+<blockquote>
+<p>Next: <a href="/articles/2018-01-17-react-10-typescript/">Learning React 10 -&nbsp;Typescript</a></p>
+</blockquote>
+<h2 id="get-the-code">Get The&nbsp;Code</h2>
+<p>The code for this example is <a href="https://github.com/liammclennan/movie-library">on Github</a>. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this&nbsp;post. </p>
+<pre><code class="lang-bash">git clone https://github.com/liammclennan/movie-library.git
+git checkout react9
+</code></pre>
+<p>or browse at <a href="https://github.com/liammclennan/movie-library/tree/react9">https://github.com/liammclennan/movie-library/tree/react9</a>.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>

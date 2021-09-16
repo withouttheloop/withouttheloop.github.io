@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>JavaScript object validation with JSON Schema - Without the loop
+    </title>
+    <link rel="alternate" href="http://withouttheloop.com/feed.xml" type="application/rss+xml" title="it is nothing">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>JavaScript object validation with JSON Schema</h1>
+        <p class="author">Written by <span class="author">Liam McLennan</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Recently I wrote about <a href="http://withouttheloop.com/articles/2016-03-24-node-web-ts/">Building a Web Application with Node and Typescript</a>. One of the advantages of having JavaScript (Typescript) on both the client and server is that we can share validation logic between the&nbsp;two. </p>
+<p><img src="validate.jpg" alt="validating parking" style="width:236px;margin:auto;"/></p>
+<h1 id="javascript-object-validation">JavaScript Object&nbsp;Validation</h1>
+<p>There are many ways of validating JavaScript&nbsp;objects. </p>
+<p>The Hapi framework includes a library called <a href="https://github.com/hapijs/joi">Joi</a> that validates objects this&nbsp;way:</p>
+<pre><code>var Joi = require(&#39;joi&#39;);
+
+var schema = Joi.object().keys({
+    name: Joi.string().alphanum().min(3).max(30).required(),
+    age: Joi.number().integer().min(0)
+}).with(&#39;name&#39;, &#39;age&#39;);
+
+Joi.validate({ name: &#39;abc&#39;, age: 103 }, schema, function (err, value) { });  
+</code></pre><p>Another popular choice is <a href="https://github.com/flatiron/revalidator">Flatiron Revalidator</a>, which validates objects like&nbsp;this:</p>
+<pre><code>var revalidator = require(&#39;revalidator&#39;);
+
+console.dir(revalidator.validate({ name: &#39;abc&#39;, age: 103 }, {
+    properties: {
+        name: {
+        type: &#39;string&#39;,
+        required: true,
+        minLength: 3,
+        maxLength: 30
+        },
+        age: {
+        type: &#39;integer&#39;,
+        minimum: 0,
+        required: true
+        }
+    }
+}));
+</code></pre><p>Years ago I even <a href="http://withouttheloop.com/articles/2013-02-24-dbc/">wrote my own</a> <a href="https://github.com/liammclennan/dbc">object validation library called dbc</a>. It served me well and is still powering validation on many public web applications. I would not use dbc today as there are now better options available. Dbc has some novel features that the other libraries don’t have, such as creating auto-validating&nbsp;objects:</p>
+<pre><code>var AjaxOptions = dbc.makeConstructor({
+        type:       [
+                        {validator:&#39;type&#39;, args:[&#39;string&#39;]},
+                        {validator:&#39;oneOf&#39;, args:[[&#39;GET&#39;,&#39;POST&#39;,&#39;PUT&#39;,&#39;DELETE&#39;]]}
+                    ],
+        url:        [{validator:&#39;type&#39;,args:[&#39;string&#39;]}],
+        dataType:   [{validator:&#39;type&#39;,args:[&#39;string?&#39;]}]
+    });
+</code></pre><p>Here, <code>AjaxOptions</code> is a new JavaScript ‘class’ that will automatically validate when an object is created from&nbsp;it. </p>
+<p>It also has a feature that enforces function argument and return type validation. The following code adds validation to a function and guarantees that its argument is a <code>string</code> and its return value is an <code>AjaxOptions</code>:</p>
+<pre><code>AjaxOptions.fromCorsRequest = dbc.wrap(function (corsRequestText) {
+        return new AjaxOptions(new CorsRequest(corsRequestText).getJSON());
+    }, {
+        0: [{validator:&#39;type&#39;, args:[&#39;string&#39;]}]
+    }, [{validator:&#39;isInstance&#39;,args:[AjaxOptions]}]);
+</code></pre><p>Everyone has their own way of declaratively specifying what a valid object looks like. If only there was some kind of&nbsp;standard….</p>
+<p><img src="chello.jpg" alt="chello"/></p>
+<h1 id="json-schema"><span class="caps">JSON</span>&nbsp;Schema</h1>
+<p><span class="caps">JSON</span> Schema is a standard that defines, among other things, a declarative format for specifying object validation rules. JSON Schemas are themselves defined in JSON, leading to the delightful situation of having <a href="http://json-schema.org/schema">a <span class="caps">JSON</span> Schema that defines the schema for all JSON schemas</a>. <span class="caps">JSON</span> schema is well considered and standardised making it an excellent choice for JavaScript object validation. Now all we need is a library that can validate a JavaScript object against a JSON&nbsp;schema. </p>
+<h2 id="jsonschema">Jsonschema</h2>
+<p><a href="https://github.com/tdegrunt/jsonschema">Jsonschema</a> is a library that validates javascript options against <span class="caps">JSON</span>&nbsp;schemas. </p>
+<pre><code> var validate = require(&#39;jsonschema&#39;).validate;
+
+  var schema = {
+    &quot;type&quot;: &quot;object&quot;,
+    &quot;properties&quot;: {
+      &quot;name&quot;: {
+        &quot;type&quot;: &quot;string&quot;,
+        &quot;minLength&quot;: 3,
+        &quot;maxLength&quot;: 30
+      },
+      &quot;age&quot;: {&quot;type&quot;: &quot;integer&quot;, minimum:0}
+    },
+    &quot;required&quot;: [&quot;name&quot;,&quot;age&quot;]
+  };
+
+  console.log(validate({ name: &#39;abc&#39;, age: 103 }, schema));  
+</code></pre><p>With this we have a standard, reusable validation strategy that we can use in the browser or in&nbsp;node. </p>
+<p>We can make things a little neater with a bit of convention. Here’s a way of validating objects that have a <code>schema</code> method (code is&nbsp;<span class="caps">ES2015</span>):</p>
+<pre><code>import {validate} from &#39;jsonschema&#39;;
+
+class Person {
+    constructor(name,age) {
+        this.name = name;
+        this.age = age;
+    }
+    schema() {
+        return {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {
+            &quot;name&quot;: {
+            &quot;type&quot;: &quot;string&quot;,&quot;minLength&quot;: 3,&quot;maxLength&quot;: 30
+            },
+            &quot;age&quot;: {&quot;type&quot;: &quot;integer&quot;, minimum:0}
+            },
+            &quot;required&quot;: [&quot;name&quot;,&quot;age&quot;]
+        }
+    }   
+}
+
+function validateObjectWithSchema(obj) {
+    return validate(obj, obj.schema());
+}
+
+let p = new Person(&quot;abc&quot;,103);
+console.log(validateObjectWithSchema(p));
+</code></pre><h1 id="final-thoughts">Final&nbsp;Thoughts</h1>
+<p>To benefit from validation we need to hook it into our application. Common places to do this&nbsp;are:</p>
+<ul>
+<li>form validation in the&nbsp;browser</li>
+<li>request validation on the&nbsp;server</li>
+</ul>
+<p>Both of these are fairly simple. I will show some examples in future&nbsp;posts.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div><div id="disqus_thread"></div>
+        <script type="text/javascript">
+             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+             var disqus_shortname = 'withouttheloop'; // required: replace example with your forum shortname
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+             (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                 dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+         </script>
+         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+         <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <section class="about"><p><a href="http://hackingon.net">Old blog</a></p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2021 Liam McLennan &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer><script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1572176-9']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+  </body>
+</html>
