@@ -1,0 +1,11 @@
+
+mkdir -p contents/articles/`date +%F`-"$1"
+
+echo "---
+title: TODO
+author: Liam McLennan
+date: `date +%F` 20:32
+template: article.jade
+---
+
+" > contents/articles/`date +%F`-"$1"/index.md

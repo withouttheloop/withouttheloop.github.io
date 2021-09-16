@@ -1,0 +1,3 @@
+cd /home/liam/apps/withouttheloop
+git pull
+wintersmith build
