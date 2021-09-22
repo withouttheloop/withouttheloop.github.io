@@ -45,7 +45,8 @@
 </code></pre>
 <p>It will still fail, but now it will fail when the view is created, and it will be obvious that the failure was caused by bad&nbsp;data. </p>
 <h1 id="the-readme">The&nbsp;Readme</h1>
-<p><code>dbc</code> is a small library for design-by-contract defensive coding in&nbsp;javascript. </p>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; <span class="caps">HEAD</span>
+<code>dbc</code> is a small library for design-by-contract defensive coding in&nbsp;javascript. </p>
 <p>It focuses especially on type assertions in an attempt to provide a small compensation for JavaScript’s unfortunate&nbsp;dynamicness.</p>
 <p>Have a function that requires a numeric argument?&nbsp;Try:</p>
 <pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="params">(num)</span> {</span>
@@ -107,7 +108,85 @@
 <h2 id="test">Test</h2>
 <pre><code>npm install -g jasmine-node
 jasmine-node --coffee spec/
-</code></pre></section>
+</code></pre><p>=======
+<code>dbc</code> is a small library for design-by-contract defensive coding in&nbsp;javascript. </p>
+<p>It focuses especially on type assertions in an attempt to provide a small compensation for JavaScript’s unfortunate&nbsp;dynamicness.</p>
+<p>Have a function that requires a numeric argument?&nbsp;Try:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="params">(num)</span> {</span>
+    dbc.type(num, <span class="string">'number'</span>);
+    <span class="comment">// the rest of your function</span>
+}
+</code></pre>
+<p>or if the function argument is an object, and you want to collect the validation&nbsp;results:</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="params">(myComplexObject)</span> {</span>
+    <span class="keyword">var</span> messages = dbc.validate(myComplexObject, {
+        firstProp: [{validator: <span class="string">'required'</span>}]
+    });
+    <span class="comment">// the rest of your function</span>
+}
+</code></pre>
+<h2 id="features">Features</h2>
+<p>Check a&nbsp;value:</p>
+<pre><code class="lang-javascript">    dbc.type(<span class="number">1</span>, <span class="string">'number'</span>, <span class="string">'optional error message'</span>);
+    dbc.isFunction(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>}, <span class="string">'optional error message'</span>);
+    dbc.functionArity(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>}, <span class="number">0</span>, <span class="string">'optional error message'</span>);
+    <span class="comment">// etc</span>
+</code></pre>
+<p>Check an&nbsp;object:</p>
+<pre><code class="lang-javascript">    dbc.check({
+        a: <span class="number">1</span>,
+        b: <span class="string">"cat in the hat"</span>,
+        c: <span class="function"><span class="keyword">function</span> <span class="params">(f, s)</span> {</span> <span class="keyword">return</span> f + s; }
+    }, {
+        a: [
+            {validator: <span class="string">'required'</span>, args: [<span class="string">'optional error message'</span>]}, 
+            {validator: <span class="string">'type'</span>, args: [<span class="string">'number'</span>]}, 
+            {validator: <span class="string">'custom'</span>, args: [ <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> 
+                <span class="comment">// custom validator function should return a boolean</span>
+                <span class="keyword">return</span> v &gt; <span class="number">0</span>; 
+            }]}
+        ],
+        b: [{validator: <span class="string">'type'</span>, args: [<span class="string">'string'</span>]}],
+        c: [{validator: <span class="string">'isFunction'</span>}, {validator: <span class="string">'functionArity'</span>, args: [<span class="number">2</span>, {message: <span class="string">'This is a more advanced error object'</span>, field: <span class="string">'c'</span>}]}]
+    });
+</code></pre>
+<p>Validate an object (same as check except that it returns an array of errors instead of throwing an exception at the first&nbsp;error):</p>
+<pre><code class="lang-javascript">    dbc.validate({
+        a: <span class="number">1</span>,
+        b: <span class="string">"cat in the hat"</span>,
+        c: <span class="function"><span class="keyword">function</span> <span class="params">(f, s)</span> {</span> <span class="keyword">return</span> f + s; }
+    }, {
+        a: [
+            {validator: <span class="string">'required'</span>, args: [<span class="string">'optional error message'</span>]}, 
+            {validator: <span class="string">'type'</span>, args: [<span class="string">'number'</span>]}, 
+            {validator: <span class="string">'custom'</span>, args: [ <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> 
+                <span class="comment">// custom validator function should return a boolean</span>
+                <span class="keyword">return</span> v &gt; <span class="number">0</span>; 
+            }]}
+        ],
+        b: [{validator: <span class="string">'type'</span>, args: [<span class="string">'string'</span>]}],
+        c: [{validator: <span class="string">'isFunction'</span>}, {validator: <span class="string">'functionArity'</span>, args: [<span class="number">2</span>, {message: <span class="string">'This is a more advanced error object'</span>, field: <span class="string">'c'</span>}]}]
+    });
+</code></pre>
+<h2 id="test">Test</h2>
+<pre><code>npm install -g jasmine-node
+jasmine-node --coffee spec/
+</code></pre><blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>old/master</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</section>
         </article>
       </div>
     </div>

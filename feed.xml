@@ -5,9 +5,226 @@
     <atom:link href="http://withouttheloop.com/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://withouttheloop.com</link>
     <description>it is nothing</description>
-    <pubDate>Wed, 11 Sep 2019 20:32:00 +1000</pubDate>
+    <pubDate>Mon, 21 Jun 2021 20:32:00 +1000</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Thinking Through a Problem with de Bono's Thinking Hats</title>
+      <link>http://withouttheloop.com/articles/2021-06-21-deBonoThinkingHats/</link>
+      <pubDate>Mon, 21 Jun 2021 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2021-06-21-deBonoThinkingHats/</guid>
+      <author></author>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;It’s time to put our thinking hat on - but which one?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Edward de Bono proposed a tool called the Six Thinking Hats that provides a methodical approach to thinking through a problem from different perspectives. &lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2021-06-21-deBonoThinkingHats/debono.jpg&quot; alt=&quot;Edward de Bono&quot;&gt;&lt;/p&gt;
+&lt;p&gt;I’ve been reading de Bono’s &lt;a href=&quot;https://www.goodreads.com/book/show/98485.Teach_Your_Child_How_to_Think&quot;&gt;Teach Your Child How to Think&lt;/a&gt;. The title is misleading as the book is about thinking techniques, not specific to the education of children. I assume it was published at a time when the titles seemed like a good way to cash in on the &lt;a href=&quot;https://www.youtube.com/watch?v=bXg7KQ9jFpk&quot;&gt;as a guilty Mum(/Dad)&lt;/a&gt; social trend. &lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2021-06-21-deBonoThinkingHats/guiltymum.jpg&quot; alt=&quot;Guilty Mum&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;small&gt;Image from ABC’s ‘The Checkout’&lt;/small&gt;&lt;/p&gt;
+&lt;p&gt;On a whim, I put the audiobook on in the car to bore my oldest child as de Bono was explaining the usage of his &lt;strong&gt;six thinking hats&lt;/strong&gt;. Honestly, I’d been finding the book hard going, so putting it on in the car was mostly passive-agressive punishment for the transgressions my kid was yet to commit that day - but he loved it!&lt;/p&gt;
+&lt;h2 id=&quot;the-six-thinking-hats&quot;&gt;The six thinking hats&lt;/h2&gt;
+&lt;p&gt;The six thinking hats are a way of categorizing and remembering six distinctive approaches to problem solving. We are supposed to metaphorically (perhaps) put on one hat at a time and restrict ourselves to that approach for a period, then change to a different thinking hat. &lt;/p&gt;
+&lt;h3 id=&quot;the-white-hat&quot;&gt;The White Hat&lt;/h3&gt;
+&lt;p&gt;When wearing our white thinking hat our task is to collect data, information, and facts about the problem. de Bono emphasizes that perception is a more powerful problem-solving tool that logic, so its no surprise that this gets its own hat. It also reminds me of the data science axiom &lt;strong&gt;more data beats better algorithms&lt;/strong&gt;. &lt;/p&gt;
+&lt;h3 id=&quot;the-yellow-hat&quot;&gt;The Yellow Hat&lt;/h3&gt;
+&lt;p&gt;Like sunshine the yellow hat brings brightness and unfailing optimism. It is our Pollyanna hat that requires us to only see the best in ideas. &lt;/p&gt;
+&lt;h3 id=&quot;the-black-hat&quot;&gt;The Black Hat&lt;/h3&gt;
+&lt;p&gt;The black hat is the critical thinking hat and the opposite of the yellow hat. For this reason, we are supposed to ensure that we always wear the yellow hat before the black hat. My nine-year-old loved and remembered this idea for some reason. For many of us the black hat is the default hat, especially in business decisions. It is the hat the considers and evaluates risk. It is important, but de Bono argues that it is overused at the expense of creativity. &lt;/p&gt;
+&lt;h3 id=&quot;the-red-hat&quot;&gt;The Red Hat&lt;/h3&gt;
+&lt;p&gt;The red hat is worn when trying to choose a linux operating system.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2021-06-21-deBonoThinkingHats/laugh.jpg&quot; alt=&quot;Laughing&quot;&gt;
+&lt;small&gt;Photo by Brooke Cagle&lt;/small&gt;&lt;/p&gt;
+&lt;p&gt;That was a joke. &lt;/p&gt;
+&lt;p&gt;The red hat is the feelings hat. When a topic is emotive de Bono suggests starting with the red hat to get all the relevant feelings out in the open. &lt;/p&gt;
+&lt;h3 id=&quot;the-green-hat&quot;&gt;The Green Hat&lt;/h3&gt;
+&lt;p&gt;The green hat is the creativity hat. When wearing the creativity hat one can ignore facts, limitations, and the fear of bad ideas. &lt;/p&gt;
+&lt;h3 id=&quot;the-blue-hat&quot;&gt;The Blue Hat&lt;/h3&gt;
+&lt;p&gt;The blue hat is for thinking about thinking, or metacognition. We wear the blue hat to plan our use of the other hats. &lt;/p&gt;
+&lt;p&gt;Those are de Bono’s six thinking hats. I’ve been thinking about them (black hat on) and I think they might be useful. &lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>Why C#'s `var` keyword is not always a good idea</title>
+      <link>http://withouttheloop.com/articles/2021-05-31-var/</link>
+      <pubDate>Mon, 31 May 2021 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2021-05-31-var/</guid>
+      <author></author>
+      <description>&lt;p&gt;The C# &lt;code&gt;var&lt;/code&gt; keyword is used to declare a variable whose type is inferred by the compiler. &lt;/p&gt;
+&lt;p&gt;It’s good because it means we can go from:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;LongLongTypeName thing = new LongLongTypeName();
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;to&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;var thing = new LongLongTypeName();
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is shorter and hence easier to read, while conveying the same amount of information to both the compiler and a person reading this code. &lt;/p&gt;
+&lt;p&gt;Alternatively, C# 9 allows&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;LongLongTypeName thing = new();
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;which, as Robert Frost said, is also great, and would suffice. &lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2021-05-31-var/ice.jpg&quot; alt=&quot;ice&quot;&gt;
+Photo by Erin Mckenna&lt;/p&gt;
+&lt;p&gt;All writers should consider their audience, and this also applies for writers of code. Once upon a time we wrote code for the compiler, but for the last thirty years or so the next programmer who will have to read your code has been the more important audience (the compiler is clever). Which brings me to the situation where type inference, and the &lt;code&gt;var&lt;/code&gt; keyword, is a problem:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;var thing = gimmeSomeThing();
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The compiler, in its omnipotent wisdom, knows exactly what is going on, because it can see the &lt;code&gt;gimmeSomeThing&lt;/code&gt; function and know what type it denotes. The humble programmer however is left in the dark. Merely reading this code it is impossible to know what is the type of &lt;code&gt;thing&lt;/code&gt;. A clever IDE can tell me, or I can go and inspect the &lt;code&gt;gimmeSomeThing&lt;/code&gt; function, but all of this slows me down and creates one more thing that I need to keep track off. &lt;/p&gt;
+&lt;p&gt;Hence, the takeaway:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Write code for the reader, not the compiler. Don’t use &lt;code&gt;var&lt;/code&gt; unless the inferred type is obvious. &lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
+    <item>
+      <title>The Most Important Consultant Skill</title>
+      <link>http://withouttheloop.com/articles/2021-05-25-consulting-skill/</link>
+      <pubDate>Tue, 25 May 2021 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2021-05-25-consulting-skill/</guid>
+      <author></author>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Spoiler - it’s the ability to observe and identify our mistakes and micro-failures. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;These are our opportunities to learn and improve. We can be so busy trying to convince the world, and ourselves, of our awesomeness that we deny ourselves the opportunity to improve. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Recently I was working with a colleague who is an exceptionally talented consultant. After a particular customer interaction he told me that something was bothering him. When he tried to work with the customer to co-design the optimal solution for a problem the customer insisted that it be solved the familiar way it had always been solved. No matter what he tried, he couldn’t get the customer to engage in a search for the best solution. They just wanted the old solution. We believe in outcomes over outputs, and one of our company values is “do what is best for the customer”. So he was right to identify this as a micro-failure. It’s good that it bothered him. It doesn’t put the project or the customer relationship in jeopardy, but by noticing and identifying something that could have been better he created the opportunity to learn a new skill and improve his capability. He put a grain of sand in his oyster. &lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2021-05-25-consulting-skill/pearl.jpg&quot; alt=&quot;Pearl&quot;&gt;
+Photo by Anastasiia Rozumna on Unsplash&lt;/p&gt;
+&lt;p&gt;We should attempt to observe these moments of sub-perfection, and try to understand them. Hold onto it. Think about it. We may not see a solution in the moment, but if we hold onto these gaps then one day we will see a solution, in something we read, something we see someone else do, or maybe it is just delivered by our sub-conscious. &lt;/p&gt;
+&lt;p&gt;Being able to identify and acknowledge our weaknesses/gaps/failures and hold them in view until we match a solution, creates the possibility of improvement and is the most important capability a consultant can have.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2021-05-25-consulting-skill/cat.jpg&quot; alt=&quot;cat&quot;&gt;
+Photo by Karina Vorozheeva on Unsplash&lt;/p&gt;
+&lt;p&gt;Other domains, apart from consulting, have the same property. For example, programming computers. To improve we must be able to see when something could be better, and care to make it so. &lt;/p&gt;
+&lt;p&gt;This advice was articulated brilliantly by &lt;a href=&quot;https://www.cs.utexas.edu/~EWD/transcriptions/EWD03xx/EWD340.html&quot;&gt;Edsger Dijkstra in 1972&lt;/a&gt;. &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;The best way to learn to live with our limitations is to know them&lt;/em&gt; – Edsger Dijkstra&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Here we see a brilliant man reminding us that programming is hard, sometimes impossibly so. The best programmer, like the best consultant, is the one who knows their limitations and is vigilant in the search to combat them. &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;We shall do a much better programming job, provided that we approach the task with a full appreciation of its tremendous difficulty, provided that we stick to modest and elegant programming languages, provided that we respect the intrinsic limitations of the human mind and approach the task as Very Humble Programmers.&lt;/em&gt; – Edsger Dijkstra&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
+    <item>
+      <title>Easy OKRs</title>
+      <link>http://withouttheloop.com/articles/2021-05-06-okrs/</link>
+      <pubDate>Thu, 06 May 2021 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2021-05-06-okrs/</guid>
+      <author></author>
+      <description>&lt;p&gt;A colleague asked about learning how to use OKRs (objectives and key results), so I’m re-posting here (waste not). &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“It almost doesn’t matter what you know. Execution is everything” - Andy Grove&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Here is my approach to learning OKRs:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Watch &lt;a href=&quot;https://www.ted.com/talks/john_doerr_why_the_secret_to_success_is_setting_the_right_goals?language=en#t-692734&quot;&gt;John Doerr’s TED Talk ‘Why the Secret to Success is Setting the Right Goals&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Listen to &lt;a href=&quot;https://www.listennotes.com/podcasts/you-exec-book/measure-what-matters-by-john-VoLRAtzgaD2/&quot;&gt;a summary of John’s book ‘Measure What Matters’&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Read &lt;a href=&quot;https://www.goodreads.com/book/show/39286958-measure-what-matters&quot;&gt;‘Measure What Matters’&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id=&quot;additional-thought-s-on-okr-usage&quot;&gt;Additional Thought’s on OKR Usage&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;OKRs are a tool for empowering individuals/teams. The people closest to the problem are empowered to find the best solution, instead of being given instructions. &lt;/li&gt;
+&lt;li&gt;People/teams negotiate their own OKRs. They are not imposed. &lt;/li&gt;
+&lt;li&gt;OKRs are an evolution of Drucker’s &lt;a href=&quot;https://en.wikipedia.org/wiki/Management_by_objectives&quot;&gt;Management by Objectives&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Less is more. OKRs help with focus and de-prioritization.&lt;/li&gt;
+&lt;li&gt;Should be publically (within the organisation) visible.&lt;/li&gt;
+&lt;li&gt;Must not be linked to pay/bonuses because it perverts the process. Failure must be allowed and expected. In this way it is different to management by objectives. &lt;/li&gt;
+&lt;li&gt;Provides the basis for strategic planning. Issue trees and impact mapping can pickup from OKRs. &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    <item>
+      <title>A Modern Approach to Fixed-price Software Product Development</title>
+      <link>http://withouttheloop.com/articles/2020-09-30-fixed-price-fixed-effort/</link>
+      <pubDate>Wed, 30 Sep 2020 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2020-09-30-fixed-price-fixed-effort/</guid>
+      <author></author>
+      <description>&lt;p&gt;When purchasing software development services the customer wishes to optimize three variables: value, cost and risk. The approach described below is designed to maximize value and minimize cost and risk.&lt;/p&gt;
+&lt;h1 id=&quot;fixed-price-fixed-effort&quot;&gt;Fixed-price, Fixed-effort&lt;/h1&gt;
+&lt;p&gt;Consider the project ABCD.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/2020-09-30-fixed-price-fixed-effort/project-abcd.png&quot; alt=&quot;Project ABCD&quot;&gt;
+Figure 1: The ABCD project&lt;/p&gt;
+&lt;p&gt;ABCD consists of four high-level components: A, B, C and D. Each component is subject to a high-level analysis to identify an appropriate budget. The budget is based on the expected value of the component and expert opinion of the investment required to deliver a quality, effective solution. &lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Component&lt;/th&gt;
+&lt;th&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; &amp;nbsp;&lt;/th&gt;
+&lt;th&gt;Effort Budget (days)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;A&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;15&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;B&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;C&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;D&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;35&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Total&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;90&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;br/&gt;The fixed-price is the vendor’s price for ninety days of effort. The fixed-effort is ninety days. The vendor and customer now form a fixed-price, fixed-effort agreement to deliver project ABCD. &lt;/p&gt;
+&lt;p&gt;During delivery the customer and vendor prioritize and negotiate the details of each component to ensure that they fit within the effort budget.&lt;/p&gt;
+&lt;h1 id=&quot;fixed-price&quot;&gt;Fixed-price&lt;/h1&gt;
+&lt;p&gt;Fixing the price has the benefit of controlling the customer’s cost risk. While not denying the value of controlling cost there are some caveats that must be noted. Firstly, like the hydra, risk is a many-headed beast and cost is rarely the risk that causes failure. The greater risk is the risk of delivering a solution that does not achieve the required outcome. It does not matter how effectively the cost risk is controlled if the solution does not solve the problem. In this case every dollar that was spent returned nothing. &lt;/p&gt;
+&lt;p&gt;Unfortunately, the most common technique for controlling cost, fixed-price fixed-scope, dramatically increases the chance of delivering a solution that is not fit for purpose (see &lt;a href=&quot;http://withouttheloop.com/articles/2020-09-30-fixed-price-bad-idea/&quot;&gt;Why Fixed-price, Fixed-scope Is Bad For The Customer&lt;/a&gt;).&lt;/p&gt;
+&lt;h1 id=&quot;fixed-effort&quot;&gt;Fixed-effort&lt;/h1&gt;
+&lt;p&gt;Fixing the effort ensures efficiency. &lt;/p&gt;
+&lt;p&gt;Imagine a scenario where the planned implementation of a blockchain storage mechanism is discovered to require twice as much effort as expected, but a database solution is available for less than the original estimate, delivering 99% of the functionality. Because the customer and vendor are required to jointly prioritize and negotiate the details of each component to fit the effort estimate their motivations are aligned to make the sensible decision and choose the database solution. &lt;/p&gt;
+&lt;p&gt;Each feature and decision is necessarily scrutinized to ensure that it serves the goals of the project. It becomes very difficult for pet features, unjustified features and gold-plating to sneak in. &lt;/p&gt;
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;The final reason to support a fixed-price, fixed-effort approach is that other fixed-price approaches empirically do not work. The control of cost risk is lost to predatory change requests and the necessity of following the plan prevents the team from pursuing value and a system that will achieve its outcome. &lt;/p&gt;
+&lt;p&gt;Finally, fixed-price fixed scope misalignes incentives in a way that prevents efficient delivery. For more, see &lt;a href=&quot;http://withouttheloop.com/articles/2020-09-30-fixed-price-bad-idea/&quot;&gt;Why Fixed-price, Fixed-scope Is Bad For The Customer&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>Why Fixed-price, Fixed-scope Is Bad For The Customer</title>
+      <link>http://withouttheloop.com/articles/2020-09-30-fixed-price-bad-idea/</link>
+      <pubDate>Wed, 30 Sep 2020 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2020-09-30-fixed-price-bad-idea/</guid>
+      <author></author>
+      <description>&lt;p&gt;A common design of a fixed-price, fixed scope agreement is:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Attempt to define the solution up-front, based on expert knowledge and instinct&lt;/li&gt;
+&lt;li&gt;Establish a competitive procurement process, based on the defined requirements&lt;/li&gt;
+&lt;li&gt;Select the partner who promises the best combination of cost effectiveness and compelling proposal&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The above approach effectively guarantees failure. Unfortunately, it is a popular approach among large enterprises. I can understand why. It seems to promise achieving the required outcome while shifting all risk to the vendor. In addition it looks like it should achieve cost effectiveness due to the competitive procurement process. This procurement approach is an understandable attempt to apply practices that work in other domains, such as purchasing heavy equipment or the construction of roads, to the domain of software development. The approach fails because software development is not the same as building a road, specifically it has much greater uncertainty and much lower cost of change. &lt;/p&gt;
+&lt;p&gt;The unfortunate irony is that the well-intentioned attempt to protect the purchasing organisation almost guarantees an unsuccessful outcome. This happens because the procurement logic described above rests on a number of incorrect assumptions.&lt;/p&gt;
+&lt;h1 id=&quot;myth-1-the-customer-knows-and-can-define-the-solution-to-their-problem&quot;&gt;Myth 1: The customer knows, and can define, the solution to their problem&lt;/h1&gt;
+&lt;p&gt;Observe &lt;a href=&quot;https://pragprog.com/titles/jtrap/the-agile-samurai/&quot;&gt;Jonathan Rasmusen&lt;/a&gt;’s facts of software development:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;You can’t gather all the requirements up front.&lt;/li&gt;
+&lt;li&gt;The requirements you do gather will change.&lt;/li&gt;
+&lt;li&gt;There is always more to do than time and money will allow.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;In the beginning, I don’t know the solution to my customer’s problem, and nor do they. The competitive procurement process presupposes that it is possible to define what is needed so that vendors can propose approaches and compete on price, with a shared definition of what will be delivered. It is not possible to precisely define a solution and if it was you’d be defining the wrong solution anyway. Inexperienced customers think they can define what they need. Predatory vendors know better and exploit the knowledge asymmetry, making their money on change requests. &lt;strong&gt;Fixed-price, fixed-scope doesn’t fix the price at all&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;I once triggered an angry reaction in a project sponsor when I asked why the organisation wanted to fund the project we were discussing. He was ready to spend hundreds of thousands of dollars without the faintest idea of why. How can you know the optimal solution if you don’t even know why you are doing the work? The customer had carefully implemented their competitive procurement process, dutifully documented their requirements and engaged vendors, all without giving a thought to what outcome they were trying to achieve. &lt;/p&gt;
+&lt;p&gt;Our business is divided into a number of capabilities, one of which is design. The first responsibility of the design capability is to help customers understand their problem and discover the best solution. These are highly skilled specialists, focused on solution discovery via careful application of the scientific method. They exist because instinct is not enough. You have an instinctive understanding of your customers and your coworkers and you know which solution will work. So do I, and we are both wrong. Leading technology companies understand this. Google doesn’t assume they can guess what solution they need. Microsoft doesn’t do it. Amazon certainly doesn’t do it. They have acquired humility through hard lessons. Instead of guessing they do the work to discover, test, prototype, research and validate their ideas. It is the less advanced organisations that believe they can take a blank page and guess the solution that is going to work. &lt;/p&gt;
+&lt;p&gt;As a purchaser of technology services, don’t pay someone to implement a solution, pay them to help you to achieve an outcome. The best way to achieve that outcome is something you will discover together as the project progresses.&lt;/p&gt;
+&lt;h1 id=&quot;myth-2-a-project-that-is-on-time-and-on-budget-is-a-successful-project&quot;&gt;Myth 2: A project that is on-time and on-budget is a successful project&lt;/h1&gt;
+&lt;p&gt;Fixed-price, fixed-scope doesn’t say anything about outcomes. The focus is 100% on costs and 0% on value. The process is designed to reduce the risk of being over budget and over time, and ignores the greater risk of failing to solve the problem. Also, not very effective at being on time and on budget. Focusing on cost, schedule and scope establishes a competitive environment that makes it hard to deliver a valuable outcome. The customer is incentivized to get as much as they can for as little as possible. The vendor is incentived to charge as much as possible for as little as possible. This creates an environment of conflict and an emphasis on following the plan over delivering something that is actually valuable. &lt;/p&gt;
+&lt;p&gt;So, how do we all succeed together?&lt;/p&gt;
+&lt;h1 id=&quot;fixed-price-fixed-effort&quot;&gt;Fixed-price, Fixed-effort&lt;/h1&gt;
+&lt;p&gt;I propose a different fixed-price approach called &lt;a href=&quot;http://withouttheloop.com/articles/2020-09-30-fixed-price-fixed-effort/&quot;&gt;fixed-price, fixed-effort&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Linear Feedback</title>
       <link>http://withouttheloop.com/articles/2019-09-11-linear-feedback/</link>
@@ -746,6 +963,158 @@ git checkout react9
 </description>
     </item>
     <item>
+      <title>Learning React 7 - AJAX</title>
+      <link>http://withouttheloop.com/articles/2018-01-10-react-7-ajax/</link>
+      <pubDate>Wed, 10 Jan 2018 20:32:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2018-01-10-react-7-ajax/</guid>
+      <author></author>
+      <description>&lt;p&gt;In &lt;a href=&quot;http://withouttheloop.com/articles/2018-01-08-react-6-react-router/&quot;&gt;Learning React 6 - React Router&lt;/a&gt; we learned how to connect a client-side router to a React application. &lt;/p&gt;
+&lt;p&gt;In this post we will look at how to add AJAX HTTP requests to a React application. This requires more thought than introducing AJAX to products built with other libraries, because our React application so far has used pure components (components that produce output entirely determined by their inputs) and been entirely synchronous (processing proceeds continuously without having to wait for any external events).&lt;/p&gt;
+&lt;h1 id=&quot;movie-library&quot;&gt;Movie Library&lt;/h1&gt;
+&lt;p&gt;For this demonstration we will need a more complicated application than the one we have used so far, so we will build a movie library. The application will allow the user to:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;search the &lt;a href=&quot;http://www.omdbapi.com&quot;&gt;OMDB movie database API&lt;/a&gt; for movies.&lt;/li&gt;
+&lt;li&gt;view the details of a movie &lt;/li&gt;
+&lt;li&gt;select movies to add to their favourite list&lt;/li&gt;
+&lt;li&gt;view their favourite list&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Start by creating a new application with create-react-app:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;$ create-react-app movie-library
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and start the app:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;$ npm start
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Install redux, react-redux and a router (&lt;a href=&quot;https://github.com/faceyspacey/redux-first-router&quot;&gt;redux-first-router&lt;/a&gt;):&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;$ npm install --save redux react-redux history redux-first-router redux-first-router-link
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Modify &lt;code&gt;index.js&lt;/code&gt; to use a default redux implementation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;import React from &lt;span class=&quot;string&quot;&gt;'react'&lt;/span&gt;;
+import ReactDOM from &lt;span class=&quot;string&quot;&gt;'react-dom'&lt;/span&gt;;
+import &lt;span class=&quot;string&quot;&gt;'./index.css'&lt;/span&gt;;
+import registerServiceWorker from &lt;span class=&quot;string&quot;&gt;'./registerServiceWorker'&lt;/span&gt;;
+import { createStore } from &lt;span class=&quot;string&quot;&gt;'redux'&lt;/span&gt;;
+import { Provider } from &lt;span class=&quot;string&quot;&gt;'react-redux'&lt;/span&gt;;
+import App from &lt;span class=&quot;string&quot;&gt;'./App'&lt;/span&gt;;
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;reducer&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(state = { }, action)&lt;/span&gt; {&lt;/span&gt;
+    &lt;span class=&quot;keyword&quot;&gt;switch&lt;/span&gt; (action.type) {
+        &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
+    }
+}
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = createStore(reducer);
+
+ReactDOM.render(
+    &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;store&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{store}&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;App&lt;/span&gt; /&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;, 
+    document.getElementById('root'));
+
+store.dispatch({type: &quot;START&quot;});
+
+registerServiceWorker();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&quot;the-search-component&quot;&gt;The Search Component&lt;/h1&gt;
+&lt;p&gt;The starting page of the movie library will feature a movie search component. &lt;/p&gt;
+&lt;p&gt;Start by creating a new file, &lt;code&gt;Search.js&lt;/code&gt; containing a minimal Search component:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;import React from &lt;span class=&quot;string&quot;&gt;'react'&lt;/span&gt;;
+import { connect } from &lt;span class=&quot;string&quot;&gt;'react-redux'&lt;/span&gt;;
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Search&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;Search&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;;&lt;/span&gt;
+}
+
+export &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; ConnectedSearch = connect(
+    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(state)&lt;/span&gt; {&lt;/span&gt;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
+    }, 
+    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapDispatchToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(dispatch)&lt;/span&gt; {&lt;/span&gt;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {};
+    }
+)(Search);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;Search&lt;/code&gt; module exports a component &lt;code&gt;ConnectedSearch&lt;/code&gt; that is our search component wrapped in a react-redux connector to give it access to the redux store (we will need this later). Now, modify &lt;code&gt;App.js&lt;/code&gt; to import and use the &lt;code&gt;ConnectedSearch&lt;/code&gt; component:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt; import React, { Component } from &lt;span class=&quot;string&quot;&gt;'react'&lt;/span&gt;;
+import &lt;span class=&quot;string&quot;&gt;'./App.css'&lt;/span&gt;;
+import { ConnectedSearch } from &lt;span class=&quot;string&quot;&gt;'./Search'&lt;/span&gt;;
+
+&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; App extends Component {
+  render() {
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
+      &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;className&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;App&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;header&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;className&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;App-header&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
+          &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;className&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;App-title&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;Movie Library&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;header&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;ConnectedSearch&lt;/span&gt; /&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+    );
+  }
+}
+
+export default App;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now the application should be working a displaying a heading ‘Search’.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;Search&lt;/code&gt; component needs a text input. We will create a new component &lt;code&gt;SearchForm&lt;/code&gt; to contain the text input. To get the form to function properly we must use React’s component ‘state’ feature, which means using the &lt;a href=&quot;https://reactjs.org/docs/state-and-lifecycle.html&quot;&gt;class component syntax&lt;/a&gt; instead of the function syntax. Both ‘state’ and the class syntax are undesirable, hence why they are contained in the smallest possible area where they are absolutely needed (the &lt;code&gt;SearchForm&lt;/code&gt; component).&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; SearchForm extends React.Component {
+    constructor(props) {
+        super(props);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state = {title: &lt;span class=&quot;string&quot;&gt;&quot;&quot;&lt;/span&gt;}
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.titleChange = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.titleChange.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.search = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.search.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
+    }
+
+    titleChange(event) {
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.setState({title: event.target.value});
+    }
+
+    search(event) {
+        event.preventDefault();
+        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.onSearch(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state.title);
+    }
+
+    render() {
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;onSubmit&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{this.search}&lt;/span&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;htmlFor&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;title&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;Title: &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;label&lt;/span&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;type&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;text&quot;&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;name&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;value&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{this.state.title}&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;onChange&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{this.titleChange}&lt;/span&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;form&lt;/span&gt;&amp;gt;&lt;/span&gt;;&lt;/span&gt;
+    }
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Search&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;Search&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;SearchForm&lt;/span&gt; /&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;;&lt;/span&gt;
+}
+
+export &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; ConnectedSearch = connect(
+    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(state)&lt;/span&gt; {&lt;/span&gt;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
+    }, 
+    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapDispatchToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(dispatch)&lt;/span&gt; {&lt;/span&gt;
+        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
+            onSearch: (title)=&amp;gt; { dispatch({type: &lt;span class=&quot;string&quot;&gt;&quot;SEARCH&quot;&lt;/span&gt;, title}); }
+        };
+    }
+)(Search);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When a user types a character in the textbox it fires the &lt;code&gt;onChange&lt;/code&gt; event, which &lt;a href=&quot;https://reactjs.org/docs/forms.html&quot;&gt;updates the components state to have the latest value of the textbox&lt;/a&gt;, which causes the component to re-render and display the character the user typed in the textbox. &lt;/p&gt;
+&lt;p&gt;When the form is submitted we call the &lt;code&gt;onSearch&lt;/code&gt; function on &lt;code&gt;props&lt;/code&gt;. The React-Redux connection translates this into a dispatch of an action with &lt;code&gt;type: &amp;quot;SEARCH&amp;quot;&lt;/code&gt;.&lt;/p&gt;
+&lt;h1 id=&quot;summary&quot;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;We started building a React movie library with React, Redux, react redux, and redux-first-router. We implemented a class component for a form, with local state and connected everything to our Redux store. &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Next: &lt;a href=&quot;http://withouttheloop.com/articles/2018-01-10-react-8-ajax-continued/&quot;&gt;Learning React 8 - AJAX Continued&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;get-the-code&quot;&gt;Get The Code&lt;/h2&gt;
+&lt;p&gt;The code for this example is &lt;a href=&quot;https://github.com/liammclennan/movie-library&quot;&gt;on Github&lt;/a&gt;. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this post. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;git clone https://github.com/liammclennan/movie-library.git
+git checkout react7 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;or browse at &lt;a href=&quot;https://github.com/liammclennan/movie-library/tree/7548d450b7727f124070dd7ee9b73575d740e9b3&quot;&gt;https://github.com/liammclennan/movie-library/tree/7548d450b7727f124070dd7ee9b73575d740e9b3&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    <item>
       <title>Learning React 8 - AJAX continued</title>
       <link>http://withouttheloop.com/articles/2018-01-10-react-8-ajax-continued/</link>
       <pubDate>Wed, 10 Jan 2018 20:32:00 +1000</pubDate>
@@ -938,158 +1307,6 @@ export &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;
 git checkout react8 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;or browse at &lt;a href=&quot;https://github.com/liammclennan/movie-library/tree/c93c652fa1318ce6447d985e3f8b690386456565&quot;&gt;https://github.com/liammclennan/movie-library/tree/c93c652fa1318ce6447d985e3f8b690386456565&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    <item>
-      <title>Learning React 7 - AJAX</title>
-      <link>http://withouttheloop.com/articles/2018-01-10-react-7-ajax/</link>
-      <pubDate>Wed, 10 Jan 2018 20:32:00 +1000</pubDate>
-      <guid isPermaLink="true">http://withouttheloop.com/articles/2018-01-10-react-7-ajax/</guid>
-      <author></author>
-      <description>&lt;p&gt;In &lt;a href=&quot;http://withouttheloop.com/articles/2018-01-08-react-6-react-router/&quot;&gt;Learning React 6 - React Router&lt;/a&gt; we learned how to connect a client-side router to a React application. &lt;/p&gt;
-&lt;p&gt;In this post we will look at how to add AJAX HTTP requests to a React application. This requires more thought than introducing AJAX to products built with other libraries, because our React application so far has used pure components (components that produce output entirely determined by their inputs) and been entirely synchronous (processing proceeds continuously without having to wait for any external events).&lt;/p&gt;
-&lt;h1 id=&quot;movie-library&quot;&gt;Movie Library&lt;/h1&gt;
-&lt;p&gt;For this demonstration we will need a more complicated application than the one we have used so far, so we will build a movie library. The application will allow the user to:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;search the &lt;a href=&quot;http://www.omdbapi.com&quot;&gt;OMDB movie database API&lt;/a&gt; for movies.&lt;/li&gt;
-&lt;li&gt;view the details of a movie &lt;/li&gt;
-&lt;li&gt;select movies to add to their favourite list&lt;/li&gt;
-&lt;li&gt;view their favourite list&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Start by creating a new application with create-react-app:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;$ create-react-app movie-library
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;and start the app:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;$ npm start
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Install redux, react-redux and a router (&lt;a href=&quot;https://github.com/faceyspacey/redux-first-router&quot;&gt;redux-first-router&lt;/a&gt;):&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;$ npm install --save redux react-redux history redux-first-router redux-first-router-link
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Modify &lt;code&gt;index.js&lt;/code&gt; to use a default redux implementation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;import React from &lt;span class=&quot;string&quot;&gt;'react'&lt;/span&gt;;
-import ReactDOM from &lt;span class=&quot;string&quot;&gt;'react-dom'&lt;/span&gt;;
-import &lt;span class=&quot;string&quot;&gt;'./index.css'&lt;/span&gt;;
-import registerServiceWorker from &lt;span class=&quot;string&quot;&gt;'./registerServiceWorker'&lt;/span&gt;;
-import { createStore } from &lt;span class=&quot;string&quot;&gt;'redux'&lt;/span&gt;;
-import { Provider } from &lt;span class=&quot;string&quot;&gt;'react-redux'&lt;/span&gt;;
-import App from &lt;span class=&quot;string&quot;&gt;'./App'&lt;/span&gt;;
-
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;reducer&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(state = { }, action)&lt;/span&gt; {&lt;/span&gt;
-    &lt;span class=&quot;keyword&quot;&gt;switch&lt;/span&gt; (action.type) {
-        &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt;: &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
-    }
-}
-&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; store = createStore(reducer);
-
-ReactDOM.render(
-    &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;store&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{store}&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;App&lt;/span&gt; /&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;Provider&lt;/span&gt;&amp;gt;&lt;/span&gt;, 
-    document.getElementById('root'));
-
-store.dispatch({type: &quot;START&quot;});
-
-registerServiceWorker();&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h1 id=&quot;the-search-component&quot;&gt;The Search Component&lt;/h1&gt;
-&lt;p&gt;The starting page of the movie library will feature a movie search component. &lt;/p&gt;
-&lt;p&gt;Start by creating a new file, &lt;code&gt;Search.js&lt;/code&gt; containing a minimal Search component:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;import React from &lt;span class=&quot;string&quot;&gt;'react'&lt;/span&gt;;
-import { connect } from &lt;span class=&quot;string&quot;&gt;'react-redux'&lt;/span&gt;;
-
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Search&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;Search&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;;&lt;/span&gt;
-}
-
-export &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; ConnectedSearch = connect(
-    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(state)&lt;/span&gt; {&lt;/span&gt;
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
-    }, 
-    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapDispatchToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(dispatch)&lt;/span&gt; {&lt;/span&gt;
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {};
-    }
-)(Search);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The &lt;code&gt;Search&lt;/code&gt; module exports a component &lt;code&gt;ConnectedSearch&lt;/code&gt; that is our search component wrapped in a react-redux connector to give it access to the redux store (we will need this later). Now, modify &lt;code&gt;App.js&lt;/code&gt; to import and use the &lt;code&gt;ConnectedSearch&lt;/code&gt; component:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt; import React, { Component } from &lt;span class=&quot;string&quot;&gt;'react'&lt;/span&gt;;
-import &lt;span class=&quot;string&quot;&gt;'./App.css'&lt;/span&gt;;
-import { ConnectedSearch } from &lt;span class=&quot;string&quot;&gt;'./Search'&lt;/span&gt;;
-
-&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; App extends Component {
-  render() {
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (
-      &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;className&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;App&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;header&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;className&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;App-header&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
-          &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;className&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;App-title&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;Movie Library&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;header&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;ConnectedSearch&lt;/span&gt; /&amp;gt;&lt;/span&gt;
-      &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
-    );
-  }
-}
-
-export default App;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now the application should be working a displaying a heading ‘Search’.&lt;/p&gt;
-&lt;p&gt;The &lt;code&gt;Search&lt;/code&gt; component needs a text input. We will create a new component &lt;code&gt;SearchForm&lt;/code&gt; to contain the text input. To get the form to function properly we must use React’s component ‘state’ feature, which means using the &lt;a href=&quot;https://reactjs.org/docs/state-and-lifecycle.html&quot;&gt;class component syntax&lt;/a&gt; instead of the function syntax. Both ‘state’ and the class syntax are undesirable, hence why they are contained in the smallest possible area where they are absolutely needed (the &lt;code&gt;SearchForm&lt;/code&gt; component).&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; SearchForm extends React.Component {
-    constructor(props) {
-        super(props);
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state = {title: &lt;span class=&quot;string&quot;&gt;&quot;&quot;&lt;/span&gt;}
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.titleChange = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.titleChange.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.search = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.search.bind(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);
-    }
-
-    titleChange(event) {
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.setState({title: event.target.value});
-    }
-
-    search(event) {
-        event.preventDefault();
-        &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.props.onSearch(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.state.title);
-    }
-
-    render() {
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;onSubmit&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{this.search}&lt;/span&gt;&amp;gt;&lt;/span&gt;
-            &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;htmlFor&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;title&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;Title: &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;label&lt;/span&gt;&amp;gt;&lt;/span&gt;
-            &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;type&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;text&quot;&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;name&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;value&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{this.state.title}&lt;/span&gt; &lt;span class=&quot;attribute&quot;&gt;onChange&lt;/span&gt;=&lt;span class=&quot;value&quot;&gt;{this.titleChange}&lt;/span&gt;/&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;form&lt;/span&gt;&amp;gt;&lt;/span&gt;;&lt;/span&gt;
-    }
-}
-
-&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Search&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;
-    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;xml&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;Search&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;h1&lt;/span&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;title&quot;&gt;SearchForm&lt;/span&gt; /&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;title&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;;&lt;/span&gt;
-}
-
-export &lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; ConnectedSearch = connect(
-    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapStateToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(state)&lt;/span&gt; {&lt;/span&gt;
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; state;
-    }, 
-    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;mapDispatchToProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(dispatch)&lt;/span&gt; {&lt;/span&gt;
-        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; {
-            onSearch: (title)=&amp;gt; { dispatch({type: &lt;span class=&quot;string&quot;&gt;&quot;SEARCH&quot;&lt;/span&gt;, title}); }
-        };
-    }
-)(Search);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;When a user types a character in the textbox it fires the &lt;code&gt;onChange&lt;/code&gt; event, which &lt;a href=&quot;https://reactjs.org/docs/forms.html&quot;&gt;updates the components state to have the latest value of the textbox&lt;/a&gt;, which causes the component to re-render and display the character the user typed in the textbox. &lt;/p&gt;
-&lt;p&gt;When the form is submitted we call the &lt;code&gt;onSearch&lt;/code&gt; function on &lt;code&gt;props&lt;/code&gt;. The React-Redux connection translates this into a dispatch of an action with &lt;code&gt;type: &amp;quot;SEARCH&amp;quot;&lt;/code&gt;.&lt;/p&gt;
-&lt;h1 id=&quot;summary&quot;&gt;Summary&lt;/h1&gt;
-&lt;p&gt;We started building a React movie library with React, Redux, react redux, and redux-first-router. We implemented a class component for a form, with local state and connected everything to our Redux store. &lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Next: &lt;a href=&quot;http://withouttheloop.com/articles/2018-01-10-react-8-ajax-continued/&quot;&gt;Learning React 8 - AJAX Continued&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;get-the-code&quot;&gt;Get The Code&lt;/h2&gt;
-&lt;p&gt;The code for this example is &lt;a href=&quot;https://github.com/liammclennan/movie-library&quot;&gt;on Github&lt;/a&gt;. You can access the code as it was at the completion of this step by cloning the repository and checking out the tag that corresponds to this post. &lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;lang-bash&quot;&gt;git clone https://github.com/liammclennan/movie-library.git
-git checkout react7 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;or browse at &lt;a href=&quot;https://github.com/liammclennan/movie-library/tree/7548d450b7727f124070dd7ee9b73575d740e9b3&quot;&gt;https://github.com/liammclennan/movie-library/tree/7548d450b7727f124070dd7ee9b73575d740e9b3&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     <item>
@@ -6456,58 +6673,6 @@ var mapped = data.map(function (repo) {
 </description>
     </item>
     <item>
-      <title>Applying Functional Programming to .net Consulting Projects</title>
-      <link>http://withouttheloop.com/articles/2014-01-14-fsharp-for-consulting-projects/</link>
-      <pubDate>Tue, 14 Jan 2014 20:32:00 +1000</pubDate>
-      <guid isPermaLink="true">http://withouttheloop.com/articles/2014-01-14-fsharp-for-consulting-projects/</guid>
-      <author></author>
-      <description>&lt;p&gt;The benefits of &lt;a href=&quot;http://en.wikipedia.org/wiki/Functional_programming&quot;&gt;functional programming&lt;/a&gt; are &lt;a href=&quot;http://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf&quot;&gt;well known&lt;/a&gt;, and &lt;a href=&quot;http://callvirt.net/blog/post/Why-F-%28TechEd-09-DEV450%29.aspx&quot;&gt;well documented&lt;/a&gt;. The rest of this article will assume that this argument has been digested and accepted.  Given the benefits of functional programming the relatively low adoption can be attributed to general resistance to change, the front-loaded learning curve, a degree of complacency, and uncertainty about how to accomplish common programming tasks with a functional toolset. This article focuses on the latter, particularly in the context of .net consulting projects.&lt;/p&gt;
-&lt;h2 id=&quot;functional-programming-for-the-net-programmer&quot;&gt;Functional Programming for the .net Programmer&lt;/h2&gt;
-&lt;p&gt;A common fallacy is that we can achieve the benefits of functional programming by applying a functional style within a procedural language. Immutability is essential to functional programming and procedural languages, such as c#, do not encourage or support immutability. Whilst a functional style of c# programming is certainly an improvement we must not pretend that it is a reasonable substitute for a proper functional programming language. For the programmer working with .net tools in the .net ecosystem F# is the obvious prime candidate for a functional programming language. It is the only first-class, functional-first .net language.&lt;/p&gt;
-&lt;p&gt;Some project managers worry that embracing a functional programming language will cause hiring difficulty. This fallacy possibly occurs because the push for functional programming generally comes from the programmers themselves. Non-programmers associated with software projects have little visibility into the rise and popularity of functional programming. Here in Brisbane the &lt;a href=&quot;http://www.meetup.com/Brisbane-Functional-Programming-Group/&quot;&gt;local functional programming user group&lt;/a&gt; has 484 members. Each year Brisbane hosts a &lt;a href=&quot;http://www.yowconference.com.au/lambdajam/&quot;&gt;well attended conference&lt;/a&gt; dedicated to functional programming. The amount of functional programming talent available for hire is underestimated. &lt;/p&gt;
-&lt;p&gt;Finally, the notion of sticking to tools that make hiring easier contradicts the ‘right tool for the job’ directive that we should strive for. If the majority of unemployed programmers were assembler experts would you chose assembler for your next project?&lt;/p&gt;
-&lt;h2 id=&quot;mixed-solutions&quot;&gt;Mixed Solutions&lt;/h2&gt;
-&lt;p&gt;An important tool when introducing F# to a project is the ability to include F# and other .net languages within the same application. This reduces risk considerably because we retain the ability to fall back to another .net language (usually c#) in the event that F# is deemed to be unsuitable for a particular purpose. The reality is that this is not likely to ever be necessary - still there is value in reducing the perception of risk. &lt;/p&gt;
-&lt;p&gt;A solution will be simpler, and more cohesive, if F# is used exclusively, however .net supports mixed solutions by allowing different projects to use different languages, and by supporting interoperability in both directions. &lt;/p&gt;
-&lt;h2 id=&quot;interoperability-between-f-and-c-&quot;&gt;Interoperability Between F# and C#&lt;/h2&gt;
-&lt;p&gt;Calling from F# into c# is a simple matter of using c# style syntax. &lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;new RiakObjectId(&amp;quot;logs&amp;quot;, kvp.Key)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Note the use of the new keyword to create an object, paranthesis to delimit method arguments, and commas to separate method arguments. &lt;/p&gt;
-&lt;p&gt;Calling from c# into F# is similarly straightforward. F# functions appear in c# as static methods on static classes that map to the F# modules. The following F# and c# code are equivalent:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;open Data
-nowToTodayString DateTime.Now
-
-Data.nowToTodayString(DateTime.Now)
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;f-for-web-applications&quot;&gt;F# for Web Applications&lt;/h2&gt;
-&lt;p&gt;F# is unfortunately not currently treated as a first-class .net language by visual studio. There is no built-in template for creating a web or desktop application with F#. The only supported scenarios are library and command line projects. In the absense of built-in templates the community has provided some excellent templates for a wide variety of scenarios.&lt;/p&gt;
-&lt;p&gt;The visual studio online project templates include an excellent template called &lt;a href=&quot;http://visualstudiogallery.msdn.microsoft.com/3d2bf938-fc9e-403c-90b3-8de27dc23095&quot;&gt;F# and C# Web Application template&lt;/a&gt;. It creates a minimal c# web project and an auxillary F# library containing as much of the code as possible, including the controllers, view models, and application instance. The only application code required to be implemented within the c# web application project is the views. The case study discussed later is built on this template.&lt;/p&gt;
-&lt;h2 id=&quot;f-for-windows-services&quot;&gt;F# for Windows Services&lt;/h2&gt;
-&lt;p&gt;Despite there being no built-in template for F# windows services, F# is well suited to this task. The Visual C# Windows Service project actually does very little so it is trivial to manually implement an F# service, as described in the MSDN article &lt;a href=&quot;http://msdn.microsoft.com/en-us/library/vstudio/hh297113%28v=vs.100%29.aspx#gff&quot;&gt;Creating Windows Services in F#&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Implementing a service only requires a &lt;code&gt;ServiceBase&lt;/code&gt; implementation and a service &lt;code&gt;Installer&lt;/code&gt; implementation. &lt;/p&gt;
-&lt;h2 id=&quot;f-tooling-support&quot;&gt;F# Tooling Support&lt;/h2&gt;
-&lt;p&gt;F# tooling support is minimal, compared to c# and VB.NET. As mentioned previously there is a shortage of built-in project templates, but this is easily rectified by the online, community contributed templates. Many .net technologies, such as asp.net and WPF, do not explicitly support F#, meaning that the F# programmer has some extra work to do. Also, third party productivity tools, such as ReSharper, typically do not support F#. When our productivity tools become a contributing factor for foundational technology decisions it is time to question, “have we lost control?”.&lt;/p&gt;
-&lt;h2 id=&quot;f-data-access&quot;&gt;F# Data Access&lt;/h2&gt;
-&lt;p&gt;Most data access methods assume mutability, which negates some of the benefits of FP. The exceptions are the explicity immutable data stores, such as &lt;a href=&quot;http://www.datomic.com/&quot;&gt;Datomic&lt;/a&gt; and &lt;a href=&quot;http://geteventstore.com/&quot;&gt;Event Store&lt;/a&gt; and the http based datastores like &lt;a href=&quot;http://couchdb.apache.org/&quot;&gt;CouchDB&lt;/a&gt; and &lt;a href=&quot;http://basho.com/riak/&quot;&gt;Riak&lt;/a&gt;. &lt;/p&gt;
-&lt;p&gt;The case study included with this article uses Riak for its data store. F# has no direct support for Riak, however, it is trivial to use the &lt;a href=&quot;http://corrugatediron.org/&quot;&gt;CorrugatedIron&lt;/a&gt; client (written in c#) to communicate with Riak. All of the aforementioned data stores provide an HTTP interface, so a specialized client is not strictly necessary. &lt;/p&gt;
-&lt;h2 id=&quot;case-study-logging-you&quot;&gt;Case Study - Logging You&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&quot;screen.png&quot; alt=&quot;Logging You - A data driven web application written in F#&quot; /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://loggingyou.azurewebsites.net/&quot;&gt;Logging You&lt;/a&gt; is a bad demonstration of F#’s advantages. It includes none of F#’s core competency (computation) and lots of F#’s weaker areas (interop, GUI programming, transactional data access). Indeed the purpose of this case study is to investigate the feasibility of F# as a standard tool for .net consultants, therefore the important question to answer is, “how well does it handle those weaker areas?”.&lt;/p&gt;
-&lt;p&gt;Logging you is a log dashboard built as an asp.net mvc web application. It’s two use cases are:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;display a summary of the currently stored logs. This includes the alltime total count of logs, the count of today’s logs, and the list of today’s log messages.&lt;/li&gt;
-&lt;li&gt;allow the user to enter a new informational log message&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;These simple requirements forced the development of mvc integration, data queries and mvc model binding. F# handled all of these non-ideal (for a functional programming language) tasks with aplomb. Being a standard asp.net website Logging You is hosted on Azure without any special modifications. The &lt;a href=&quot;https://bitbucket.org/liammclennan/loggingyou&quot;&gt;source&lt;/a&gt; is available on bitbucket. &lt;/p&gt;
-&lt;h2 id=&quot;find-out-more&quot;&gt;Find Out More&lt;/h2&gt;
-&lt;p&gt;If you are interested in learning more about applied functional programming in .net, here are some helpful resources:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://fsharpforfunandprofit.com/why-use-fsharp/&quot;&gt;FSharp for Fun and Profit&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://fsharp.org/&quot;&gt;The F# Software Foundation&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://www.tryfsharp.org/&quot;&gt;Try F#&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    <item>
       <title>F# String Calculator</title>
       <link>http://withouttheloop.com/articles/2013-11-07-fsharp-stringcalc/</link>
       <pubDate>Thu, 07 Nov 2013 20:32:00 +1000</pubDate>
@@ -7338,7 +7503,8 @@ x----x-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;It will still fail, but now it will fail when the view is created, and it will be obvious that the failure was caused by bad data. &lt;/p&gt;
 &lt;h1 id=&quot;the-readme&quot;&gt;The Readme&lt;/h1&gt;
-&lt;p&gt;&lt;code&gt;dbc&lt;/code&gt; is a small library for design-by-contract defensive coding in javascript. &lt;/p&gt;
+&lt;p&gt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt; HEAD
+&lt;code&gt;dbc&lt;/code&gt; is a small library for design-by-contract defensive coding in javascript. &lt;/p&gt;
 &lt;p&gt;It focuses especially on type assertions in an attempt to provide a small compensation for JavaScript’s unfortunate dynamicness.&lt;/p&gt;
 &lt;p&gt;Have a function that requires a numeric argument? Try:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(num)&lt;/span&gt; {&lt;/span&gt;
@@ -7400,7 +7566,85 @@ x----x-
 &lt;h2 id=&quot;test&quot;&gt;Test&lt;/h2&gt;
 &lt;pre&gt;&lt;code&gt;npm install -g jasmine-node
 jasmine-node --coffee spec/
-&lt;/code&gt;&lt;/pre&gt;</description>
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;=======
+&lt;code&gt;dbc&lt;/code&gt; is a small library for design-by-contract defensive coding in javascript. &lt;/p&gt;
+&lt;p&gt;It focuses especially on type assertions in an attempt to provide a small compensation for JavaScript’s unfortunate dynamicness.&lt;/p&gt;
+&lt;p&gt;Have a function that requires a numeric argument? Try:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(num)&lt;/span&gt; {&lt;/span&gt;
+    dbc.type(num, &lt;span class=&quot;string&quot;&gt;'number'&lt;/span&gt;);
+    &lt;span class=&quot;comment&quot;&gt;// the rest of your function&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;or if the function argument is an object, and you want to collect the validation results:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(myComplexObject)&lt;/span&gt; {&lt;/span&gt;
+    &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; messages = dbc.validate(myComplexObject, {
+        firstProp: [{validator: &lt;span class=&quot;string&quot;&gt;'required'&lt;/span&gt;}]
+    });
+    &lt;span class=&quot;comment&quot;&gt;// the rest of your function&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;features&quot;&gt;Features&lt;/h2&gt;
+&lt;p&gt;Check a value:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;    dbc.type(&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'number'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'optional error message'&lt;/span&gt;);
+    dbc.isFunction(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;}, &lt;span class=&quot;string&quot;&gt;'optional error message'&lt;/span&gt;);
+    dbc.functionArity(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; {&lt;/span&gt;}, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'optional error message'&lt;/span&gt;);
+    &lt;span class=&quot;comment&quot;&gt;// etc&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Check an object:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;    dbc.check({
+        a: &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;,
+        b: &lt;span class=&quot;string&quot;&gt;&quot;cat in the hat&quot;&lt;/span&gt;,
+        c: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(f, s)&lt;/span&gt; {&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; f + s; }
+    }, {
+        a: [
+            {validator: &lt;span class=&quot;string&quot;&gt;'required'&lt;/span&gt;, args: [&lt;span class=&quot;string&quot;&gt;'optional error message'&lt;/span&gt;]}, 
+            {validator: &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;, args: [&lt;span class=&quot;string&quot;&gt;'number'&lt;/span&gt;]}, 
+            {validator: &lt;span class=&quot;string&quot;&gt;'custom'&lt;/span&gt;, args: [ &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(v)&lt;/span&gt; {&lt;/span&gt; 
+                &lt;span class=&quot;comment&quot;&gt;// custom validator function should return a boolean&lt;/span&gt;
+                &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; v &amp;gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; 
+            }]}
+        ],
+        b: [{validator: &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;, args: [&lt;span class=&quot;string&quot;&gt;'string'&lt;/span&gt;]}],
+        c: [{validator: &lt;span class=&quot;string&quot;&gt;'isFunction'&lt;/span&gt;}, {validator: &lt;span class=&quot;string&quot;&gt;'functionArity'&lt;/span&gt;, args: [&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;, {message: &lt;span class=&quot;string&quot;&gt;'This is a more advanced error object'&lt;/span&gt;, field: &lt;span class=&quot;string&quot;&gt;'c'&lt;/span&gt;}]}]
+    });
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Validate an object (same as check except that it returns an array of errors instead of throwing an exception at the first error):&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;    dbc.validate({
+        a: &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;,
+        b: &lt;span class=&quot;string&quot;&gt;&quot;cat in the hat&quot;&lt;/span&gt;,
+        c: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(f, s)&lt;/span&gt; {&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; f + s; }
+    }, {
+        a: [
+            {validator: &lt;span class=&quot;string&quot;&gt;'required'&lt;/span&gt;, args: [&lt;span class=&quot;string&quot;&gt;'optional error message'&lt;/span&gt;]}, 
+            {validator: &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;, args: [&lt;span class=&quot;string&quot;&gt;'number'&lt;/span&gt;]}, 
+            {validator: &lt;span class=&quot;string&quot;&gt;'custom'&lt;/span&gt;, args: [ &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;params&quot;&gt;(v)&lt;/span&gt; {&lt;/span&gt; 
+                &lt;span class=&quot;comment&quot;&gt;// custom validator function should return a boolean&lt;/span&gt;
+                &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; v &amp;gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; 
+            }]}
+        ],
+        b: [{validator: &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;, args: [&lt;span class=&quot;string&quot;&gt;'string'&lt;/span&gt;]}],
+        c: [{validator: &lt;span class=&quot;string&quot;&gt;'isFunction'&lt;/span&gt;}, {validator: &lt;span class=&quot;string&quot;&gt;'functionArity'&lt;/span&gt;, args: [&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;, {message: &lt;span class=&quot;string&quot;&gt;'This is a more advanced error object'&lt;/span&gt;, field: &lt;span class=&quot;string&quot;&gt;'c'&lt;/span&gt;}]}]
+    });
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;test&quot;&gt;Test&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;npm install -g jasmine-node
+jasmine-node --coffee spec/
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;old/master&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+</description>
     </item>
     <item>
       <title>Resourceserver as a backend for SPA and Backbone apps</title>
@@ -11219,6 +11463,128 @@ the mappers can have their own dependencies. The consumers of the mappers don’
    return View(mapper.Map(apple));
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;}&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>Untitled</title>
+      <link>http://withouttheloop.com/articles/2014-01-14-fsharp-for-consulting-projects/</link>
+      <pubDate>Thu, 01 Jan 1970 10:00:00 +1000</pubDate>
+      <guid isPermaLink="true">http://withouttheloop.com/articles/2014-01-14-fsharp-for-consulting-projects/</guid>
+      <author></author>
+      <description>&lt;h2 id=&quot;-head&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt; HEAD&lt;/h2&gt;
+&lt;p&gt;title: Applying Functional Programming to .net Consulting Projects
+author: Liam McLennan
+date: 2014-01-14 20:32&lt;/p&gt;
+&lt;h2 id=&quot;template-article-jade&quot;&gt;template: article.jade&lt;/h2&gt;
+&lt;p&gt;The benefits of &lt;a href=&quot;http://en.wikipedia.org/wiki/Functional_programming&quot;&gt;functional programming&lt;/a&gt; are &lt;a href=&quot;http://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf&quot;&gt;well known&lt;/a&gt;, and &lt;a href=&quot;http://callvirt.net/blog/post/Why-F-%28TechEd-09-DEV450%29.aspx&quot;&gt;well documented&lt;/a&gt;. The rest of this article will assume that this argument has been digested and accepted.  Given the benefits of functional programming the relatively low adoption can be attributed to general resistance to change, the front-loaded learning curve, a degree of complacency, and uncertainty about how to accomplish common programming tasks with a functional toolset. This article focuses on the latter, particularly in the context of .net consulting projects.&lt;/p&gt;
+&lt;h2 id=&quot;functional-programming-for-the-net-programmer&quot;&gt;Functional Programming for the .net Programmer&lt;/h2&gt;
+&lt;p&gt;A common fallacy is that we can achieve the benefits of functional programming by applying a functional style within a procedural language. Immutability is essential to functional programming and procedural languages, such as c#, do not encourage or support immutability. Whilst a functional style of c# programming is certainly an improvement we must not pretend that it is a reasonable substitute for a proper functional programming language. For the programmer working with .net tools in the .net ecosystem F# is the obvious prime candidate for a functional programming language. It is the only first-class, functional-first .net language.&lt;/p&gt;
+&lt;p&gt;Some project managers worry that embracing a functional programming language will cause hiring difficulty. This fallacy possibly occurs because the push for functional programming generally comes from the programmers themselves. Non-programmers associated with software projects have little visibility into the rise and popularity of functional programming. Here in Brisbane the &lt;a href=&quot;http://www.meetup.com/Brisbane-Functional-Programming-Group/&quot;&gt;local functional programming user group&lt;/a&gt; has 484 members. Each year Brisbane hosts a &lt;a href=&quot;http://www.yowconference.com.au/lambdajam/&quot;&gt;well attended conference&lt;/a&gt; dedicated to functional programming. The amount of functional programming talent available for hire is underestimated. &lt;/p&gt;
+&lt;p&gt;Finally, the notion of sticking to tools that make hiring easier contradicts the ‘right tool for the job’ directive that we should strive for. If the majority of unemployed programmers were assembler experts would you chose assembler for your next project?&lt;/p&gt;
+&lt;h2 id=&quot;mixed-solutions&quot;&gt;Mixed Solutions&lt;/h2&gt;
+&lt;p&gt;An important tool when introducing F# to a project is the ability to include F# and other .net languages within the same application. This reduces risk considerably because we retain the ability to fall back to another .net language (usually c#) in the event that F# is deemed to be unsuitable for a particular purpose. The reality is that this is not likely to ever be necessary - still there is value in reducing the perception of risk. &lt;/p&gt;
+&lt;p&gt;A solution will be simpler, and more cohesive, if F# is used exclusively, however .net supports mixed solutions by allowing different projects to use different languages, and by supporting interoperability in both directions. &lt;/p&gt;
+&lt;h2 id=&quot;interoperability-between-f-and-c-&quot;&gt;Interoperability Between F# and C#&lt;/h2&gt;
+&lt;p&gt;Calling from F# into c# is a simple matter of using c# style syntax. &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;new RiakObjectId(&amp;quot;logs&amp;quot;, kvp.Key)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Note the use of the new keyword to create an object, paranthesis to delimit method arguments, and commas to separate method arguments. &lt;/p&gt;
+&lt;p&gt;Calling from c# into F# is similarly straightforward. F# functions appear in c# as static methods on static classes that map to the F# modules. The following F# and c# code are equivalent:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;open Data
+nowToTodayString DateTime.Now
+
+Data.nowToTodayString(DateTime.Now)
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;f-for-web-applications&quot;&gt;F# for Web Applications&lt;/h2&gt;
+&lt;p&gt;F# is unfortunately not currently treated as a first-class .net language by visual studio. There is no built-in template for creating a web or desktop application with F#. The only supported scenarios are library and command line projects. In the absense of built-in templates the community has provided some excellent templates for a wide variety of scenarios.&lt;/p&gt;
+&lt;p&gt;The visual studio online project templates include an excellent template called &lt;a href=&quot;http://visualstudiogallery.msdn.microsoft.com/3d2bf938-fc9e-403c-90b3-8de27dc23095&quot;&gt;F# and C# Web Application template&lt;/a&gt;. It creates a minimal c# web project and an auxillary F# library containing as much of the code as possible, including the controllers, view models, and application instance. The only application code required to be implemented within the c# web application project is the views. The case study discussed later is built on this template.&lt;/p&gt;
+&lt;h2 id=&quot;f-for-windows-services&quot;&gt;F# for Windows Services&lt;/h2&gt;
+&lt;p&gt;Despite there being no built-in template for F# windows services, F# is well suited to this task. The Visual C# Windows Service project actually does very little so it is trivial to manually implement an F# service, as described in the MSDN article &lt;a href=&quot;http://msdn.microsoft.com/en-us/library/vstudio/hh297113%28v=vs.100%29.aspx#gff&quot;&gt;Creating Windows Services in F#&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Implementing a service only requires a &lt;code&gt;ServiceBase&lt;/code&gt; implementation and a service &lt;code&gt;Installer&lt;/code&gt; implementation. &lt;/p&gt;
+&lt;h2 id=&quot;f-tooling-support&quot;&gt;F# Tooling Support&lt;/h2&gt;
+&lt;p&gt;F# tooling support is minimal, compared to c# and VB.NET. As mentioned previously there is a shortage of built-in project templates, but this is easily rectified by the online, community contributed templates. Many .net technologies, such as asp.net and WPF, do not explicitly support F#, meaning that the F# programmer has some extra work to do. Also, third party productivity tools, such as ReSharper, typically do not support F#. When our productivity tools become a contributing factor for foundational technology decisions it is time to question, “have we lost control?”.&lt;/p&gt;
+&lt;h2 id=&quot;f-data-access&quot;&gt;F# Data Access&lt;/h2&gt;
+&lt;p&gt;Most data access methods assume mutability, which negates some of the benefits of FP. The exceptions are the explicity immutable data stores, such as &lt;a href=&quot;http://www.datomic.com/&quot;&gt;Datomic&lt;/a&gt; and &lt;a href=&quot;http://geteventstore.com/&quot;&gt;Event Store&lt;/a&gt; and the http based datastores like &lt;a href=&quot;http://couchdb.apache.org/&quot;&gt;CouchDB&lt;/a&gt; and &lt;a href=&quot;http://basho.com/riak/&quot;&gt;Riak&lt;/a&gt;. &lt;/p&gt;
+&lt;p&gt;The case study included with this article uses Riak for its data store. F# has no direct support for Riak, however, it is trivial to use the &lt;a href=&quot;http://corrugatediron.org/&quot;&gt;CorrugatedIron&lt;/a&gt; client (written in c#) to communicate with Riak. All of the aforementioned data stores provide an HTTP interface, so a specialized client is not strictly necessary. &lt;/p&gt;
+&lt;h2 id=&quot;case-study-logging-you&quot;&gt;Case Study - Logging You&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;screen.png&quot; alt=&quot;Logging You - A data driven web application written in F#&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://loggingyou.azurewebsites.net/&quot;&gt;Logging You&lt;/a&gt; is a bad demonstration of F#’s advantages. It includes none of F#’s core competency (computation) and lots of F#’s weaker areas (interop, GUI programming, transactional data access). Indeed the purpose of this case study is to investigate the feasibility of F# as a standard tool for .net consultants, therefore the important question to answer is, “how well does it handle those weaker areas?”.&lt;/p&gt;
+&lt;p&gt;Logging you is a log dashboard built as an asp.net mvc web application. It’s two use cases are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;display a summary of the currently stored logs. This includes the alltime total count of logs, the count of today’s logs, and the list of today’s log messages.&lt;/li&gt;
+&lt;li&gt;allow the user to enter a new informational log message&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These simple requirements forced the development of mvc integration, data queries and mvc model binding. F# handled all of these non-ideal (for a functional programming language) tasks with aplomb. Being a standard asp.net website Logging You is hosted on Azure without any special modifications. The &lt;a href=&quot;https://bitbucket.org/liammclennan/loggingyou&quot;&gt;source&lt;/a&gt; is available on bitbucket. &lt;/p&gt;
+&lt;h2 id=&quot;find-out-more&quot;&gt;Find Out More&lt;/h2&gt;
+&lt;p&gt;If you are interested in learning more about applied functional programming in .net, here are some helpful resources:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://fsharpforfunandprofit.com/why-use-fsharp/&quot;&gt;FSharp for Fun and Profit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://fsharp.org/&quot;&gt;The F# Software Foundation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;h1 id=&quot;try-f-&quot;&gt;&lt;a href=&quot;http://www.tryfsharp.org/&quot;&gt;Try F#&lt;/a&gt;&lt;/h1&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;title: Applying Functional Programming to .net Consulting Projects
+author: Liam McLennan
+date: 2014-01-14 20:32&lt;/p&gt;
+&lt;h2 id=&quot;template-article-jade&quot;&gt;template: article.jade&lt;/h2&gt;
+&lt;p&gt;The benefits of &lt;a href=&quot;http://en.wikipedia.org/wiki/Functional_programming&quot;&gt;functional programming&lt;/a&gt; are &lt;a href=&quot;http://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf&quot;&gt;well known&lt;/a&gt;, and &lt;a href=&quot;http://callvirt.net/blog/post/Why-F-%28TechEd-09-DEV450%29.aspx&quot;&gt;well documented&lt;/a&gt;. The rest of this article will assume that this argument has been digested and accepted.  Given the benefits of functional programming the relatively low adoption can be attributed to general resistance to change, the front-loaded learning curve, a degree of complacency, and uncertainty about how to accomplish common programming tasks with a functional toolset. This article focuses on the latter, particularly in the context of .net consulting projects.&lt;/p&gt;
+&lt;h2 id=&quot;functional-programming-for-the-net-programmer&quot;&gt;Functional Programming for the .net Programmer&lt;/h2&gt;
+&lt;p&gt;A common fallacy is that we can achieve the benefits of functional programming by applying a functional style within a procedural language. Immutability is essential to functional programming and procedural languages, such as c#, do not encourage or support immutability. Whilst a functional style of c# programming is certainly an improvement we must not pretend that it is a reasonable substitute for a proper functional programming language. For the programmer working with .net tools in the .net ecosystem F# is the obvious prime candidate for a functional programming language. It is the only first-class, functional-first .net language.&lt;/p&gt;
+&lt;p&gt;Some project managers worry that embracing a functional programming language will cause hiring difficulty. This fallacy possibly occurs because the push for functional programming generally comes from the programmers themselves. Non-programmers associated with software projects have little visibility into the rise and popularity of functional programming. Here in Brisbane the &lt;a href=&quot;http://www.meetup.com/Brisbane-Functional-Programming-Group/&quot;&gt;local functional programming user group&lt;/a&gt; has 484 members. Each year Brisbane hosts a &lt;a href=&quot;http://www.yowconference.com.au/lambdajam/&quot;&gt;well attended conference&lt;/a&gt; dedicated to functional programming. The amount of functional programming talent available for hire is underestimated. &lt;/p&gt;
+&lt;p&gt;Finally, the notion of sticking to tools that make hiring easier contradicts the ‘right tool for the job’ directive that we should strive for. If the majority of unemployed programmers were assembler experts would you chose assembler for your next project?&lt;/p&gt;
+&lt;h2 id=&quot;mixed-solutions&quot;&gt;Mixed Solutions&lt;/h2&gt;
+&lt;p&gt;An important tool when introducing F# to a project is the ability to include F# and other .net languages within the same application. This reduces risk considerably because we retain the ability to fall back to another .net language (usually c#) in the event that F# is deemed to be unsuitable for a particular purpose. The reality is that this is not likely to ever be necessary - still there is value in reducing the perception of risk. &lt;/p&gt;
+&lt;p&gt;A solution will be simpler, and more cohesive, if F# is used exclusively, however .net supports mixed solutions by allowing different projects to use different languages, and by supporting interoperability in both directions. &lt;/p&gt;
+&lt;h2 id=&quot;interoperability-between-f-and-c-&quot;&gt;Interoperability Between F# and C#&lt;/h2&gt;
+&lt;p&gt;Calling from F# into c# is a simple matter of using c# style syntax. &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;new RiakObjectId(&amp;quot;logs&amp;quot;, kvp.Key)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Note the use of the new keyword to create an object, paranthesis to delimit method arguments, and commas to separate method arguments. &lt;/p&gt;
+&lt;p&gt;Calling from c# into F# is similarly straightforward. F# functions appear in c# as static methods on static classes that map to the F# modules. The following F# and c# code are equivalent:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;open Data
+nowToTodayString DateTime.Now
+
+Data.nowToTodayString(DateTime.Now)
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;f-for-web-applications&quot;&gt;F# for Web Applications&lt;/h2&gt;
+&lt;p&gt;F# is unfortunately not currently treated as a first-class .net language by visual studio. There is no built-in template for creating a web or desktop application with F#. The only supported scenarios are library and command line projects. In the absense of built-in templates the community has provided some excellent templates for a wide variety of scenarios.&lt;/p&gt;
+&lt;p&gt;The visual studio online project templates include an excellent template called &lt;a href=&quot;http://visualstudiogallery.msdn.microsoft.com/3d2bf938-fc9e-403c-90b3-8de27dc23095&quot;&gt;F# and C# Web Application template&lt;/a&gt;. It creates a minimal c# web project and an auxillary F# library containing as much of the code as possible, including the controllers, view models, and application instance. The only application code required to be implemented within the c# web application project is the views. The case study discussed later is built on this template.&lt;/p&gt;
+&lt;h2 id=&quot;f-for-windows-services&quot;&gt;F# for Windows Services&lt;/h2&gt;
+&lt;p&gt;Despite there being no built-in template for F# windows services, F# is well suited to this task. The Visual C# Windows Service project actually does very little so it is trivial to manually implement an F# service, as described in the MSDN article &lt;a href=&quot;http://msdn.microsoft.com/en-us/library/vstudio/hh297113%28v=vs.100%29.aspx#gff&quot;&gt;Creating Windows Services in F#&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Implementing a service only requires a &lt;code&gt;ServiceBase&lt;/code&gt; implementation and a service &lt;code&gt;Installer&lt;/code&gt; implementation. &lt;/p&gt;
+&lt;h2 id=&quot;f-tooling-support&quot;&gt;F# Tooling Support&lt;/h2&gt;
+&lt;p&gt;F# tooling support is minimal, compared to c# and VB.NET. As mentioned previously there is a shortage of built-in project templates, but this is easily rectified by the online, community contributed templates. Many .net technologies, such as asp.net and WPF, do not explicitly support F#, meaning that the F# programmer has some extra work to do. Also, third party productivity tools, such as ReSharper, typically do not support F#. When our productivity tools become a contributing factor for foundational technology decisions it is time to question, “have we lost control?”.&lt;/p&gt;
+&lt;h2 id=&quot;f-data-access&quot;&gt;F# Data Access&lt;/h2&gt;
+&lt;p&gt;Most data access methods assume mutability, which negates some of the benefits of FP. The exceptions are the explicity immutable data stores, such as &lt;a href=&quot;http://www.datomic.com/&quot;&gt;Datomic&lt;/a&gt; and &lt;a href=&quot;http://geteventstore.com/&quot;&gt;Event Store&lt;/a&gt; and the http based datastores like &lt;a href=&quot;http://couchdb.apache.org/&quot;&gt;CouchDB&lt;/a&gt; and &lt;a href=&quot;http://basho.com/riak/&quot;&gt;Riak&lt;/a&gt;. &lt;/p&gt;
+&lt;p&gt;The case study included with this article uses Riak for its data store. F# has no direct support for Riak, however, it is trivial to use the &lt;a href=&quot;http://corrugatediron.org/&quot;&gt;CorrugatedIron&lt;/a&gt; client (written in c#) to communicate with Riak. All of the aforementioned data stores provide an HTTP interface, so a specialized client is not strictly necessary. &lt;/p&gt;
+&lt;h2 id=&quot;case-study-logging-you&quot;&gt;Case Study - Logging You&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;screen.png&quot; alt=&quot;Logging You - A data driven web application written in F#&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://loggingyou.azurewebsites.net/&quot;&gt;Logging You&lt;/a&gt; is a bad demonstration of F#’s advantages. It includes none of F#’s core competency (computation) and lots of F#’s weaker areas (interop, GUI programming, transactional data access). Indeed the purpose of this case study is to investigate the feasibility of F# as a standard tool for .net consultants, therefore the important question to answer is, “how well does it handle those weaker areas?”.&lt;/p&gt;
+&lt;p&gt;Logging you is a log dashboard built as an asp.net mvc web application. It’s two use cases are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;display a summary of the currently stored logs. This includes the alltime total count of logs, the count of today’s logs, and the list of today’s log messages.&lt;/li&gt;
+&lt;li&gt;allow the user to enter a new informational log message&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These simple requirements forced the development of mvc integration, data queries and mvc model binding. F# handled all of these non-ideal (for a functional programming language) tasks with aplomb. Being a standard asp.net website Logging You is hosted on Azure without any special modifications. The &lt;a href=&quot;https://bitbucket.org/liammclennan/loggingyou&quot;&gt;source&lt;/a&gt; is available on bitbucket. &lt;/p&gt;
+&lt;h2 id=&quot;find-out-more&quot;&gt;Find Out More&lt;/h2&gt;
+&lt;p&gt;If you are interested in learning more about applied functional programming in .net, here are some helpful resources:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://fsharpforfunandprofit.com/why-use-fsharp/&quot;&gt;FSharp for Fun and Profit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://fsharp.org/&quot;&gt;The F# Software Foundation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.tryfsharp.org/&quot;&gt;Try F#&lt;/a&gt;&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;old/master&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
   </channel>
